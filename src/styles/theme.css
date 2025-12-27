@@ -1,0 +1,97 @@
+/* ============================================
+   Prüfstand Dashboard - Theme Variables
+   Light Mode (Default) & Dark Mode Support
+   ============================================ */
+
+/* ============================================
+   CSS Variables - Light Mode (Default)
+   ============================================ */
+:root {
+  /* Background Colors - Light */
+  --bg-dark: #f5f7fa;
+  --bg-panel: #ffffff;
+  --bg-gradient: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  
+  /* Text Colors - Light */
+  --text-primary: #1a1a2e;
+  --text-secondary: rgba(26, 26, 46, 0.7);
+  --text-dim: rgba(26, 26, 46, 0.4);
+  
+  /* Accent Colors */
+  --color-blue: #0095ff;
+  --color-cyan: #00a8cc;
+  --color-green: #00c853;
+  --color-purple: #9c27b0;
+  --color-orange: #ff6d00;
+  --color-red: #e53935;
+  --color-amber: #ff8f00;
+  --color-yellow: #ffd600;
+  
+  /* Glow Colors - Light (subtler) */
+  --glow-blue: rgba(0, 149, 255, 0.25);
+  --glow-cyan: rgba(0, 168, 204, 0.25);
+  --glow-green: rgba(0, 200, 83, 0.25);
+  --glow-purple: rgba(156, 39, 176, 0.25);
+  --glow-orange: rgba(255, 109, 0, 0.3);
+  --glow-red: rgba(229, 57, 53, 0.3);
+  
+  /* Gauge specific */
+  --gauge-track-bg: rgba(0, 0, 0, 0.06);
+  --gauge-hub-outer: linear-gradient(145deg, #e0e5ec 0%, #c8cfd8 100%);
+  --gauge-hub-inner: #d4dae3;
+  --gauge-needle-gradient: linear-gradient(180deg, #2d3748 0%, #4a5568 40%, #718096 100%);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================
+   CSS Variables - Dark Mode
+   ============================================ */
+[data-theme="dark"] {
+  /* Background Colors - Dark */
+  --bg-dark: #0a0a0f;
+  --bg-panel: #0d0d14;
+  --bg-gradient: linear-gradient(145deg, #0d0d14 0%, #0a0a0f 50%, #08080c 100%);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  
+  /* Text Colors - Dark */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-dim: rgba(255, 255, 255, 0.25);
+  
+  /* Accent Colors - Brighter for dark mode */
+  --color-blue: #00d4ff;
+  --color-cyan: #00bcd4;
+  --color-green: #00e676;
+  --color-purple: #ab47bc;
+  --color-orange: #ff9800;
+  --color-red: #ff3b5c;
+  --color-amber: #ffab00;
+  --color-yellow: #ffeb3b;
+  
+  /* Glow Colors - Stronger for dark */
+  --glow-blue: rgba(0, 212, 255, 0.4);
+  --glow-cyan: rgba(0, 188, 212, 0.4);
+  --glow-green: rgba(0, 230, 118, 0.4);
+  --glow-purple: rgba(171, 71, 188, 0.4);
+  --glow-orange: rgba(255, 152, 0, 0.5);
+  --glow-red: rgba(255, 59, 92, 0.5);
+  
+  /* Gauge specific */
+  --gauge-track-bg: rgba(255, 255, 255, 0.04);
+  --gauge-hub-outer: linear-gradient(145deg, #3a3a4a 0%, #1a1a24 100%);
+  --gauge-hub-inner: #1a1a24;
+  --gauge-needle-gradient: linear-gradient(180deg, #ffffff 0%, #e0e0e0 40%, #a0a0a0 100%);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+

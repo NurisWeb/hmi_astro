@@ -1,0 +1,140 @@
+/* ============================================
+   GaugeGrid Layout Styles
+   ============================================ */
+
+.gauge-grid {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  transition: all 0.4s ease;
+}
+
+/* Expanded Layout - Full View */
+.gauge-grid.expanded {
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "oil1 oil2 rpm motor1 placeholder1"
+    "oil3 oil4 rpm motor2 placeholder2";
+}
+
+.gauge-grid.expanded .gauge-grid-item.rpm {
+  grid-area: rpm;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gauge-grid.expanded .gauge-grid-item.oil1 { grid-area: oil1; }
+  .gauge-grid.expanded .gauge-grid-item.oil2 { grid-area: oil2; }
+  .gauge-grid.expanded .gauge-grid-item.oil3 { grid-area: oil3; }
+  .gauge-grid.expanded .gauge-grid-item.oil4 { grid-area: oil4; }
+  .gauge-grid.expanded .gauge-grid-item.motor1 { grid-area: motor1; }
+  .gauge-grid.expanded .gauge-grid-item.motor2 { grid-area: motor2; }
+  .gauge-grid.expanded .gauge-grid-item.oiltemp { grid-area: placeholder1; }
+  .gauge-grid.expanded .gauge-grid-item.flowrate { grid-area: placeholder2; }
+
+/* Compact Layout - When Menu is Open */
+.gauge-grid.compact {
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: 1fr;
+  gap: 8px;
+  padding: 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+}
+
+.gauge-grid.compact .gauge-grid-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Grid Item Styling */
+.gauge-grid-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+/* Hover Effects */
+.gauge-grid-item:hover {
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+.gauge-grid.compact .gauge-grid-item:hover {
+  transform: scale(1.05);
+}
+
+/* Animation for mode switch */
+@keyframes gaugeAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gauge-grid-item {
+  animation: gaugeAppear 0.3s ease forwards;
+}
+
+.gauge-grid-item:nth-child(1) { animation-delay: 0ms; }
+.gauge-grid-item:nth-child(2) { animation-delay: 30ms; }
+.gauge-grid-item:nth-child(3) { animation-delay: 60ms; }
+.gauge-grid-item:nth-child(4) { animation-delay: 90ms; }
+.gauge-grid-item:nth-child(5) { animation-delay: 120ms; }
+.gauge-grid-item:nth-child(6) { animation-delay: 150ms; }
+.gauge-grid-item:nth-child(7) { animation-delay: 180ms; }
+.gauge-grid-item:nth-child(8) { animation-delay: 210ms; }
+.gauge-grid-item:nth-child(9) { animation-delay: 240ms; }
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .gauge-grid.expanded {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-areas:
+      "rpm rpm oil1 oil2"
+      "rpm rpm oil3 oil4"
+      "motor1 motor2 placeholder1 placeholder2";
+  }
+}
+
+@media (max-width: 900px) {
+  .gauge-grid.expanded {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas:
+      "rpm rpm rpm"
+      "oil1 oil2 oil3"
+      "oil4 motor1 motor2"
+      "placeholder1 placeholder2 .";
+  }
+
+  .gauge-grid.compact {
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: auto auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .gauge-grid.expanded {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "rpm rpm"
+      "oil1 oil2"
+      "oil3 oil4"
+      "motor1 motor2"
+      "placeholder1 placeholder2";
+  }
+
+  .gauge-grid.compact {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto auto;
+  }
+}

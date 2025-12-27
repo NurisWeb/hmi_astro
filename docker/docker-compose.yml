@@ -1,0 +1,37 @@
+# ============================================
+# Prüfstand Dashboard - Docker Compose
+# ============================================
+
+version: '3.8'
+
+services:
+  pruefstand-dashboard:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: pruefstand-dashboard
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      # For development - uncomment these lines:
+      # - ../src:/app/src:ro
+      # - ../server:/app/server:ro
+      - pm2-logs:/var/log/pm2
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  pm2-logs:
+    driver: local
+
+networks:
+  default:
+    name: pruefstand-network
+

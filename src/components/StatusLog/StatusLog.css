@@ -1,0 +1,209 @@
+/* ============================================
+   StatusLog Styles
+   Light Mode (Default) & Dark Mode Support
+   ============================================ */
+
+.status-log {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  max-height: 200px;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.status-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.status-log-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.status-log-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-log-count {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.status-log-clear {
+  font-size: 9px;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s;
+}
+
+[data-theme="dark"] .status-log-clear {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.status-log-clear:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .status-log-clear:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.status-log-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-log-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.status-log-entry {
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 11px;
+  animation: logEntryAppear 0.3s ease forwards;
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+@keyframes logEntryAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-log-entry.info {
+  background: rgba(0, 168, 204, 0.08);
+  border-left: 3px solid var(--color-cyan);
+}
+
+[data-theme="dark"] .status-log-entry.info {
+  background: rgba(0, 188, 212, 0.1);
+}
+
+.status-log-entry.success {
+  background: rgba(0, 200, 83, 0.08);
+  border-left: 3px solid var(--color-green);
+}
+
+[data-theme="dark"] .status-log-entry.success {
+  background: rgba(0, 230, 118, 0.1);
+}
+
+.status-log-entry.warning {
+  background: rgba(255, 109, 0, 0.08);
+  border-left: 3px solid var(--color-orange);
+}
+
+[data-theme="dark"] .status-log-entry.warning {
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.status-log-entry.error {
+  background: rgba(229, 57, 53, 0.08);
+  border-left: 3px solid var(--color-red);
+}
+
+[data-theme="dark"] .status-log-entry.error {
+  background: rgba(255, 59, 92, 0.1);
+}
+
+.status-log-icon {
+  font-size: 12px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.status-log-time {
+  color: var(--text-dim);
+  min-width: 60px;
+  font-size: 10px;
+}
+
+.status-log-message {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.status-log-entry.info .status-log-message {
+  color: var(--color-cyan);
+}
+
+.status-log-entry.success .status-log-message {
+  color: var(--color-green);
+}
+
+.status-log-entry.warning .status-log-message {
+  color: var(--color-orange);
+}
+
+.status-log-entry.error .status-log-message {
+  color: var(--color-red);
+}
+
+.status-log-more {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--glass-border);
+  text-align: center;
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+/* Scrollbar */
+.status-log-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.status-log-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.status-log-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+}
+
+[data-theme="dark"] .status-log-content::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+}
+
+.status-log-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .status-log-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
