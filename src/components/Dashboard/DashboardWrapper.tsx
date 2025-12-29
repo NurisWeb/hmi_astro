@@ -1,5 +1,5 @@
 // ============================================
-// DashboardWrapper - Haupt-Container
+// DashboardWrapper - Haupt-Container mit DSG-Integration
 // ============================================
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -20,9 +20,8 @@ import './DashboardWrapper.css';
 const DashboardWrapper: React.FC = () => {
   const [activePanel, setActivePanel] = useState<MenuPanel>('none');
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [selectedGear, setSelectedGear] = useState<GearPosition>('N');
-  const [manualRPM, setManualRPM] = useState(0);
-  const [isAutoRunning, setIsAutoRunning] = useState(false);
+  const [manualRPM, setManualRPM] = useState(800);
+  const [load, setLoad] = useState(0);
   const [autoSpeed, setAutoSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
   const [mockMode, setMockMode] = useState<MockDataMode>('random');
   const [isEmergencyStop, setIsEmergencyStop] = useState(false);
@@ -30,7 +29,19 @@ const DashboardWrapper: React.FC = () => {
 
   const { isDark, toggleTheme } = useTheme();
 
-  const { data, isConnected, setMode, setGear, setTargetRPM, reset } = useMockData({
+  const { 
+    data, 
+    dsgState,
+    isConnected, 
+    isAutoModeActive,
+    setMode, 
+    setGear, 
+    setTargetRPM, 
+    setLoad: setServiceLoad,
+    startAutoMode,
+    stopAutoMode,
+    reset 
+  } = useMockData({
     mode: mockMode,
     updateInterval: 50,
   });
@@ -63,9 +74,8 @@ const DashboardWrapper: React.FC = () => {
   }, [addLog]);
 
   const handleGearSelect = useCallback((gear: string) => {
-    setSelectedGear(gear as GearPosition);
     setGear(gear as GearPosition);
-    addLog('success', `Gang ${gear} ausgewählt`);
+    addLog('success', `Gang ${gear} angefordert`);
   }, [addLog, setGear]);
 
   const handleRPMChange = useCallback((rpm: number) => {
@@ -73,29 +83,41 @@ const DashboardWrapper: React.FC = () => {
     setTargetRPM(rpm);
   }, [setTargetRPM]);
 
+  const handleLoadChange = useCallback((newLoad: number) => {
+    setLoad(newLoad);
+    setServiceLoad(newLoad);
+  }, [setServiceLoad]);
+
   const handleAutoRunToggle = useCallback(() => {
-    if (isAutoRunning) {
-      setIsAutoRunning(false);
-      addLog('info', 'Automatischer Durchlauf gestoppt');
+    if (isAutoModeActive) {
+      stopAutoMode();
+      addLog('info', 'DSG-Prüflauf gestoppt');
     } else {
-      setIsAutoRunning(true);
-      addLog('info', `Automatischer Durchlauf gestartet (${autoSpeed})`);
+      startAutoMode(autoSpeed);
+      addLog('info', `DSG-Prüflauf gestartet (${autoSpeed === 'slow' ? 'Langsam' : autoSpeed === 'normal' ? 'Normal' : 'Schnell'})`);
     }
-  }, [isAutoRunning, autoSpeed, addLog]);
+  }, [isAutoModeActive, autoSpeed, addLog, startAutoMode, stopAutoMode]);
+
+  // Log DSG-Schaltvorgänge
+  useEffect(() => {
+    if (dsgState.isShifting) {
+      addLog('info', `⚡ Schalten: ${dsgState.activeGear} → ${dsgState.preselectedGear}`);
+    }
+  }, [dsgState.isShifting, dsgState.activeGear, dsgState.preselectedGear, addLog]);
 
   const handleMockModeChange = useCallback((mode: MockDataMode) => {
     setMockMode(mode);
     setMode(mode);
-    addLog('info', `Mock-Modus: ${mode === 'random' ? 'Zufällig' : 'Realistisch'}`);
+    addLog('info', `Modus: ${mode === 'random' ? 'Manuell' : 'Automatik'}`);
   }, [addLog, setMode]);
 
   const handleEmergencyStop = useCallback(() => {
     setIsEmergencyStop(true);
-    setIsAutoRunning(false);
+    stopAutoMode();
     reset();
     addLog('error', '🛑 NOT-AUS AKTIVIERT!');
     addLog('error', 'Alle Systeme werden gestoppt...');
-  }, [addLog, reset]);
+  }, [addLog, reset, stopAutoMode]);
 
   const handleEmergencyReset = useCallback(() => {
     setIsEmergencyStop(false);
@@ -127,10 +149,17 @@ const DashboardWrapper: React.FC = () => {
   return (
     <div className={`dashboard-wrapper ${isCompact ? 'menu-open' : ''}`}>
       <header className="dashboard-header">
-        <h1 className="dashboard-title">🔧 Prüfstand Dashboard</h1>
+        <h1 className="dashboard-title">🔧 DSG-7 Prüfstand</h1>
         <div className="dashboard-header-right">
           <div className={`mode-indicator ${mockMode === 'realistic' ? 'realistic' : ''}`}>
-            {mockMode === 'random' ? '🎲 Random' : '📊 Realistic'}
+            {mockMode === 'random' ? '🎛️ Manuell' : '🔄 Automatik'}
+          </div>
+          {/* DSG-Status-Anzeige */}
+          <div className="dsg-status-badge">
+            <span className="dsg-gear-indicator">{dsgState.activeGear}</span>
+            {dsgState.preselectedGear && dsgState.activeGear !== 'N' && (
+              <span className="dsg-preselect-indicator">→{dsgState.preselectedGear}</span>
+            )}
           </div>
           <div className="connection-status">
             <div className={`connection-dot ${isConnected ? '' : 'disconnected'}`} />
@@ -173,14 +202,20 @@ const DashboardWrapper: React.FC = () => {
                   <span className="stat-label">Zyklen</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-value">{data.temperature.toFixed(0)}°C</span>
-                  <span className="stat-label">Temperatur</span>
+                  <span className="stat-value">{data.oilTemperature.toFixed(0)}°C</span>
+                  <span className="stat-label">Öltemp.</span>
                 </div>
                 <div className="stat-item">
                   <span className="stat-value" style={{ color: 'var(--color-cyan)' }}>
-                    {data.gear}
+                    {dsgState.activeGear}
                   </span>
                   <span className="stat-label">Gang</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value" style={{ color: 'var(--color-green)' }}>
+                    {Math.round(dsgState.load)}%
+                  </span>
+                  <span className="stat-label">Last</span>
                 </div>
               </div>
             </div>
@@ -199,28 +234,39 @@ const DashboardWrapper: React.FC = () => {
             <span className="footer-stat-value">{data.cycles}</span>
           </div>
           <div className="footer-stat">
-            <span>Max RPM:</span>
-            <span className="footer-stat-value">{GAUGE_CONSTANTS.RPM.MAX.toLocaleString('de-DE')}</span>
+            <span>K1:</span>
+            <span className="footer-stat-value" style={{ color: dsgState.clutch1.isActive ? 'var(--color-green)' : 'var(--text-dim)' }}>
+              {Math.round(dsgState.clutch1.engagement)}%
+            </span>
+          </div>
+          <div className="footer-stat">
+            <span>K2:</span>
+            <span className="footer-stat-value" style={{ color: dsgState.clutch2.isActive ? 'var(--color-green)' : 'var(--text-dim)' }}>
+              {Math.round(dsgState.clutch2.engagement)}%
+            </span>
           </div>
         </div>
-        <span>Prüfstand v2.0 | {isConnected ? 'Mock Data Active' : 'Disconnected'}</span>
+        <span>DSG-7 Prüfstand v2.0 | {isConnected ? 'Simulation Active' : 'Disconnected'}</span>
       </footer>
 
       <BottomMenu
         activePanel={activePanel}
         onPanelChange={handlePanelChange}
         onEmergencyStop={handleEmergencyStop}
-        selectedGear={selectedGear}
+        selectedGear={dsgState.activeGear}
         onGearSelect={handleGearSelect}
         manualRPM={manualRPM}
         onRPMChange={handleRPMChange}
-        isAutoRunning={isAutoRunning}
+        isAutoRunning={isAutoModeActive}
         onAutoRunToggle={handleAutoRunToggle}
         autoSpeed={autoSpeed}
         onAutoSpeedChange={setAutoSpeed}
         sensorData={sensorData}
         mockMode={mockMode}
         onMockModeChange={handleMockModeChange}
+        dsgState={dsgState}
+        load={load}
+        onLoadChange={handleLoadChange}
       />
 
       {isEmergencyStop && (

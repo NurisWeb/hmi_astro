@@ -1,6 +1,6 @@
 /* ============================================
-   Dashboard Wrapper Styles
-   Light Mode (Default) & Dark Mode Support
+   Industrial Dashboard Wrapper Styles
+   Prüfstand HMI Main Container
    ============================================ */
 
 .dashboard-wrapper {
@@ -11,29 +11,49 @@
   padding: 12px;
   padding-bottom: 80px;
   transition: padding-bottom 0.4s ease, background 0.3s ease;
+  max-width: 2200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .dashboard-wrapper.menu-open {
   padding-bottom: 480px;
 }
 
-/* Header */
+/* Header - Industrial Control Panel Header */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: var(--glass-bg);
+  padding: 10px 20px;
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 4px;
   margin-bottom: 12px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md),
+              inset 0 1px 0 var(--metal-highlight);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.dashboard-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--metal-highlight) 20%, 
+    var(--metal-highlight) 80%, 
+    transparent 100%);
 }
 
 .dashboard-title {
-  font-size: 18px;
-  font-weight: 500;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--text-primary);
@@ -49,31 +69,52 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: 'IBM Plex Sans', sans-serif;
   font-size: 11px;
+  font-weight: 500;
   color: var(--text-secondary);
+  padding: 4px 10px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 3px;
 }
 
 .connection-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--color-green);
-  animation: pulse 2s infinite;
+  background: radial-gradient(circle at 30% 30%, #4ade80, var(--color-green));
+  box-shadow: 0 0 6px var(--color-green);
+  animation: signalPulse 2s infinite;
 }
 
 .connection-dot.disconnected {
-  background: var(--color-red);
+  background: radial-gradient(circle at 30% 30%, #f87171, var(--color-red));
+  box-shadow: 0 0 6px var(--color-red);
   animation: none;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+@keyframes signalPulse {
+  0%, 100% { 
+    opacity: 1; 
+    box-shadow: 0 0 4px var(--color-green);
+  }
+  50% { 
+    opacity: 0.7; 
+    box-shadow: 0 0 10px var(--color-green);
+  }
 }
 
 .dashboard-datetime {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
+  font-weight: 500;
   color: var(--text-dim);
+  padding: 4px 10px;
+  background: var(--lcd-bg);
+  border: 1px solid var(--metal-dark);
+  border-radius: 2px;
+  letter-spacing: 1px;
 }
 
 /* Main Content */
@@ -100,19 +141,20 @@
   grid-template-columns: 1fr;
 }
 
-/* Stats Panel */
+/* Stats Panel - Industrial Readout */
 .dashboard-stats {
-  background: var(--glass-bg);
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 4px;
   padding: 16px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md),
+              inset 0 1px 0 var(--metal-highlight);
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
 }
 
@@ -120,93 +162,156 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  padding: 10px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 3px;
+  box-shadow: var(--shadow-inset);
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: 300;
-  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--lcd-text);
+  text-shadow: 0 0 6px var(--lcd-text);
 }
 
 .stat-label {
+  font-family: 'IBM Plex Sans', sans-serif;
   font-size: 9px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-dim);
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
 }
 
-/* Footer Stats */
+/* Footer Stats - Industrial Status Bar */
 .dashboard-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background: var(--glass-bg);
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 10px;
   color: var(--text-dim);
   margin-top: auto;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md),
+              inset 0 1px 0 var(--metal-highlight);
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .footer-stats {
   display: flex;
-  gap: 30px;
+  gap: 24px;
 }
 
 .footer-stat {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 4px 10px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 2px;
 }
 
 .footer-stat-value {
+  font-family: 'JetBrains Mono', monospace;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
-/* Mode Indicator */
+/* Mode Indicator - Industrial Badge */
 .mode-indicator {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 12px;
-  background: rgba(0, 149, 255, 0.1);
-  border: 1px solid rgba(0, 149, 255, 0.3);
-  border-radius: 20px;
+  padding: 5px 14px;
+  background: var(--metal-dark);
+  border: 1px solid var(--color-blue);
+  border-radius: 3px;
+  font-family: 'IBM Plex Sans', sans-serif;
   font-size: 10px;
+  font-weight: 600;
   color: var(--color-blue);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 0 8px var(--glow-blue);
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-[data-theme="dark"] .mode-indicator {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: rgba(0, 212, 255, 0.3);
-}
-
 .mode-indicator.realistic {
-  background: rgba(0, 200, 83, 0.1);
-  border-color: rgba(0, 200, 83, 0.3);
+  border-color: var(--color-green);
   color: var(--color-green);
+  box-shadow: 0 0 8px var(--glow-green);
 }
 
-[data-theme="dark"] .mode-indicator.realistic {
-  background: rgba(0, 230, 118, 0.1);
-  border-color: rgba(0, 230, 118, 0.3);
+/* DSG-Status Badge im Header */
+.dsg-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  background: var(--lcd-bg);
+  border: 1px solid var(--color-purple);
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(171, 71, 188, 0.4);
 }
 
-/* Emergency Overlay */
+.dsg-gear-indicator {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--lcd-text);
+  text-shadow: 0 0 8px var(--lcd-text);
+}
+
+.dsg-preselect-indicator {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-cyan);
+  opacity: 0.8;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle:hover {
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-light) 100%);
+  border-color: var(--color-cyan);
+}
+
+.theme-toggle:active {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
+}
+
+/* Emergency Overlay - Industrial Alarm */
 .emergency-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(229, 57, 53, 0.25);
+  background: rgba(220, 38, 38, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,17 +321,17 @@
 }
 
 @keyframes emergencyPulse {
-  0%, 100% { background: rgba(229, 57, 53, 0.25); }
-  50% { background: rgba(229, 57, 53, 0.4); }
+  0%, 100% { background: rgba(220, 38, 38, 0.2); }
+  50% { background: rgba(220, 38, 38, 0.35); }
 }
 
 .emergency-content {
-  background: var(--bg-panel);
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
   border: 3px solid var(--color-red);
-  border-radius: 20px;
+  border-radius: 6px;
   padding: 40px 60px;
   text-align: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), 0 0 30px var(--glow-red);
 }
 
 .emergency-icon {
@@ -235,14 +340,18 @@
 }
 
 .emergency-title {
-  font-size: 32px;
-  font-weight: 600;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
   color: var(--color-red);
   letter-spacing: 4px;
+  text-transform: uppercase;
   margin-bottom: 12px;
+  text-shadow: 0 0 12px var(--glow-red);
 }
 
 .emergency-text {
+  font-family: 'IBM Plex Sans', sans-serif;
   font-size: 14px;
   color: var(--text-secondary);
   margin-bottom: 24px;
@@ -250,23 +359,28 @@
 
 .emergency-reset-btn {
   padding: 14px 40px;
-  background: var(--color-red);
-  border: none;
-  border-radius: 8px;
+  background: linear-gradient(180deg, var(--color-red) 0%, #991b1b 100%);
+  border: 1px solid var(--color-red);
+  border-radius: 4px;
   color: white;
-  font-family: 'Outfit', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
   letter-spacing: 2px;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3);
+  transition: all 0.15s;
+  box-shadow: var(--shadow-md), 0 0 10px var(--glow-red);
 }
 
 .emergency-reset-btn:hover {
-  background: #ef5350;
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(229, 57, 53, 0.4);
+  background: linear-gradient(180deg, #ef4444 0%, var(--color-red) 100%);
+  box-shadow: var(--shadow-lg), 0 0 20px var(--glow-red);
+}
+
+.emergency-reset-btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--shadow-inset);
 }
 
 /* Responsive */
@@ -280,11 +394,11 @@
   }
 
   .footer-stats {
-    gap: 16px;
+    gap: 12px;
   }
   
   .dashboard-header-right {
-    gap: 12px;
+    gap: 10px;
   }
 }
 
@@ -298,5 +412,10 @@
   .dashboard-header-right {
     flex-wrap: wrap;
     justify-content: center;
+  }
+  
+  .dashboard-title {
+    font-size: 14px;
+    letter-spacing: 2px;
   }
 }

@@ -1,489 +1,545 @@
 /* ============================================
-   Gauge Styles für Prüfstand Dashboard
-   Light Mode (Default) & Dark Mode Support
+   Industrial Gauge Styles für Prüfstand Dashboard
+   Metallischer Look mit LCD-Anzeigen
    ============================================ */
 
-/* Gauge Container */
+/* Gauge Container - Industrial Metal Panel */
 .gauge-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 12px;
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .gauge-container:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-  
-  /* Size Variants */
-  .gauge-container.small {
-    width: 120px;
-    height: 140px;
-    padding: 8px;
-  }
-  
-  .gauge-container.medium {
-    width: 180px;
-    height: 200px;
-    padding: 12px;
-  }
-  
-  .gauge-container.large {
-    width: 260px;
-    height: 280px;
-    padding: 16px;
-  }
-  
-  /* SVG Container */
-  .gauge-svg-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .gauge-container.small .gauge-svg-wrapper {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .gauge-container.medium .gauge-svg-wrapper {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .gauge-container.large .gauge-svg-wrapper {
-    width: 220px;
-    height: 220px;
-  }
-  
-  .gauge-svg {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(var(--shadow-sm));
-  }
-  
-  /* Gauge Elements */
-  .gauge-outer-ring {
-    fill: none;
-    stroke: var(--glass-border);
-    stroke-width: 1;
-  }
-  
-  .gauge-track-bg {
-    fill: none;
-    stroke: var(--gauge-track-bg);
-    stroke-linecap: round;
-  }
-  
-  .gauge-container.small .gauge-track-bg {
-    stroke-width: 14;
-  }
-  
-  .gauge-container.medium .gauge-track-bg {
-    stroke-width: 18;
-  }
-  
-  .gauge-container.large .gauge-track-bg {
-    stroke-width: 24;
-  }
-  
-  .gauge-track-progress {
-    fill: none;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .gauge-container.small .gauge-track-progress {
-    stroke-width: 14;
-  }
-  
-  .gauge-container.medium .gauge-track-progress {
-    stroke-width: 18;
-  }
-  
-  .gauge-container.large .gauge-track-progress {
-    stroke-width: 24;
-  }
-  
-  .gauge-track-progress.normal {
-    filter: drop-shadow(0 0 8px var(--current-glow));
-  }
-  
-  .gauge-track-progress.warning {
-    filter: drop-shadow(0 0 12px var(--glow-orange));
-  }
-  
-  .gauge-track-progress.danger {
-    filter: drop-shadow(0 0 16px var(--glow-red));
-  }
-  
-  /* Ticks - Light Mode */
-  .gauge-tick {
-    stroke: rgba(0, 0, 0, 0.15);
-    stroke-width: 1.5;
-    stroke-linecap: round;
-  }
-  
-  .gauge-tick.major {
-    stroke: rgba(0, 0, 0, 0.3);
-    stroke-width: 2;
-  }
-  
-  /* Ticks - Dark Mode */
-  [data-theme="dark"] .gauge-tick {
-    stroke: rgba(255, 255, 255, 0.2);
-  }
-  
-  [data-theme="dark"] .gauge-tick.major {
-    stroke: rgba(255, 255, 255, 0.4);
-  }
-  
-  .gauge-tick.warning {
-    stroke: var(--color-amber);
-    opacity: 0.8;
-  }
-  
-  .gauge-tick.danger {
-    stroke: var(--color-red);
-    opacity: 0.8;
-  }
-  
-  /* Tick Labels */
-  .gauge-tick-label {
-    fill: var(--text-secondary);
-    font-family: 'Outfit', sans-serif;
-    text-anchor: middle;
-    dominant-baseline: middle;
-  }
-  
-  .gauge-container.small .gauge-tick-label {
-    font-size: 8px;
-    font-weight: 400;
-  }
-  
-  .gauge-container.medium .gauge-tick-label {
-    font-size: 11px;
-    font-weight: 400;
-  }
-  
-  .gauge-container.large .gauge-tick-label {
-    font-size: 14px;
-    font-weight: 400;
-  }
-  
-  .gauge-tick-label.warning {
-    fill: var(--color-amber);
-  }
-  
-  .gauge-tick-label.danger {
-    fill: var(--color-red);
-  }
-  
-  /* Needle */
-  .gauge-needle-group {
-    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .gauge-needle {
-    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
-  }
-  
-  .gauge-needle-glow {
-    filter: blur(3px);
-    opacity: 0.4;
-    transition: fill 0.3s, opacity 0.3s;
-  }
-  
-  [data-theme="dark"] .gauge-needle-glow {
-    opacity: 0.5;
-  }
-  
-  .gauge-needle-glow.warning {
-    opacity: 0.6;
-  }
-  
-  .gauge-needle-glow.danger {
-    opacity: 0.7;
-  }
-  
-  /* Center Hub - Light Mode */
-  .gauge-center-hub-outer {
-    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.2));
-  }
-  
-  .gauge-center-hub-inner {
-    fill: var(--gauge-hub-inner);
-  }
-  
-  .gauge-center-hub-dot {
-    transition: fill 0.3s, filter 0.3s;
-  }
-  
-  /* Digital Display */
-  .gauge-digital-display {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, 15%);
-    text-align: center;
-    pointer-events: none;
-  }
-  
-  .gauge-container.small .gauge-digital-display {
-    transform: translate(-50%, 10%);
-  }
-  
-  .gauge-value {
-    font-weight: 300;
-    color: var(--text-primary);
-    letter-spacing: -1px;
-    line-height: 1;
-    transition: color 0.3s, text-shadow 0.3s;
-  }
-  
-  [data-theme="dark"] .gauge-value {
-    font-weight: 200;
-  }
-  
-  .gauge-container.small .gauge-value {
-    font-size: 20px;
-  }
-  
-  .gauge-container.medium .gauge-value {
-    font-size: 32px;
-  }
-  
-  .gauge-container.large .gauge-value {
-    font-size: 48px;
-  }
-  
-  .gauge-value.warning {
-    color: var(--color-orange);
-    text-shadow: 0 0 20px var(--glow-orange);
-  }
-  
-  .gauge-value.danger {
-    color: var(--color-red);
-    text-shadow: 0 0 20px var(--glow-red);
-  }
-  
-  .gauge-unit {
-    font-weight: 400;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-  
-  .gauge-container.small .gauge-unit {
-    font-size: 8px;
-    letter-spacing: 1px;
-  }
-  
-  .gauge-container.medium .gauge-unit {
-    font-size: 10px;
-  }
-  
-  .gauge-container.large .gauge-unit {
-    font-size: 12px;
-  }
-  
-  /* Gauge Title */
-  .gauge-title {
-    font-weight: 500;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  
-  .gauge-container.small .gauge-title {
-    font-size: 8px;
-    letter-spacing: 1px;
-  }
-  
-  .gauge-container.medium .gauge-title {
-    font-size: 10px;
-  }
-  
-  .gauge-container.large .gauge-title {
-    font-size: 11px;
-  }
-  
-  /* Status Badge */
-  .gauge-status-badge {
-    padding: 3px 8px;
-    border-radius: 10px;
-    font-size: 9px;
-    font-weight: 500;
-    margin-top: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  
-  .gauge-container.small .gauge-status-badge {
-    font-size: 7px;
-    padding: 2px 6px;
-    margin-top: 4px;
-  }
-  
-  .gauge-status-badge.normal {
-    background: rgba(0, 200, 83, 0.12);
-    color: var(--color-green);
-    border: 1px solid rgba(0, 200, 83, 0.25);
-  }
-  
-  .gauge-status-badge.warning {
-    background: rgba(255, 109, 0, 0.12);
-    color: var(--color-orange);
-    border: 1px solid rgba(255, 109, 0, 0.25);
-  }
-  
-  .gauge-status-badge.danger {
-    background: rgba(229, 57, 53, 0.12);
-    color: var(--color-red);
-    border: 1px solid rgba(229, 57, 53, 0.25);
-  }
-  
-  /* Placeholder Gauge */
-  .gauge-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--glass-bg);
-    border: 2px dashed var(--glass-border);
-    border-radius: 12px;
-    color: var(--text-dim);
-  }
-  
-  .gauge-placeholder-icon {
-    font-size: 32px;
-    margin-bottom: 8px;
-    opacity: 0.5;
-  }
-  
-  .gauge-container.small .gauge-placeholder-icon {
-    font-size: 20px;
-    margin-bottom: 4px;
-  }
-  
-  .gauge-placeholder-text {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  
-  .gauge-container.small .gauge-placeholder-text {
-    font-size: 8px;
-  }
-  
-  /* Motor ID Badge */
-  .gauge-motor-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    transition: color 0.3s;
-  }
-  
-  .gauge-container.small .gauge-motor-badge {
-    font-size: 9px;
-    top: 6px;
-    right: 6px;
-  }
-  
-  /* Sensor ID Badge */
-  .gauge-sensor-badge {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text-dim);
-    letter-spacing: 1px;
-  }
-  
-  .gauge-container.small .gauge-sensor-badge {
-    font-size: 8px;
-    top: 6px;
-    left: 6px;
-  }
-  
-  /* Warning Alert */
-  .gauge-warning-alert {
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    border-radius: 10px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 10;
-  }
-  
-  .gauge-warning-alert.visible {
-    opacity: 1;
-  }
-  
-  .gauge-warning-alert.warning {
-    background: rgba(255, 109, 0, 0.15);
-    border: 1px solid rgba(255, 109, 0, 0.3);
-  }
-  
-  .gauge-warning-alert.danger {
-    background: rgba(229, 57, 53, 0.15);
-    border: 1px solid rgba(229, 57, 53, 0.3);
-  }
-  
-  .gauge-warning-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    animation: pulse-dot 0.8s ease-in-out infinite;
-  }
-  
-  .gauge-warning-alert.warning .gauge-warning-dot {
-    background: var(--color-amber);
-  }
-  
-  .gauge-warning-alert.danger .gauge-warning-dot {
-    background: var(--color-red);
-  }
-  
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-  
-  .gauge-warning-text {
-    font-size: 8px;
-    font-weight: 500;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  
-  .gauge-warning-alert.warning .gauge-warning-text {
-    color: var(--color-amber);
-  }
-  
-  .gauge-warning-alert.danger .gauge-warning-text {
-    color: var(--color-red);
-  }
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 50%, var(--metal-dark) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-md),
+              inset 0 1px 0 var(--metal-highlight),
+              inset 0 -1px 0 var(--metal-shadow);
+}
 
+.gauge-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--metal-highlight) 20%, 
+    var(--metal-highlight) 80%, 
+    transparent 100%);
+  border-radius: 6px 6px 0 0;
+}
+
+.gauge-container:hover {
+  box-shadow: var(--shadow-lg),
+              inset 0 1px 0 var(--metal-highlight),
+              inset 0 -1px 0 var(--metal-shadow);
+  transform: translateY(-1px);
+}
+
+/* Size Variants */
+.gauge-container.small {
+  width: 120px;
+  height: 140px;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.gauge-container.medium {
+  width: 180px;
+  height: 200px;
+  padding: 12px;
+}
+
+.gauge-container.large {
+  width: 260px;
+  height: 280px;
+  padding: 16px;
+}
+
+/* SVG Container */
+.gauge-svg-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-container.small .gauge-svg-wrapper {
+  width: 100px;
+  height: 100px;
+}
+
+.gauge-container.medium .gauge-svg-wrapper {
+  width: 150px;
+  height: 150px;
+}
+
+.gauge-container.large .gauge-svg-wrapper {
+  width: 220px;
+  height: 220px;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(var(--shadow-sm));
+}
+
+/* Gauge Elements - Industrial */
+.gauge-outer-ring {
+  fill: none;
+  stroke: var(--glass-border);
+  stroke-width: 2;
+}
+
+.gauge-track-bg {
+  fill: none;
+  stroke: var(--gauge-track-bg);
+  stroke-linecap: butt;
+}
+
+.gauge-container.small .gauge-track-bg {
+  stroke-width: 12;
+}
+
+.gauge-container.medium .gauge-track-bg {
+  stroke-width: 16;
+}
+
+.gauge-container.large .gauge-track-bg {
+  stroke-width: 20;
+}
+
+.gauge-track-progress {
+  fill: none;
+  stroke-linecap: butt;
+  transition: stroke-dashoffset 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-container.small .gauge-track-progress {
+  stroke-width: 12;
+}
+
+.gauge-container.medium .gauge-track-progress {
+  stroke-width: 16;
+}
+
+.gauge-container.large .gauge-track-progress {
+  stroke-width: 20;
+}
+
+.gauge-track-progress.normal {
+  filter: drop-shadow(0 0 6px var(--current-glow));
+}
+
+.gauge-track-progress.warning {
+  filter: drop-shadow(0 0 10px var(--glow-orange));
+}
+
+.gauge-track-progress.danger {
+  filter: drop-shadow(0 0 12px var(--glow-red));
+}
+
+/* Ticks - Industrial Style */
+.gauge-tick {
+  stroke: rgba(255, 255, 255, 0.15);
+  stroke-width: 1;
+  stroke-linecap: butt;
+}
+
+.gauge-tick.major {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 2;
+}
+
+[data-theme="light"] .gauge-tick {
+  stroke: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .gauge-tick.major {
+  stroke: rgba(0, 0, 0, 0.4);
+}
+
+.gauge-tick.warning {
+  stroke: var(--color-amber);
+  opacity: 0.9;
+}
+
+.gauge-tick.danger {
+  stroke: var(--color-red);
+  opacity: 0.9;
+}
+
+/* Tick Labels - Industrial Mono */
+.gauge-tick-label {
+  fill: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.gauge-container.small .gauge-tick-label {
+  font-size: 7px;
+  font-weight: 500;
+}
+
+.gauge-container.medium .gauge-tick-label {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.gauge-container.large .gauge-tick-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.gauge-tick-label.warning {
+  fill: var(--color-amber);
+}
+
+.gauge-tick-label.danger {
+  fill: var(--color-red);
+}
+
+/* Needle - Industrial Metal */
+.gauge-needle-group {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gauge-needle {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.gauge-needle-glow {
+  filter: blur(2px);
+  opacity: 0.3;
+  transition: fill 0.3s, opacity 0.3s;
+}
+
+.gauge-needle-glow.warning {
+  opacity: 0.5;
+}
+
+.gauge-needle-glow.danger {
+  opacity: 0.6;
+}
+
+/* Center Hub - Metallic */
+.gauge-center-hub-outer {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+.gauge-center-hub-inner {
+  fill: var(--gauge-hub-inner);
+}
+
+.gauge-center-hub-dot {
+  transition: fill 0.3s, filter 0.3s;
+}
+
+/* Digital Display - LCD Style */
+.gauge-digital-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 20%);
+  text-align: center;
+  pointer-events: none;
+  background: var(--lcd-bg);
+  padding: 4px 8px;
+  border-radius: 2px;
+  border: 1px solid var(--metal-dark);
+  box-shadow: var(--shadow-inset);
+}
+
+.gauge-container.small .gauge-digital-display {
+  transform: translate(-50%, 15%);
+  padding: 2px 4px;
+}
+
+.gauge-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  color: var(--lcd-text);
+  letter-spacing: 1px;
+  line-height: 1;
+  text-shadow: 0 0 8px var(--lcd-text);
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.gauge-container.small .gauge-value {
+  font-size: 16px;
+}
+
+.gauge-container.medium .gauge-value {
+  font-size: 24px;
+}
+
+.gauge-container.large .gauge-value {
+  font-size: 36px;
+}
+
+.gauge-value.warning {
+  color: var(--color-orange);
+  text-shadow: 0 0 12px var(--glow-orange);
+}
+
+.gauge-value.danger {
+  color: var(--color-red);
+  text-shadow: 0 0 12px var(--glow-red);
+  animation: blink 0.8s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.gauge-unit {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  color: var(--lcd-text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.gauge-container.small .gauge-unit {
+  font-size: 7px;
+}
+
+.gauge-container.medium .gauge-unit {
+  font-size: 9px;
+}
+
+.gauge-container.large .gauge-unit {
+  font-size: 10px;
+}
+
+/* Gauge Title - Industrial Label */
+.gauge-title {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  padding: 2px 8px;
+  background: var(--metal-dark);
+  border-radius: 2px;
+}
+
+.gauge-container.small .gauge-title {
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 1px 4px;
+}
+
+.gauge-container.medium .gauge-title {
+  font-size: 10px;
+}
+
+.gauge-container.large .gauge-title {
+  font-size: 11px;
+}
+
+/* Status Badge - Industrial */
+.gauge-status-badge {
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid;
+}
+
+.gauge-container.small .gauge-status-badge {
+  font-size: 7px;
+  padding: 2px 6px;
+  margin-top: 4px;
+}
+
+.gauge-status-badge.normal {
+  background: rgba(0, 179, 65, 0.15);
+  color: var(--color-green);
+  border-color: var(--color-green);
+}
+
+.gauge-status-badge.warning {
+  background: rgba(255, 123, 0, 0.15);
+  color: var(--color-orange);
+  border-color: var(--color-orange);
+}
+
+.gauge-status-badge.danger {
+  background: rgba(220, 38, 38, 0.15);
+  color: var(--color-red);
+  border-color: var(--color-red);
+  animation: blink 0.5s ease-in-out infinite;
+}
+
+/* Placeholder Gauge - Industrial */
+.gauge-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--metal-mid);
+  border: 2px dashed var(--glass-border);
+  border-radius: 6px;
+  color: var(--text-dim);
+}
+
+.gauge-placeholder-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+
+.gauge-container.small .gauge-placeholder-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.gauge-placeholder-text {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.gauge-container.small .gauge-placeholder-text {
+  font-size: 8px;
+}
+
+/* Motor ID Badge - Industrial Tag */
+.gauge-motor-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 2px;
+  transition: color 0.3s;
+}
+
+.gauge-container.small .gauge-motor-badge {
+  font-size: 8px;
+  top: 4px;
+  right: 4px;
+  padding: 1px 4px;
+}
+
+/* Sensor ID Badge */
+.gauge-sensor-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 2px;
+}
+
+.gauge-container.small .gauge-sensor-badge {
+  font-size: 7px;
+  top: 4px;
+  left: 4px;
+  padding: 1px 3px;
+}
+
+/* Warning Alert - Industrial Alarm */
+.gauge-warning-alert {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10;
+  border: 1px solid;
+}
+
+.gauge-warning-alert.visible {
+  opacity: 1;
+}
+
+.gauge-warning-alert.warning {
+  background: rgba(255, 123, 0, 0.2);
+  border-color: var(--color-orange);
+}
+
+.gauge-warning-alert.danger {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: var(--color-red);
+  animation: blink 0.5s ease-in-out infinite;
+}
+
+.gauge-warning-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: signalPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes signalPulse {
+  0%, 100% { 
+    opacity: 1; 
+    box-shadow: 0 0 4px currentColor;
+  }
+  50% { 
+    opacity: 0.5; 
+    box-shadow: 0 0 8px currentColor;
+  }
+}
+
+.gauge-warning-alert.warning .gauge-warning-dot {
+  background: var(--color-orange);
+  color: var(--color-orange);
+}
+
+.gauge-warning-alert.danger .gauge-warning-dot {
+  background: var(--color-red);
+  color: var(--color-red);
+}
+
+.gauge-warning-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.gauge-warning-alert.warning .gauge-warning-text {
+  color: var(--color-orange);
+}
+
+.gauge-warning-alert.danger .gauge-warning-text {
+  color: var(--color-red);
+}

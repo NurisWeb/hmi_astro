@@ -9,6 +9,7 @@ export type {
   SensorReading,
   SensorConfig,
   DashboardData,
+  DashboardDataWithDSG,
   DashboardState,
   MockDataMode,
   MockDataConfig,
@@ -16,9 +17,15 @@ export type {
   TauriCommandResult,
   GaugeUpdateEvent,
   SystemEvent,
+  // DSG Types
+  ShiftPhase,
+  ClutchState,
+  DSGState,
+  GearRatio,
+  DSGConfig,
 } from './dashboard.types';
 
-export { GAUGE_CONSTANTS, COLORS } from './dashboard.types';
+export { GAUGE_CONSTANTS, COLORS, DSG_CONSTANTS } from './dashboard.types';
 
 // Gauge Types
 export type {
@@ -59,4 +66,5 @@ export type {
 } from './websocket.types';
 
 export { DEFAULT_WEBSOCKET_CONFIG } from './websocket.types';
+
 

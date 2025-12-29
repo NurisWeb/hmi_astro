@@ -1,13 +1,17 @@
 // ============================================
 // Mock Data Service für Prüfstand Dashboard
+// Mit DSG-Getriebe Integration
 // ============================================
 
 import type {
   DashboardData,
+  DashboardDataWithDSG,
   GearPosition,
   MockDataMode,
+  DSGState,
 } from '../types/dashboard.types';
 import { GAUGE_CONSTANTS } from '../types/dashboard.types';
+import { dsgSimulation } from './DSGSimulation';
 
 type RealisticPhase = 'idle' | 'warmup' | 'running' | 'stress' | 'cooldown';
 
@@ -15,15 +19,15 @@ class MockDataService {
   private mode: MockDataMode = 'random';
   private realisticPhase: RealisticPhase = 'idle';
   private phaseProgress = 0;
-  private currentGear: GearPosition = 'N';
-  private targetRPM = 0;
   private currentRPM = 0;
+  private currentLoad = 0;
   private cycleCount = 0;
   private startTime = Date.now();
+  private updateInterval = 50; // ms
 
-  private currentData: DashboardData = this.getInitialData();
+  private currentData: DashboardDataWithDSG = this.getInitialData();
 
-  private getInitialData(): DashboardData {
+  private getInitialData(): DashboardDataWithDSG {
     return {
       rpm: 0,
       gear: 'N',
@@ -38,8 +42,13 @@ class MockDataService {
       runtime: 0,
       cycles: 0,
       isConnected: true,
+      dsg: dsgSimulation.getState(),
     };
   }
+
+  // ============================================
+  // Mode Control
+  // ============================================
 
   setMode(mode: MockDataMode): void {
     this.mode = mode;
@@ -53,15 +62,51 @@ class MockDataService {
     return this.mode;
   }
 
+  // ============================================
+  // DSG Control
+  // ============================================
+
   setGear(gear: GearPosition): void {
-    this.currentGear = gear;
+    dsgSimulation.requestGearChange(gear);
   }
 
   setTargetRPM(rpm: number): void {
-    this.targetRPM = Math.min(Math.max(rpm, 0), GAUGE_CONSTANTS.RPM.MAX);
+    dsgSimulation.setTargetRPM(rpm);
   }
 
-  generateData(): DashboardData {
+  setLoad(load: number): void {
+    dsgSimulation.setLoad(load);
+    this.currentLoad = load;
+  }
+
+  getDSGState(): DSGState {
+    return dsgSimulation.getState();
+  }
+
+  // ============================================
+  // Auto-Modus
+  // ============================================
+
+  startAutoMode(speed: 'slow' | 'normal' | 'fast' = 'normal'): void {
+    dsgSimulation.startAutoMode(speed);
+  }
+
+  stopAutoMode(): void {
+    dsgSimulation.stopAutoMode();
+  }
+
+  isAutoModeActive(): boolean {
+    return dsgSimulation.isAutoModeActive();
+  }
+
+  // ============================================
+  // Data Generation
+  // ============================================
+
+  generateData(): DashboardDataWithDSG {
+    // Update DSG-Simulation
+    dsgSimulation.update(this.updateInterval);
+
     if (this.mode === 'random') {
       return this.generateRandomData();
     } else {
@@ -69,74 +114,75 @@ class MockDataService {
     }
   }
 
-  private generateRandomData(): DashboardData {
-    const baseRPM = this.targetRPM || 3000 + Math.random() * 5000;
-    
-    this.currentRPM = this.lerp(this.currentRPM, baseRPM, 0.1);
-    
-    const rpmFactor = this.currentRPM / GAUGE_CONSTANTS.RPM.MAX;
-
-    const baseOilPressure = 4 + rpmFactor * 8;
-    const oilPressures = [
-      this.addNoise(baseOilPressure, 1),
-      this.addNoise(baseOilPressure, 1),
-      this.addNoise(baseOilPressure * 0.9, 1),
-      this.addNoise(baseOilPressure * 1.1, 1),
-    ];
-
-    const baseTorque = rpmFactor * GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE * 0.7;
-    const motor1Torque = this.addNoise(baseTorque, 50);
-    const motor2Torque = this.addNoise(baseTorque * 0.95, 50);
-
+  private generateRandomData(): DashboardDataWithDSG {
+    const dsgState = dsgSimulation.getState();
     const runtime = Math.floor((Date.now() - this.startTime) / 1000);
 
-    // Öltemperatur korreliert mit RPM und Laufzeit (wärmt sich langsam auf)
-    const warmupFactor = Math.min(runtime / 300, 1); // Nach 5 Minuten aufgewärmt
-    const baseOilTemp = 25 + warmupFactor * 55 + rpmFactor * 30;
-    const oilTemperature = this.addNoise(baseOilTemp, 2);
+    // Auto-Modus aktualisieren
+    if (dsgSimulation.isAutoModeActive()) {
+      const autoData = dsgSimulation.updateAutoMode(this.updateInterval);
+      this.currentRPM = this.lerp(this.currentRPM, autoData.rpm, 0.15);
+      this.currentLoad = autoData.load;
+    } else {
+      // Manuelle Steuerung: RPM smooth interpolieren
+      this.currentRPM = this.lerp(this.currentRPM, dsgState.targetRPM, 0.1);
+    }
 
-    // Durchfluss korreliert mit RPM
-    const baseFlowRate = 5 + rpmFactor * 35;
-    const flowRate = this.addNoise(baseFlowRate, 2);
+    // Physikalische Korrelationen berechnen
+    const oilPressure = dsgSimulation.calculateOilPressure(this.currentRPM);
+    const oilTemperature = dsgSimulation.calculateOilTemperature(
+      this.currentRPM,
+      this.currentLoad,
+      runtime
+    );
+    const flowRate = dsgSimulation.calculateFlowRate(this.currentRPM);
+    const brakeTorque = dsgSimulation.calculateBrakeMotorTorque(this.currentLoad);
+
+    // Öldruck mit leichten Variationen für jeden Sensor
+    const oilPressures = [
+      this.addNoise(oilPressure, 0.5),
+      this.addNoise(oilPressure * 0.95, 0.5),
+      this.addNoise(oilPressure * 1.02, 0.5),
+      this.addNoise(oilPressure * 0.98, 0.5),
+    ];
 
     this.currentData = {
       rpm: Math.round(this.currentRPM),
-      gear: this.currentGear,
+      gear: dsgState.activeGear,
       oilPressures: oilPressures.map(p => Math.max(0, Math.min(20, p))),
-      oilTemperature: Math.max(0, Math.min(150, oilTemperature)),
-      flowRate: Math.max(0, Math.min(50, flowRate)),
+      oilTemperature: Math.max(0, Math.min(150, this.addNoise(oilTemperature, 1))),
+      flowRate: Math.max(0, Math.min(50, this.addNoise(flowRate, 0.5))),
       brakeMotors: {
         motor1: {
-          torque: Math.max(0, motor1Torque),
-          kw: this.calculateKW(motor1Torque),
-          load: (motor1Torque / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          torque: Math.max(0, this.addNoise(brakeTorque, 15)),
+          kw: this.calculateKW(brakeTorque),
+          load: (brakeTorque / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
         },
         motor2: {
-          torque: Math.max(0, motor2Torque),
-          kw: this.calculateKW(motor2Torque),
-          load: (motor2Torque / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          torque: Math.max(0, this.addNoise(brakeTorque * 0.97, 15)),
+          kw: this.calculateKW(brakeTorque * 0.97),
+          load: ((brakeTorque * 0.97) / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
         },
       },
-      temperature: 45 + rpmFactor * 35 + Math.random() * 5,
+      temperature: 35 + (this.currentRPM / GAUGE_CONSTANTS.RPM.MAX) * 40 + this.currentLoad * 0.2,
       runtime,
       cycles: this.cycleCount,
       isConnected: true,
+      dsg: dsgState,
     };
 
     return this.currentData;
   }
 
-  private generateRealisticData(): DashboardData {
-    this.phaseProgress += 0.02;
+  private generateRealisticData(): DashboardDataWithDSG {
+    this.phaseProgress += 0.015; // Langsamerer Fortschritt für realistischeren Ablauf
 
     if (this.phaseProgress >= 1) {
       this.phaseProgress = 0;
       this.transitionToNextPhase();
     }
 
-    const data = this.getPhaseData();
-    this.currentData = data;
-    return data;
+    return this.getPhaseData();
   }
 
   private transitionToNextPhase(): void {
@@ -148,115 +194,158 @@ class MockDataService {
     if (this.realisticPhase === 'idle') {
       this.cycleCount++;
     }
+
+    // Gang passend zur Phase setzen
+    switch (this.realisticPhase) {
+      case 'idle':
+        dsgSimulation.requestGearChange('N');
+        break;
+      case 'warmup':
+        dsgSimulation.requestGearChange('1');
+        break;
+      case 'running':
+        dsgSimulation.startAutoMode('normal');
+        break;
+      case 'stress':
+        dsgSimulation.stopAutoMode();
+        dsgSimulation.requestGearChange('5');
+        break;
+      case 'cooldown':
+        dsgSimulation.stopAutoMode();
+        break;
+    }
   }
 
-  private getPhaseData(): DashboardData {
+  private getPhaseData(): DashboardDataWithDSG {
     const runtime = Math.floor((Date.now() - this.startTime) / 1000);
     const t = this.phaseProgress;
+    const dsgState = dsgSimulation.getState();
 
     let targetRPM: number;
-    let targetTorque: number;
-    let gear: GearPosition;
+    let targetLoad: number;
 
     switch (this.realisticPhase) {
       case 'idle':
         targetRPM = GAUGE_CONSTANTS.RPM.IDLE;
-        targetTorque = 0;
-        gear = 'N';
+        targetLoad = 0;
         break;
 
       case 'warmup':
-        targetRPM = this.lerp(GAUGE_CONSTANTS.RPM.IDLE, 3000, t);
-        targetTorque = this.lerp(0, 300, t);
-        gear = t < 0.5 ? '1' : '2';
+        targetRPM = this.lerp(GAUGE_CONSTANTS.RPM.IDLE, 3500, t);
+        targetLoad = this.lerp(0, 30, t);
+        // Gangwechsel während Aufwärmen
+        if (t > 0.3 && t < 0.35) {
+          dsgSimulation.requestGearChange('2');
+        } else if (t > 0.6 && t < 0.65) {
+          dsgSimulation.requestGearChange('3');
+        }
         break;
 
       case 'running':
-        const gearIndex = Math.floor(t * 6);
-        const gears: GearPosition[] = ['1', '2', '3', '4', '5', '6'];
-        gear = gears[Math.min(gearIndex, 5)];
-        targetRPM = 3000 + Math.sin(t * Math.PI * 4) * 2000;
-        targetTorque = 400 + Math.sin(t * Math.PI * 4) * 200;
+        // Auto-Modus übernimmt
+        if (dsgSimulation.isAutoModeActive()) {
+          const autoData = dsgSimulation.updateAutoMode(this.updateInterval);
+          targetRPM = autoData.rpm;
+          targetLoad = autoData.load;
+        } else {
+          targetRPM = 4000 + Math.sin(t * Math.PI * 4) * 2500;
+          targetLoad = 50 + Math.sin(t * Math.PI * 4) * 30;
+        }
         break;
 
       case 'stress':
-        targetRPM = 7000 + Math.sin(t * Math.PI * 2) * 1500;
-        targetTorque = 800 + Math.sin(t * Math.PI * 2) * 400;
-        gear = t < 0.33 ? '4' : t < 0.66 ? '5' : '6';
+        // Hochlast-Test: Hohe Drehzahl und Last
+        targetRPM = 6000 + Math.sin(t * Math.PI * 3) * 1500;
+        targetLoad = 80 + Math.sin(t * Math.PI * 2) * 15;
+        // Gangwechsel im Stress-Test
+        if (t > 0.25 && t < 0.3) {
+          dsgSimulation.requestGearChange('6');
+        } else if (t > 0.5 && t < 0.55) {
+          dsgSimulation.requestGearChange('7');
+        } else if (t > 0.75 && t < 0.8) {
+          dsgSimulation.requestGearChange('6');
+        }
         break;
 
       case 'cooldown':
         targetRPM = this.lerp(5000, GAUGE_CONSTANTS.RPM.IDLE, t);
-        targetTorque = this.lerp(500, 0, t);
-        gear = t < 0.25 ? '4' : t < 0.5 ? '3' : t < 0.75 ? '2' : 'N';
+        targetLoad = this.lerp(60, 0, t);
+        // Herunterschalten
+        if (t > 0.2 && t < 0.25) {
+          dsgSimulation.requestGearChange('5');
+        } else if (t > 0.4 && t < 0.45) {
+          dsgSimulation.requestGearChange('4');
+        } else if (t > 0.6 && t < 0.65) {
+          dsgSimulation.requestGearChange('3');
+        } else if (t > 0.8 && t < 0.85) {
+          dsgSimulation.requestGearChange('2');
+        } else if (t > 0.95) {
+          dsgSimulation.requestGearChange('N');
+        }
         break;
 
       default:
-        targetRPM = 0;
-        targetTorque = 0;
-        gear = 'N';
+        targetRPM = GAUGE_CONSTANTS.RPM.IDLE;
+        targetLoad = 0;
     }
 
-    this.currentRPM = this.lerp(this.currentRPM, targetRPM, 0.15);
-    this.currentGear = gear;
+    // RPM und Load setzen
+    dsgSimulation.setTargetRPM(targetRPM);
+    dsgSimulation.setLoad(targetLoad);
+    this.currentRPM = this.lerp(this.currentRPM, targetRPM, 0.12);
+    this.currentLoad = targetLoad;
 
-    const rpmFactor = this.currentRPM / GAUGE_CONSTANTS.RPM.MAX;
-    const baseOilPressure = 3 + rpmFactor * 10;
+    // Physikalische Korrelationen berechnen
+    const oilPressure = dsgSimulation.calculateOilPressure(this.currentRPM);
+    const oilTemperature = dsgSimulation.calculateOilTemperature(
+      this.currentRPM,
+      this.currentLoad,
+      runtime
+    );
+    const flowRate = dsgSimulation.calculateFlowRate(this.currentRPM);
+    const brakeTorque = dsgSimulation.calculateBrakeMotorTorque(this.currentLoad);
 
-    // Öltemperatur basierend auf Phase
-    let baseOilTemp: number;
-    switch (this.realisticPhase) {
-      case 'idle':
-        baseOilTemp = 30 + t * 10; // Kalt, wärmt sich leicht auf
-        break;
-      case 'warmup':
-        baseOilTemp = 40 + t * 30; // Aufwärmphase
-        break;
-      case 'running':
-        baseOilTemp = 70 + rpmFactor * 20; // Normal-Betrieb
-        break;
-      case 'stress':
-        baseOilTemp = 90 + rpmFactor * 25; // Stress - höhere Temperaturen
-        break;
-      case 'cooldown':
-        baseOilTemp = this.lerp(95, 60, t); // Abkühlung
-        break;
-      default:
-        baseOilTemp = 50;
-    }
+    // Stress-Phase: Erhöhte Temperaturen und Drücke
+    const stressFactor = this.realisticPhase === 'stress' ? 1.15 : 1;
 
-    // Durchfluss basierend auf RPM
-    const baseFlowRate = 5 + rpmFactor * 30;
+    const oilPressures = [
+      this.addNoise(oilPressure * stressFactor, 0.3),
+      this.addNoise(oilPressure * 0.96 * stressFactor, 0.3),
+      this.addNoise(oilPressure * 1.03 * stressFactor, 0.3),
+      this.addNoise(oilPressure * 0.99 * stressFactor, 0.3),
+    ];
 
-    return {
+    this.currentData = {
       rpm: Math.round(this.currentRPM),
-      gear: this.currentGear,
-      oilPressures: [
-        this.addNoise(baseOilPressure, 0.5),
-        this.addNoise(baseOilPressure * 0.95, 0.5),
-        this.addNoise(baseOilPressure * 1.05, 0.5),
-        this.addNoise(baseOilPressure * 0.98, 0.5),
-      ].map(p => Math.max(0, Math.min(20, p))),
-      oilTemperature: Math.max(0, Math.min(150, this.addNoise(baseOilTemp, 1.5))),
-      flowRate: Math.max(0, Math.min(50, this.addNoise(baseFlowRate, 1))),
+      gear: dsgState.activeGear,
+      oilPressures: oilPressures.map(p => Math.max(0, Math.min(20, p))),
+      oilTemperature: Math.max(0, Math.min(150, this.addNoise(oilTemperature * stressFactor, 1))),
+      flowRate: Math.max(0, Math.min(50, this.addNoise(flowRate, 0.5))),
       brakeMotors: {
         motor1: {
-          torque: targetTorque + this.addNoise(0, 20),
-          kw: this.calculateKW(targetTorque),
-          load: (targetTorque / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          torque: Math.max(0, this.addNoise(brakeTorque * stressFactor, 10)),
+          kw: this.calculateKW(brakeTorque * stressFactor),
+          load: (brakeTorque * stressFactor / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
         },
         motor2: {
-          torque: targetTorque * 0.95 + this.addNoise(0, 20),
-          kw: this.calculateKW(targetTorque * 0.95),
-          load: ((targetTorque * 0.95) / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          torque: Math.max(0, this.addNoise(brakeTorque * 0.97 * stressFactor, 10)),
+          kw: this.calculateKW(brakeTorque * 0.97 * stressFactor),
+          load: ((brakeTorque * 0.97 * stressFactor) / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
         },
       },
-      temperature: 40 + rpmFactor * 40 + (this.realisticPhase === 'stress' ? 15 : 0),
+      temperature: 35 + (this.currentRPM / GAUGE_CONSTANTS.RPM.MAX) * 40 * stressFactor,
       runtime,
       cycles: this.cycleCount,
       isConnected: true,
+      dsg: dsgState,
     };
+
+    return this.currentData;
   }
+
+  // ============================================
+  // Utility Functions
+  // ============================================
 
   private lerp(start: number, end: number, t: number): number {
     return start + (end - start) * Math.min(Math.max(t, 0), 1);
@@ -273,12 +362,12 @@ class MockDataService {
   reset(): void {
     this.currentData = this.getInitialData();
     this.currentRPM = 0;
-    this.targetRPM = 0;
-    this.currentGear = 'N';
+    this.currentLoad = 0;
     this.realisticPhase = 'idle';
     this.phaseProgress = 0;
     this.cycleCount = 0;
     this.startTime = Date.now();
+    dsgSimulation.reset();
   }
 
   getCurrentPhase(): RealisticPhase {

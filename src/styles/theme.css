@@ -1,97 +1,144 @@
 /* ============================================
-   Prüfstand Dashboard - Theme Variables
-   Light Mode (Default) & Dark Mode Support
+   Prüfstand Dashboard - Industrial Theme
+   Industrielles HMI-Design für Getriebeprüfstand
    ============================================ */
 
 /* ============================================
-   CSS Variables - Light Mode (Default)
+   CSS Variables - Light Industrial Mode (Default)
+   For well-lit industrial environments
    ============================================ */
 :root {
-  /* Background Colors - Light */
-  --bg-dark: #f5f7fa;
-  --bg-panel: #ffffff;
-  --bg-gradient: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.08);
+  /* Background Colors - Light Industrial */
+  --bg-dark: #d4d8dc;
+  --bg-panel: #e8ebef;
+  --bg-gradient: linear-gradient(145deg, #d4d8dc 0%, #e0e4e8 50%, #d4d8dc 100%);
+  --glass-bg: rgba(232, 235, 239, 0.95);
+  --glass-border: rgba(180, 188, 199, 0.8);
   
-  /* Text Colors - Light */
-  --text-primary: #1a1a2e;
-  --text-secondary: rgba(26, 26, 46, 0.7);
-  --text-dim: rgba(26, 26, 46, 0.4);
+  /* Metallic Surface Colors - Light */
+  --metal-light: #f0f2f5;
+  --metal-mid: #d4d8dc;
+  --metal-dark: #b4bcc8;
+  --metal-highlight: rgba(255, 255, 255, 0.6);
+  --metal-shadow: rgba(0, 0, 0, 0.15);
   
-  /* Accent Colors */
-  --color-blue: #0095ff;
-  --color-cyan: #00a8cc;
-  --color-green: #00c853;
-  --color-purple: #9c27b0;
-  --color-orange: #ff6d00;
-  --color-red: #e53935;
-  --color-amber: #ff8f00;
-  --color-yellow: #ffd600;
+  /* Text Colors - Light Industrial */
+  --text-primary: #1a1d21;
+  --text-secondary: rgba(26, 29, 33, 0.7);
+  --text-dim: rgba(26, 29, 33, 0.4);
   
-  /* Glow Colors - Light (subtler) */
-  --glow-blue: rgba(0, 149, 255, 0.25);
-  --glow-cyan: rgba(0, 168, 204, 0.25);
-  --glow-green: rgba(0, 200, 83, 0.25);
-  --glow-purple: rgba(156, 39, 176, 0.25);
-  --glow-orange: rgba(255, 109, 0, 0.3);
-  --glow-red: rgba(229, 57, 53, 0.3);
+  /* Industrial Accent Colors - Darker for contrast */
+  --color-blue: #0066aa;
+  --color-cyan: #0088aa;
+  --color-green: #008833;
+  --color-purple: #7c3aed;
+  --color-orange: #d96700;
+  --color-red: #b91c1c;
+  --color-amber: #d97706;
+  --color-yellow: #ca8a04;
   
-  /* Gauge specific */
-  --gauge-track-bg: rgba(0, 0, 0, 0.06);
-  --gauge-hub-outer: linear-gradient(145deg, #e0e5ec 0%, #c8cfd8 100%);
-  --gauge-hub-inner: #d4dae3;
-  --gauge-needle-gradient: linear-gradient(180deg, #2d3748 0%, #4a5568 40%, #718096 100%);
+  /* Signal Colors (Industrial Standard) */
+  --signal-run: #008833;
+  --signal-warning: #d96700;
+  --signal-error: #b91c1c;
+  --signal-standby: #0066aa;
   
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  /* Glow Colors - Subtle */
+  --glow-blue: rgba(0, 102, 170, 0.2);
+  --glow-cyan: rgba(0, 136, 170, 0.2);
+  --glow-green: rgba(0, 136, 51, 0.2);
+  --glow-purple: rgba(124, 58, 237, 0.2);
+  --glow-orange: rgba(217, 103, 0, 0.25);
+  --glow-red: rgba(185, 28, 28, 0.25);
+  
+  /* Gauge specific - Light Metallic */
+  --gauge-track-bg: rgba(0, 0, 0, 0.1);
+  --gauge-hub-outer: linear-gradient(145deg, #f0f2f5 0%, #d4d8dc 100%);
+  --gauge-hub-inner: #e8ebef;
+  --gauge-needle-gradient: linear-gradient(180deg, #374151 0%, #4b5563 40%, #6b7280 100%);
+  
+  /* LCD Display Colors - Light */
+  --lcd-bg: #1a1d21;
+  --lcd-text: #00dd77;
+  --lcd-text-dim: rgba(0, 221, 119, 0.3);
+  
+  /* Shadows - Light Industrial */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.2);
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.08);
+  
+  /* Borders - Industrial Bevel */
+  --border-bevel-light: 1px solid rgba(255, 255, 255, 0.4);
+  --border-bevel-dark: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 /* ============================================
-   CSS Variables - Dark Mode
+   CSS Variables - Industrial Dark Mode
+   Inspired by Siemens, Bosch Rexroth HMI panels
    ============================================ */
 [data-theme="dark"] {
-  /* Background Colors - Dark */
-  --bg-dark: #0a0a0f;
-  --bg-panel: #0d0d14;
-  --bg-gradient: linear-gradient(145deg, #0d0d14 0%, #0a0a0f 50%, #08080c 100%);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  /* Background Colors - Industrial Dark */
+  --bg-dark: #1a1d21;
+  --bg-panel: #252830;
+  --bg-gradient: linear-gradient(145deg, #1a1d21 0%, #22262d 50%, #1a1d21 100%);
+  --glass-bg: rgba(45, 49, 57, 0.95);
+  --glass-border: rgba(70, 78, 90, 0.8);
   
-  /* Text Colors - Dark */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.5);
-  --text-dim: rgba(255, 255, 255, 0.25);
+  /* Metallic Surface Colors */
+  --metal-light: #3d4450;
+  --metal-mid: #2d3139;
+  --metal-dark: #1f2228;
+  --metal-highlight: rgba(255, 255, 255, 0.05);
+  --metal-shadow: rgba(0, 0, 0, 0.4);
   
-  /* Accent Colors - Brighter for dark mode */
-  --color-blue: #00d4ff;
-  --color-cyan: #00bcd4;
-  --color-green: #00e676;
-  --color-purple: #ab47bc;
-  --color-orange: #ff9800;
-  --color-red: #ff3b5c;
-  --color-amber: #ffab00;
-  --color-yellow: #ffeb3b;
+  /* Text Colors - Industrial */
+  --text-primary: #e8eaed;
+  --text-secondary: rgba(232, 234, 237, 0.7);
+  --text-dim: rgba(232, 234, 237, 0.4);
   
-  /* Glow Colors - Stronger for dark */
-  --glow-blue: rgba(0, 212, 255, 0.4);
-  --glow-cyan: rgba(0, 188, 212, 0.4);
-  --glow-green: rgba(0, 230, 118, 0.4);
-  --glow-purple: rgba(171, 71, 188, 0.4);
-  --glow-orange: rgba(255, 152, 0, 0.5);
-  --glow-red: rgba(255, 59, 92, 0.5);
+  /* Industrial Accent Colors */
+  --color-blue: #0088cc;
+  --color-cyan: #00a8cc;
+  --color-green: #00b341;
+  --color-purple: #8b5cf6;
+  --color-orange: #ff7b00;
+  --color-red: #dc2626;
+  --color-amber: #f59e0b;
+  --color-yellow: #eab308;
   
-  /* Gauge specific */
-  --gauge-track-bg: rgba(255, 255, 255, 0.04);
-  --gauge-hub-outer: linear-gradient(145deg, #3a3a4a 0%, #1a1a24 100%);
-  --gauge-hub-inner: #1a1a24;
-  --gauge-needle-gradient: linear-gradient(180deg, #ffffff 0%, #e0e0e0 40%, #a0a0a0 100%);
+  /* Signal Colors (Industrial Standard) */
+  --signal-run: #00b341;
+  --signal-warning: #ff7b00;
+  --signal-error: #dc2626;
+  --signal-standby: #0088cc;
   
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  /* Glow Colors - Subtle Industrial */
+  --glow-blue: rgba(0, 136, 204, 0.3);
+  --glow-cyan: rgba(0, 168, 204, 0.3);
+  --glow-green: rgba(0, 179, 65, 0.3);
+  --glow-purple: rgba(139, 92, 246, 0.3);
+  --glow-orange: rgba(255, 123, 0, 0.35);
+  --glow-red: rgba(220, 38, 38, 0.35);
+  
+  /* Gauge specific - Metallic */
+  --gauge-track-bg: rgba(0, 0, 0, 0.4);
+  --gauge-hub-outer: linear-gradient(145deg, #4a5260 0%, #2d3139 100%);
+  --gauge-hub-inner: #1f2228;
+  --gauge-needle-gradient: linear-gradient(180deg, #e8eaed 0%, #9ca3af 40%, #6b7280 100%);
+  
+  /* LCD Display Colors */
+  --lcd-bg: #0a0c0f;
+  --lcd-text: #00ff88;
+  --lcd-text-dim: rgba(0, 255, 136, 0.3);
+  
+  /* Shadows - Industrial */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  
+  /* Borders - Industrial Bevel */
+  --border-bevel-light: 1px solid rgba(255, 255, 255, 0.08);
+  --border-bevel-dark: 1px solid rgba(0, 0, 0, 0.3);
 }
-

@@ -120,3 +120,4 @@ const RegelungPanel: React.FC<RegelungPanelProps> = ({
 
 export default RegelungPanel;
 
+

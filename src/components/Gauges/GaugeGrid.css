@@ -1,10 +1,11 @@
 /* ============================================
-   GaugeGrid Layout Styles
+   Industrial GaugeGrid Layout Styles
+   Prüfstand Instrument Panel Layout
    ============================================ */
 
 .gauge-grid {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   transition: all 0.4s ease;
 }
@@ -26,23 +27,25 @@
 }
 
 .gauge-grid.expanded .gauge-grid-item.oil1 { grid-area: oil1; }
-  .gauge-grid.expanded .gauge-grid-item.oil2 { grid-area: oil2; }
-  .gauge-grid.expanded .gauge-grid-item.oil3 { grid-area: oil3; }
-  .gauge-grid.expanded .gauge-grid-item.oil4 { grid-area: oil4; }
-  .gauge-grid.expanded .gauge-grid-item.motor1 { grid-area: motor1; }
-  .gauge-grid.expanded .gauge-grid-item.motor2 { grid-area: motor2; }
-  .gauge-grid.expanded .gauge-grid-item.oiltemp { grid-area: placeholder1; }
-  .gauge-grid.expanded .gauge-grid-item.flowrate { grid-area: placeholder2; }
+.gauge-grid.expanded .gauge-grid-item.oil2 { grid-area: oil2; }
+.gauge-grid.expanded .gauge-grid-item.oil3 { grid-area: oil3; }
+.gauge-grid.expanded .gauge-grid-item.oil4 { grid-area: oil4; }
+.gauge-grid.expanded .gauge-grid-item.motor1 { grid-area: motor1; }
+.gauge-grid.expanded .gauge-grid-item.motor2 { grid-area: motor2; }
+.gauge-grid.expanded .gauge-grid-item.oiltemp { grid-area: placeholder1; }
+.gauge-grid.expanded .gauge-grid-item.flowrate { grid-area: placeholder2; }
 
 /* Compact Layout - When Menu is Open */
 .gauge-grid.compact {
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: 1fr;
   gap: 8px;
-  padding: 8px;
-  background: var(--glass-bg);
+  padding: 10px;
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 4px;
+  box-shadow: var(--shadow-md),
+              inset 0 1px 0 var(--metal-highlight);
 }
 
 .gauge-grid.compact .gauge-grid-item {
@@ -56,24 +59,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-/* Hover Effects */
+/* Hover Effects - Industrial subtle */
 .gauge-grid-item:hover {
-  transform: scale(1.02);
+  transform: scale(1.01);
   z-index: 10;
 }
 
 .gauge-grid.compact .gauge-grid-item:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 /* Animation for mode switch */
 @keyframes gaugeAppear {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
@@ -82,18 +85,18 @@
 }
 
 .gauge-grid-item {
-  animation: gaugeAppear 0.3s ease forwards;
+  animation: gaugeAppear 0.25s ease forwards;
 }
 
 .gauge-grid-item:nth-child(1) { animation-delay: 0ms; }
-.gauge-grid-item:nth-child(2) { animation-delay: 30ms; }
-.gauge-grid-item:nth-child(3) { animation-delay: 60ms; }
-.gauge-grid-item:nth-child(4) { animation-delay: 90ms; }
-.gauge-grid-item:nth-child(5) { animation-delay: 120ms; }
-.gauge-grid-item:nth-child(6) { animation-delay: 150ms; }
-.gauge-grid-item:nth-child(7) { animation-delay: 180ms; }
-.gauge-grid-item:nth-child(8) { animation-delay: 210ms; }
-.gauge-grid-item:nth-child(9) { animation-delay: 240ms; }
+.gauge-grid-item:nth-child(2) { animation-delay: 25ms; }
+.gauge-grid-item:nth-child(3) { animation-delay: 50ms; }
+.gauge-grid-item:nth-child(4) { animation-delay: 75ms; }
+.gauge-grid-item:nth-child(5) { animation-delay: 100ms; }
+.gauge-grid-item:nth-child(6) { animation-delay: 125ms; }
+.gauge-grid-item:nth-child(7) { animation-delay: 150ms; }
+.gauge-grid-item:nth-child(8) { animation-delay: 175ms; }
+.gauge-grid-item:nth-child(9) { animation-delay: 200ms; }
 
 /* Responsive Adjustments */
 @media (max-width: 1200px) {

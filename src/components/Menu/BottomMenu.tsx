@@ -1,12 +1,13 @@
 // ============================================
-// BottomMenu - Ausklappbares Menü unten
+// BottomMenu - Ausklappbares Menü mit DSG-Support
 // ============================================
 
 import React from 'react';
-import type { MenuPanel, MenuItem, MockDataMode } from '../../types/dashboard.types';
+import type { MenuPanel, MenuItem, MockDataMode, DSGState } from '../../types/dashboard.types';
 import GearSelectionPanel from './GearSelectionPanel';
 import ProgramPanel from './ProgramPanel';
 import SensorPanel from './SensorPanel';
+import DSGPanel from './DSGPanel';
 import './menu.css';
 
 interface BottomMenuProps {
@@ -24,6 +25,10 @@ interface BottomMenuProps {
   sensorData: { name: string; value: number; unit: string; status: 'normal' | 'warning' | 'danger' }[];
   mockMode: MockDataMode;
   onMockModeChange: (mode: MockDataMode) => void;
+  // DSG Props
+  dsgState?: DSGState;
+  load?: number;
+  onLoadChange?: (load: number) => void;
 }
 
 const menuItems: MenuItem[] = [
@@ -50,6 +55,9 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
   sensorData,
   mockMode,
   onMockModeChange,
+  dsgState,
+  load = 0,
+  onLoadChange,
 }) => {
   const handlePanelToggle = (panel: MenuPanel) => {
     if (activePanel === panel) {
@@ -61,12 +69,12 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
 
   const getPanelTitle = () => {
     switch (activePanel) {
-      case 'gear': return '⚙️ Gangauswahl & Drehzahlsteuerung';
+      case 'gear': return '⚙️ DSG-7 Gangauswahl & Prüfstand-Steuerung';
       case 'program': return '▶️ Testprogramme';
       case 'sensors': return '📊 Sensorwerte';
       case 'regelung': return '🎛️ Regelungslauf';
       case 'config': return '⚡ Konfiguration';
-      case 'dsg': return '🔀 DSG Anzeige';
+      case 'dsg': return '🔀 DSG-7 Doppelkupplungsgetriebe';
       default: return '';
     }
   };
@@ -84,6 +92,9 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
             onAutoRunToggle={onAutoRunToggle}
             autoSpeed={autoSpeed}
             onAutoSpeedChange={onAutoSpeedChange}
+            dsgState={dsgState}
+            load={load}
+            onLoadChange={onLoadChange}
           />
         );
       case 'program':
@@ -93,25 +104,35 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
       case 'config':
         return (
           <div className="config-section">
-            <div className="config-section-title">Mock-Modus</div>
+            <div className="config-section-title">Simulationsmodus</div>
             <div className="mode-toggle">
               <button
                 className={`mode-toggle-btn ${mockMode === 'random' ? 'active' : ''}`}
                 onClick={() => onMockModeChange('random')}
               >
-                Zufällig
+                Manuell
               </button>
               <button
                 className={`mode-toggle-btn ${mockMode === 'realistic' ? 'active' : ''}`}
                 onClick={() => onMockModeChange('realistic')}
               >
-                Realistisch
+                Automatik
               </button>
             </div>
+            <p style={{ marginTop: '12px', fontSize: '11px', color: 'var(--text-dim)' }}>
+              <strong>Manuell:</strong> Manuelle Steuerung von Gang, Drehzahl und Last<br/>
+              <strong>Automatik:</strong> Automatischer Prüflauf mit realistischen Phasen
+            </p>
           </div>
         );
-      case 'regelung':
       case 'dsg':
+        return (
+          <DSGPanel 
+            dsgState={dsgState}
+            currentGear={selectedGear as any}
+          />
+        );
+      case 'regelung':
         return (
           <div style={{ 
             padding: '40px', 
@@ -119,7 +140,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
             color: 'var(--text-dim)',
             fontSize: '12px' 
           }}>
-            Funktion wird noch implementiert...
+            Regelungslauf wird noch implementiert...
           </div>
         );
       default:
