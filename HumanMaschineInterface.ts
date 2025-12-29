@@ -4302,6 +4302,338 @@ export const COLORS = {
 
 
 
+App.css:
+/* ============================================
+   Prüfstand Dashboard - Global Styles
+   ============================================ */
+
+/* Google Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&display=swap');
+
+/* ============================================
+   CSS Variables - Light Mode (Default)
+   ============================================ */
+:root {
+  /* Background Colors - Light */
+  --bg-dark: #f5f7fa;
+  --bg-panel: #ffffff;
+  --bg-gradient: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  
+  /* Text Colors - Light */
+  --text-primary: #1a1a2e;
+  --text-secondary: rgba(26, 26, 46, 0.7);
+  --text-dim: rgba(26, 26, 46, 0.4);
+  
+  /* Accent Colors */
+  --color-blue: #0095ff;
+  --color-cyan: #00a8cc;
+  --color-green: #00c853;
+  --color-purple: #9c27b0;
+  --color-orange: #ff6d00;
+  --color-red: #e53935;
+  --color-amber: #ff8f00;
+  --color-yellow: #ffd600;
+  
+  /* Glow Colors - Light (subtler) */
+  --glow-blue: rgba(0, 149, 255, 0.25);
+  --glow-cyan: rgba(0, 168, 204, 0.25);
+  --glow-green: rgba(0, 200, 83, 0.25);
+  --glow-purple: rgba(156, 39, 176, 0.25);
+  --glow-orange: rgba(255, 109, 0, 0.3);
+  --glow-red: rgba(229, 57, 53, 0.3);
+  
+  /* Gauge specific */
+  --gauge-track-bg: rgba(0, 0, 0, 0.06);
+  --gauge-hub-outer: linear-gradient(145deg, #e0e5ec 0%, #c8cfd8 100%);
+  --gauge-hub-inner: #d4dae3;
+  --gauge-needle-gradient: linear-gradient(180deg, #2d3748 0%, #4a5568 40%, #718096 100%);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  
+  /* Typography */
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* Rendering */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  
+  /* Colors */
+  color: var(--text-primary);
+  background-color: var(--bg-dark);
+}
+
+/* ============================================
+   CSS Variables - Dark Mode
+   ============================================ */
+[data-theme="dark"] {
+  /* Background Colors - Dark */
+  --bg-dark: #0a0a0f;
+  --bg-panel: #0d0d14;
+  --bg-gradient: linear-gradient(145deg, #0d0d14 0%, #0a0a0f 50%, #08080c 100%);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  
+  /* Text Colors - Dark */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-dim: rgba(255, 255, 255, 0.25);
+  
+  /* Accent Colors - Brighter for dark mode */
+  --color-blue: #00d4ff;
+  --color-cyan: #00bcd4;
+  --color-green: #00e676;
+  --color-purple: #ab47bc;
+  --color-orange: #ff9800;
+  --color-red: #ff3b5c;
+  --color-amber: #ffab00;
+  --color-yellow: #ffeb3b;
+  
+  /* Glow Colors - Stronger for dark */
+  --glow-blue: rgba(0, 212, 255, 0.4);
+  --glow-cyan: rgba(0, 188, 212, 0.4);
+  --glow-green: rgba(0, 230, 118, 0.4);
+  --glow-purple: rgba(171, 71, 188, 0.4);
+  --glow-orange: rgba(255, 152, 0, 0.5);
+  --glow-red: rgba(255, 59, 92, 0.5);
+  
+  /* Gauge specific */
+  --gauge-track-bg: rgba(255, 255, 255, 0.04);
+  --gauge-hub-outer: linear-gradient(145deg, #3a3a4a 0%, #1a1a24 100%);
+  --gauge-hub-inner: #1a1a24;
+  --gauge-needle-gradient: linear-gradient(180deg, #ffffff 0%, #e0e0e0 40%, #a0a0a0 100%);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   Reset & Base Styles
+   ============================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--bg-gradient);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   Links
+   ============================================ */
+a {
+  font-weight: 500;
+  color: var(--color-blue);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--color-cyan);
+}
+
+/* ============================================
+   Form Elements
+   ============================================ */
+input, button, select, textarea {
+  font-family: 'Outfit', sans-serif;
+  font-size: inherit;
+  color: inherit;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input[type="range"] {
+  cursor: pointer;
+}
+
+/* ============================================
+   Scrollbar - Light Mode
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Scrollbar - Dark Mode */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   Selection
+   ============================================ */
+::selection {
+  background: var(--color-blue);
+  color: white;
+}
+
+/* ============================================
+   Theme Toggle Button
+   ============================================ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 18px;
+}
+
+.theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-dim { color: var(--text-dim); }
+
+.text-blue { color: var(--color-blue); }
+.text-cyan { color: var(--color-cyan); }
+.text-green { color: var(--color-green); }
+.text-purple { color: var(--color-purple); }
+.text-orange { color: var(--color-orange); }
+.text-red { color: var(--color-red); }
+
+.bg-glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    filter: drop-shadow(0 0 10px var(--glow-blue)); 
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px var(--glow-blue)); 
+  }
+}
+
+/* ============================================
+   Component Transitions for Theme Switch
+   ============================================ */
+.dashboard-wrapper,
+.dashboard-header,
+.dashboard-footer,
+.dashboard-stats,
+.gauge-container,
+.status-log,
+.bottom-menu-panel,
+.bottom-menu-bar,
+.menu-btn {
+  transition: background 0.3s ease, 
+              border-color 0.3s ease, 
+              color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+
+
+
+
+App.tsx:
+// ============================================
+// Prüfstand Dashboard - Main App
+// ============================================
+
+import { DashboardWrapper } from './components/Dashboard';
+import './App.css';
+
+function App() {
+  return <DashboardWrapper />;
+}
+
+export default App;
+
 
 
 
