@@ -152,16 +152,15 @@ export interface MenuItem {
 }
 
 // ============================================
-// Program Types
+// Prüfplan Types
 // ============================================
 
-export type ProgramStatus = 'ready' | 'running' | 'paused' | 'completed' | 'error';
+export type PruefplanStatus = 'ready' | 'running' | 'paused' | 'completed' | 'error';
 
-export interface TestProgram {
+export interface Pruefplan {
   id: string;
   name: string;
-  icon: string;
-  status: ProgramStatus;
+  status: PruefplanStatus;
   progress?: number;
   description?: string;
 }
@@ -271,37 +270,64 @@ export interface SystemEvent {
 // Constants
 // ============================================
 
+// ============================================
+// GAUGE_CONSTANTS - EXAKT aus Main_Doku.json
+// ============================================
 export const GAUGE_CONSTANTS = {
+  // Drehzahl Eingangsmotor: 0-3530 (grün 0-2000, orange 2000-3000, rot 3000-3530)
   RPM: {
-    MAX: 12000,
-    REDLINE: 8000,
-    IDLE: 800,
+    MAX: 3530,
+    WARNING: 2000,    // Orange beginnt
+    REDLINE: 3000,    // Rot beginnt
+    IDLE: 0,
   },
+  // Öldrücke: 0-60 bar (grün 0-35, orange 35-50, rot 50-60)
   OIL_PRESSURE: {
-    MAX: 20,
-    WARNING: 12,
-    DANGER: 15,
+    MAX: 60,
+    WARNING: 35,      // Orange beginnt
+    DANGER: 50,       // Rot beginnt
   },
+  // Bremsen: 0-6 KW (grün 0-2, orange 2-4, rot 4-6)
+  BRAKE_KW: {
+    MAX: 6,
+    WARNING: 2,       // Orange beginnt
+    DANGER: 4,        // Rot beginnt
+  },
+  // Legacy: Bremsmotor Drehmoment (für Rückwärtskompatibilität)
   BRAKE_MOTOR: {
     MAX_TORQUE: 1500,
-    WARNING_PERCENT: 70,
-    DANGER_PERCENT: 85,
+    WARNING_PERCENT: 33,  // 2/6 = 33%
+    DANGER_PERCENT: 67,   // 4/6 = 67%
     MOTOR_RPM: 1450,
   },
+  // Temperaturen: 0-110 (grün 0-70, orange 70-90, rot 90-110)
   OIL_TEMPERATURE: {
     MIN: 0,
-    MAX: 150,
-    COLD: 40,      // Unter 40°C gilt als kalt
-    OPTIMAL: 80,   // Optimale Betriebstemperatur
-    WARNING: 100,  // Ab 100°C Warnung
-    DANGER: 120,   // Ab 120°C kritisch
+    MAX: 110,
+    COLD: 40,         // Unter 40°C gilt als kalt
+    OPTIMAL: 60,      // Optimale Betriebstemperatur
+    WARNING: 70,      // Orange beginnt
+    DANGER: 90,       // Rot beginnt
   },
+  // Prüfstand Auslastung: 0-100 (grün 0-60, orange 60-80, rot 80-100)
+  AUSLASTUNG: {
+    MAX: 100,
+    WARNING: 60,      // Orange beginnt
+    DANGER: 80,       // Rot beginnt
+  },
+  // Durchfluss (nicht in Main_Doku.json, Schätzwerte)
   FLOW_RATE: {
     MAX: 50,
-    LOW: 5,        // Unter 5 L/min ist zu niedrig
-    OPTIMAL: 20,   // Optimaler Durchfluss
-    WARNING: 40,   // Ab 40 L/min Warnung
-    DANGER: 45,    // Ab 45 L/min kritisch
+    LOW: 5,
+    OPTIMAL: 20,
+    WARNING: 40,
+    DANGER: 45,
+  },
+  // K1/K2/Ausgleich Drehzahl: 0-1000 (grün 0-400, orange 400-800, rot 800-1000)
+  DREHZAHL_K: {
+    MAX: 1000,
+    WARNING: 400,     // Orange beginnt
+    DANGER: 800,      // Rot beginnt
   },
 } as const;
 

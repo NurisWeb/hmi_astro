@@ -46,8 +46,11 @@ export type {
 export type {
   MenuPanel,
   MenuItem,
-  ProgramStatus,
-  TestProgram,
+  PruefschrittStatus,
+  Pruefschritt,
+  Pruefplan,
+  ConditionNachricht,
+  PruefplanAnsicht,
 } from './menu.types';
 
 // WebSocket Types

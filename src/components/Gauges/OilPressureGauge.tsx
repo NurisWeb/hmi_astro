@@ -1,5 +1,6 @@
 // ============================================
-// OilPressureGauge - Öldruckanzeige (0-20 bar)
+// OilPressureGauge - Öldruckanzeige
+// Main_Doku.json: 0-60 bar (grün 0-35, orange 35-50, rot 50-60)
 // ============================================
 
 import React from 'react';
@@ -37,7 +38,7 @@ const OilPressureGauge: React.FC<OilPressureGaugeProps> = ({
       dangerColor={COLORS.RED}
       showNeedle={true}
       showTicks={true}
-      tickInterval={{ major: 5, minor: 1 }}
+      tickInterval={{ major: 10, minor: 5 }}
       formatValue={(v) => v.toFixed(1)}
       className="oil-pressure-gauge"
     >

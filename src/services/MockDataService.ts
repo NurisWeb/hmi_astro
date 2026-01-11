@@ -146,22 +146,29 @@ class MockDataService {
       this.addNoise(oilPressure * 0.98, 0.5),
     ];
 
+    // KW-Werte direkt berechnen (0-6 KW nach Main_Doku.json)
+    const kwBase = (this.currentLoad / 100) * GAUGE_CONSTANTS.BRAKE_KW.MAX;
+    
     this.currentData = {
       rpm: Math.round(this.currentRPM),
       gear: dsgState.activeGear,
-      oilPressures: oilPressures.map(p => Math.max(0, Math.min(20, p))),
-      oilTemperature: Math.max(0, Math.min(150, this.addNoise(oilTemperature, 1))),
+      // Öldrücke: 0-60 bar (Main_Doku.json)
+      oilPressures: oilPressures.map(p => Math.max(0, Math.min(60, p))),
+      // Temperatur: 0-110°C (Main_Doku.json)
+      oilTemperature: Math.max(0, Math.min(110, this.addNoise(oilTemperature, 1))),
       flowRate: Math.max(0, Math.min(50, this.addNoise(flowRate, 0.5))),
       brakeMotors: {
         motor1: {
           torque: Math.max(0, this.addNoise(brakeTorque, 15)),
-          kw: this.calculateKW(brakeTorque),
-          load: (brakeTorque / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          // KW: 0-6 (Main_Doku.json)
+          kw: Math.max(0, Math.min(6, this.addNoise(kwBase, 0.2))),
+          load: (kwBase / GAUGE_CONSTANTS.BRAKE_KW.MAX) * 100,
         },
         motor2: {
           torque: Math.max(0, this.addNoise(brakeTorque * 0.97, 15)),
-          kw: this.calculateKW(brakeTorque * 0.97),
-          load: ((brakeTorque * 0.97) / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          // KW: 0-6 (Main_Doku.json)
+          kw: Math.max(0, Math.min(6, this.addNoise(kwBase * 0.95, 0.2))),
+          load: ((kwBase * 0.95) / GAUGE_CONSTANTS.BRAKE_KW.MAX) * 100,
         },
       },
       temperature: 35 + (this.currentRPM / GAUGE_CONSTANTS.RPM.MAX) * 40 + this.currentLoad * 0.2,
@@ -315,22 +322,29 @@ class MockDataService {
       this.addNoise(oilPressure * 0.99 * stressFactor, 0.3),
     ];
 
+    // KW-Werte direkt berechnen (0-6 KW nach Main_Doku.json)
+    const kwBaseRealistic = (this.currentLoad / 100) * GAUGE_CONSTANTS.BRAKE_KW.MAX * stressFactor;
+    
     this.currentData = {
       rpm: Math.round(this.currentRPM),
       gear: dsgState.activeGear,
-      oilPressures: oilPressures.map(p => Math.max(0, Math.min(20, p))),
-      oilTemperature: Math.max(0, Math.min(150, this.addNoise(oilTemperature * stressFactor, 1))),
+      // Öldrücke: 0-60 bar (Main_Doku.json)
+      oilPressures: oilPressures.map(p => Math.max(0, Math.min(60, p))),
+      // Temperatur: 0-110°C (Main_Doku.json)
+      oilTemperature: Math.max(0, Math.min(110, this.addNoise(oilTemperature * stressFactor, 1))),
       flowRate: Math.max(0, Math.min(50, this.addNoise(flowRate, 0.5))),
       brakeMotors: {
         motor1: {
           torque: Math.max(0, this.addNoise(brakeTorque * stressFactor, 10)),
-          kw: this.calculateKW(brakeTorque * stressFactor),
-          load: (brakeTorque * stressFactor / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          // KW: 0-6 (Main_Doku.json)
+          kw: Math.max(0, Math.min(6, this.addNoise(kwBaseRealistic, 0.2))),
+          load: (kwBaseRealistic / GAUGE_CONSTANTS.BRAKE_KW.MAX) * 100,
         },
         motor2: {
           torque: Math.max(0, this.addNoise(brakeTorque * 0.97 * stressFactor, 10)),
-          kw: this.calculateKW(brakeTorque * 0.97 * stressFactor),
-          load: ((brakeTorque * 0.97 * stressFactor) / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100,
+          // KW: 0-6 (Main_Doku.json)
+          kw: Math.max(0, Math.min(6, this.addNoise(kwBaseRealistic * 0.95, 0.2))),
+          load: ((kwBaseRealistic * 0.95) / GAUGE_CONSTANTS.BRAKE_KW.MAX) * 100,
         },
       },
       temperature: 35 + (this.currentRPM / GAUGE_CONSTANTS.RPM.MAX) * 40 * stressFactor,

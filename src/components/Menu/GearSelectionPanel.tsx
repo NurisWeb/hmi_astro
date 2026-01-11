@@ -1,230 +1,428 @@
 // ============================================
-// GearSelectionPanel - DSG-Gangauswahl & Drehzahlsteuerung
-// Mit Vorwahl-Anzeige und Last-Steuerung
+// GearSelectionPanel - Manuelle Gangauswahl vom SIM-Gang DSG
+// Mit API-Integration und Fehlerbehandlung
 // ============================================
 
-import React from 'react';
-import type { GearPosition, DSGState } from '../../types/dashboard.types';
-import { GAUGE_CONSTANTS, DSG_CONSTANTS } from '../../types/dashboard.types';
+import React, { useState, useEffect } from 'react';
 import './menu.css';
+import {
+  startManual,
+  stopManual,
+  setGear,
+  setMotorFrequenz,
+  cmdStop,
+  pruefeAntwort,
+} from '../../services/ManuelleSteuerungApi';
+
+// Types
+type Gang = 'N' | 'R' | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 interface GearSelectionPanelProps {
-  selectedGear: string;
-  onGearSelect: (gear: string) => void;
-  manualRPM: number;
-  onRPMChange: (rpm: number) => void;
-  isAutoRunning: boolean;
-  onAutoRunToggle: () => void;
-  autoSpeed: 'slow' | 'normal' | 'fast';
-  onAutoSpeedChange: (speed: 'slow' | 'normal' | 'fast') => void;
-  // Neue DSG-Props
-  dsgState?: DSGState;
-  load?: number;
-  onLoadChange?: (load: number) => void;
+  onPanelSchliessen?: () => void;
+  onGangGeaendert?: (gang: string) => void; // Callback für dsgState-Synchronisation
 }
 
-const gears: { value: GearPosition; label: string; clutch: 'K1' | 'K2' | '-' }[] = [
-  { value: 'R', label: 'Rückwärts', clutch: 'K2' },
-  { value: 'N', label: 'Neutral', clutch: '-' },
-  { value: '1', label: '1. Gang', clutch: 'K1' },
-  { value: '2', label: '2. Gang', clutch: 'K2' },
-  { value: '3', label: '3. Gang', clutch: 'K1' },
-  { value: '4', label: '4. Gang', clutch: 'K2' },
-  { value: '5', label: '5. Gang', clutch: 'K1' },
-  { value: '6', label: '6. Gang', clutch: 'K2' },
-  { value: '7', label: '7. Gang', clutch: 'K1' },
-];
+// ============================================
+// Drehzahl-Regler Komponente
+// ============================================
+interface DrehzahlReglerProps {
+  wert: number;
+  onChange: (neuerWert: number) => void;
+  onFertig: () => void;
+  disabled: boolean;
+}
 
-const GearSelectionPanel: React.FC<GearSelectionPanelProps> = ({
-  selectedGear,
-  onGearSelect,
-  manualRPM,
-  onRPMChange,
-  isAutoRunning,
-  onAutoRunToggle,
-  autoSpeed,
-  onAutoSpeedChange,
-  dsgState,
-  load = 0,
-  onLoadChange,
-}) => {
-  const rpmPercent = (manualRPM / GAUGE_CONSTANTS.RPM.MAX) * 100;
-  const loadPercent = load;
+const DrehzahlRegler = ({ wert, onChange, onFertig, disabled }: DrehzahlReglerProps) => {
+  const prozent = (wert / 3530) * 100;
+  const markierungen = [0, 1000, 2000, 3000, 3530];
   
-  // Vorgewählter Gang aus DSG-State
-  const preselectedGear = dsgState?.preselectedGear;
-  const isShifting = dsgState?.isShifting ?? false;
-
-  // Max-RPM für aktuellen Gang ermitteln
-  const currentGearInfo = DSG_CONSTANTS.GEAR_RATIOS.find(g => g.gear === selectedGear);
-  const maxRPMForGear = currentGearInfo?.maxRPM ?? GAUGE_CONSTANTS.RPM.MAX;
-
-  const isGearPreselected = (gear: GearPosition) => {
-    return preselectedGear === gear && selectedGear !== gear;
-  };
-
   return (
-    <div className="gear-panel">
-      {/* Gang-Auswahl Sektion */}
-      <div className="gear-panel-section">
-        <div className="gear-panel-section-title">
-          Gang auswählen (DSG-7)
-          {isShifting && <span className="shifting-badge">⚡ Schalten</span>}
+    <div className="drehzahl-regler-section">
+      <div className="manuell-section-title">Drehzahl</div>
+      
+      <div className="drehzahl-slider-container">
+        <div className="drehzahl-slider-track">
+          <div 
+            className="drehzahl-slider-fill" 
+            style={{ width: `${prozent}%` }}
+          />
         </div>
-        <div className="gear-grid">
-          {gears.map(({ value, label, clutch }) => (
-            <button
-              key={value}
-              className={`gear-btn ${selectedGear === value ? 'active' : ''} ${isGearPreselected(value) ? 'preselected' : ''} ${isShifting && selectedGear !== value ? 'disabled-shifting' : ''}`}
-              onClick={() => onGearSelect(value)}
-              disabled={isAutoRunning || isShifting}
+        
+        <input
+          type="range"
+          className="drehzahl-slider"
+          min={0}
+          max={3530}
+          step={10}
+          value={wert}
+          onChange={(e) => onChange(Number(e.target.value))}
+          onMouseUp={onFertig}
+          onTouchEnd={onFertig}
+          disabled={disabled}
+        />
+        
+        <div className="drehzahl-markierungen">
+          {markierungen.map((mark) => (
+            <span 
+              key={mark} 
+              className={`drehzahl-mark ${wert >= mark ? 'aktiv' : ''}`}
+              style={{ left: `${(mark / 3530) * 100}%` }}
             >
-              <span className="gear-num">{value}</span>
-              <span className="gear-label">{label}</span>
-              <span className="gear-clutch-badge">{clutch}</span>
-            </button>
+              {mark}
+            </span>
           ))}
         </div>
-        
-        {/* DSG-Info-Box */}
-        <div className="dsg-info-box">
-          <div className="dsg-info-row">
-            <span className="dsg-info-label">Aktiver Gang:</span>
-            <span className="dsg-info-value active">{selectedGear}</span>
-          </div>
-          {preselectedGear && (
-            <div className="dsg-info-row">
-              <span className="dsg-info-label">Vorgewählt:</span>
-              <span className="dsg-info-value preselected">{preselectedGear}</span>
-            </div>
-          )}
-          <div className="dsg-info-row">
-            <span className="dsg-info-label">Max. Drehzahl:</span>
-            <span className="dsg-info-value">{maxRPMForGear.toLocaleString('de-DE')} U/min</span>
-          </div>
-        </div>
       </div>
-
-      {/* Drehzahl & Last Sektion */}
-      <div className="gear-panel-section">
-        <div className="gear-panel-section-title">Drehzahl</div>
-        <div className="rpm-control">
-          <div className="rpm-slider-container">
-            <div className="rpm-slider-track">
-              <div 
-                className="rpm-slider-fill" 
-                style={{ width: `${rpmPercent}%` }}
-              />
-              {/* Redline-Markierung */}
-              <div 
-                className="rpm-redline-marker"
-                style={{ left: `${(maxRPMForGear / GAUGE_CONSTANTS.RPM.MAX) * 100}%` }}
-              />
-            </div>
-            <input
-              type="range"
-              className="rpm-slider"
-              min="0"
-              max={GAUGE_CONSTANTS.RPM.MAX}
-              step="100"
-              value={manualRPM}
-              onChange={(e) => onRPMChange(parseInt(e.target.value))}
-              disabled={isAutoRunning}
-            />
-          </div>
-          <div className="rpm-value-display">
-            <span>0</span>
-            <span className={`rpm-value ${manualRPM > maxRPMForGear ? 'overlimit' : ''}`}>
-              {manualRPM.toLocaleString('de-DE')}
-            </span>
-            <span>{GAUGE_CONSTANTS.RPM.MAX.toLocaleString('de-DE')}</span>
-          </div>
-        </div>
-
-        {/* Last-Steuerung für Prüfstand */}
-        <div className="gear-panel-section-title" style={{ marginTop: '16px' }}>
-          Prüfstand-Last
-        </div>
-        <div className="load-control">
-          <div className="load-slider-container">
-            <div className="load-slider-track">
-              <div 
-                className="load-slider-fill" 
-                style={{ 
-                  width: `${loadPercent}%`,
-                  background: loadPercent > 80 
-                    ? 'linear-gradient(90deg, var(--color-orange), var(--color-red))'
-                    : 'linear-gradient(90deg, var(--color-cyan), var(--color-green))'
-                }}
-              />
-            </div>
-            <input
-              type="range"
-              className="load-slider"
-              min="0"
-              max="100"
-              step="5"
-              value={load}
-              onChange={(e) => onLoadChange?.(parseInt(e.target.value))}
-              disabled={isAutoRunning}
-            />
-          </div>
-          <div className="load-value-display">
-            <span>0%</span>
-            <span className={`load-value ${load > 80 ? 'high-load' : ''}`}>
-              {load}%
-            </span>
-            <span>100%</span>
-          </div>
-          <div className="load-presets">
-            {[0, 25, 50, 75, 100].map(preset => (
-              <button
-                key={preset}
-                className={`load-preset-btn ${load === preset ? 'active' : ''}`}
-                onClick={() => onLoadChange?.(preset)}
-                disabled={isAutoRunning}
-              >
-                {preset}%
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Auto-Modus */}
-        <div className="gear-panel-section-title" style={{ marginTop: '16px' }}>
-          Automatischer Prüflauf
-        </div>
-        
-        <div className="speed-select">
-          {(['slow', 'normal', 'fast'] as const).map((speed) => (
-            <button
-              key={speed}
-              className={`speed-btn ${autoSpeed === speed ? 'active' : ''}`}
-              onClick={() => onAutoSpeedChange(speed)}
-              disabled={isAutoRunning}
-            >
-              {speed === 'slow' ? 'Langsam' : speed === 'normal' ? 'Normal' : 'Schnell'}
-            </button>
-          ))}
-        </div>
-
-        <div className="auto-mode-controls">
-          <button
-            className={`auto-mode-btn ${isAutoRunning ? 'running' : ''}`}
-            onClick={onAutoRunToggle}
-          >
-            {isAutoRunning ? '⏹️ Prüflauf Stoppen' : '🔄 DSG-Prüflauf Starten'}
-          </button>
-        </div>
-        
-        {isAutoRunning && (
-          <div className="auto-mode-info">
-            <span className="auto-mode-info-text">
-              ⚡ Automatischer Durchlauf aller 7 Gänge mit realistischer DSG-Schaltung
-            </span>
-          </div>
-        )}
+      
+      <div className="drehzahl-anzeige">
+        <span className="drehzahl-wert">{wert}</span>
+        <span>U/min</span>
       </div>
+    </div>
+  );
+};
+
+// ============================================
+// Gang-Button Komponente
+// ============================================
+interface GangButtonProps {
+  gang: Gang;
+  ausgewaehlt: boolean;
+  disabled: boolean;
+  onClick: () => void;
+}
+
+const GangButton = ({ gang, ausgewaehlt, disabled, onClick }: GangButtonProps) => {
+  const klassen = [
+    'manuell-gang-btn',
+    ausgewaehlt ? 'aktiv' : '',
+    disabled ? 'disabled' : '',
+  ].filter(Boolean).join(' ');
+  
+  return (
+    <button
+      className={klassen}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      {gang}
+    </button>
+  );
+};
+
+// ============================================
+// Gang-Buttons Container
+// ============================================
+interface GangButtonsProps {
+  ausgewaehlterGang: Gang | null;
+  onGangWaehlen: (gang: Gang) => void;
+  disabled: boolean;
+}
+
+const GangButtons = ({ ausgewaehlterGang, onGangWaehlen, disabled }: GangButtonsProps) => {
+  // Alle Gänge auf einer Zeile: N, R, 1-7
+  const alleGaenge: Gang[] = ['N', 'R', 1, 2, 3, 4, 5, 6, 7];
+  
+  return (
+    <div className="gang-buttons-section">
+      <div className="manuell-section-title">Gänge</div>
+      
+      <div className="gang-reihe alle">
+        {alleGaenge.map((gang) => (
+          <GangButton
+            key={gang}
+            gang={gang}
+            ausgewaehlt={ausgewaehlterGang === gang}
+            disabled={disabled}
+            onClick={() => onGangWaehlen(gang)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// Status-Anzeige Komponente
+// ============================================
+interface StatusAnzeigeProps {
+  wartAufAntwort: boolean;
+  statusLog: string;
+  typ: 'info' | 'erfolg' | 'warten' | 'fehler';
+}
+
+const StatusAnzeige = ({ wartAufAntwort, statusLog, typ }: StatusAnzeigeProps) => {
+  const klasse = `manuell-status-log ${typ}`;
+  
+  return (
+    <div className={klasse}>
+      {wartAufAntwort && <span className="spinner-klein" />}
+      {typ === 'erfolg' && '✅ '}
+      {typ === 'info' && 'ℹ️ '}
+      {typ === 'warten' && '⏳ '}
+      {typ === 'fehler' && '❌ '}
+      {statusLog}
+    </div>
+  );
+};
+
+// ============================================
+// Fehler-Popup Komponente
+// ============================================
+interface FehlerPopupProps {
+  nachricht: string;
+  onSchliessen: () => void;
+}
+
+const FehlerPopup = ({ nachricht, onSchliessen }: FehlerPopupProps) => {
+  return (
+    <div className="fehler-popup-overlay">
+      <div className="fehler-popup">
+        <h3>⚠️ Fehler</h3>
+        <p>Manuelle Steuerung ist fehlgeschlagen.</p>
+        <p className="fehler-details">{nachricht}</p>
+        <p className="hinweis">Das System führt einen Soft-Aus durch.</p>
+        
+        <button 
+          onClick={onSchliessen}
+          className="fehler-popup-btn"
+        >
+          Verstanden
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// Haupt-Panel Komponente
+// ============================================
+const GearSelectionPanel: React.FC<GearSelectionPanelProps> = ({
+  onPanelSchliessen,
+  onGangGeaendert,
+}) => {
+  // === STATE ===
+  const [drehzahl, setDrehzahl] = useState<number>(0);
+  const [ausgewaehlterGang, setAusgewaehlterGang] = useState<Gang | null>(null);
+  
+  // Sperr-State
+  const [istGesperrt, setIstGesperrt] = useState<boolean>(false);
+  const [wartAufAntwort, setWartAufAntwort] = useState<boolean>(false);
+  
+  // NEU: Gänge werden erst nach Backend-OK freigegeben
+  const [gaengeFreigegebenVomBackend, setGaengeFreigegebenVomBackend] = useState<boolean>(false);
+  
+  // Status-Log
+  const [statusLog, setStatusLog] = useState<string>('Initialisiere...');
+  const [statusTyp, setStatusTyp] = useState<'info' | 'erfolg' | 'warten' | 'fehler'>('info');
+  
+  // Fehler-Popup
+  const [zeigeFehlerPopup, setZeigeFehlerPopup] = useState<boolean>(false);
+  const [fehlermeldung, setFehlermeldung] = useState<string>('');
+  
+  // Panel initialisiert?
+  const [initialisiert, setInitialisiert] = useState<boolean>(false);
+  
+  // === BERECHNETE WERTE ===
+  // Gänge sind nur freigegeben wenn:
+  // 1. Backend hat OK gegeben UND
+  // 2. Gerade keine Anfrage läuft
+  const gaengeFreigegeben = gaengeFreigegebenVomBackend && !istGesperrt;
+  const drehzahlFreigegeben = !istGesperrt && initialisiert;
+  
+  // === SPERR-FUNKTIONEN ===
+  const sperreAlles = () => {
+    setIstGesperrt(true);
+    setWartAufAntwort(true);
+  };
+  
+  const gebeAllesFrei = () => {
+    setIstGesperrt(false);
+    setWartAufAntwort(false);
+  };
+  
+  // === PANEL LIFECYCLE ===
+  
+  // Bei Panel öffnen: startManual() aufrufen
+  useEffect(() => {
+    const initialisiere = async () => {
+      setStatusLog('Verbinde mit Prüfstand...');
+      setStatusTyp('warten');
+      sperreAlles();
+      
+      const erfolg = await startManual();
+      
+      if (erfolg) {
+        setStatusLog('Bereit für manuelle Steuerung');
+        setStatusTyp('info');
+        setInitialisiert(true);
+        gebeAllesFrei();
+      } else {
+        await handleFehler('Manuelle Steuerung konnte nicht gestartet werden');
+      }
+    };
+    
+    initialisiere();
+    
+    // Cleanup bei Unmount - State wird beim nächsten Mount neu initialisiert
+    return () => {
+      stopManual();
+    };
+  }, []);
+  
+  // === FEHLERBEHANDLUNG ===
+  const handleFehler = async (nachricht: string) => {
+    console.error('Fehler in manueller Steuerung:', nachricht);
+    
+    // Soft-Aus senden
+    await cmdStop();
+    
+    // Fehlermeldung anzeigen
+    setFehlermeldung(nachricht);
+    setZeigeFehlerPopup(true);
+    setStatusLog(nachricht);
+    setStatusTyp('fehler');
+  };
+  
+  const handleFehlerPopupSchliessen = async () => {
+    setZeigeFehlerPopup(false);
+    
+    // Alles zurücksetzen
+    setDrehzahl(0);
+    setAusgewaehlterGang(null);
+    setIstGesperrt(false);
+    setWartAufAntwort(false);
+    setGaengeFreigegebenVomBackend(false);
+    
+    // Panel schließen
+    await stopManual();
+    onPanelSchliessen?.();
+  };
+  
+  // === API-HANDLER ===
+  
+  // Drehzahl an Backend senden
+  const sendeDrehzahl = async (frequenz: number) => {
+    sperreAlles();
+    setStatusLog('Drehzahl wird gesetzt...');
+    setStatusTyp('warten');
+    
+    const response = await setMotorFrequenz(frequenz);
+    const ergebnis = pruefeAntwort(response);
+    
+    if (ergebnis === 'ok') {
+      setStatusLog(`Drehzahl auf ${frequenz} U/min gesetzt`);
+      setStatusTyp('erfolg');
+      
+      // Gänge freigeben NUR wenn Drehzahl >= 300
+      if (frequenz >= 300) {
+        setGaengeFreigegebenVomBackend(true);
+      } else {
+        setGaengeFreigegebenVomBackend(false);
+      }
+      
+      gebeAllesFrei();
+      
+    } else if (ergebnis === 'warten') {
+      // Backend busy - nochmal versuchen nach kurzer Pause
+      setTimeout(() => sendeDrehzahl(frequenz), 500);
+      
+    } else {
+      await handleFehler('Drehzahl konnte nicht gesetzt werden');
+    }
+  };
+  
+  // Gang an Backend senden
+  const sendeGang = async (gang: Gang) => {
+    sperreAlles();
+    setStatusLog(`Gang ${gang} wird eingelegt...`);
+    setStatusTyp('warten');
+    
+    const response = await setGear(gang);
+    const ergebnis = pruefeAntwort(response);
+    
+    if (ergebnis === 'ok') {
+      setStatusLog(`Gang ${gang} eingelegt`);
+      setStatusTyp('erfolg');
+      gebeAllesFrei();
+      
+      // dsgState im Parent synchronisieren (ParameterBar + Gauges)
+      onGangGeaendert?.(String(gang));
+      
+    } else if (ergebnis === 'warten') {
+      // Backend busy - nochmal versuchen
+      setTimeout(() => sendeGang(gang), 500);
+      
+    } else {
+      await handleFehler('Gang konnte nicht eingelegt werden');
+    }
+  };
+  
+  // === UI-HANDLER ===
+  
+  // Drehzahl lokal ändern (bei jedem Slider-Move)
+  const handleDrehzahlLokal = (neuerWert: number) => {
+    setDrehzahl(neuerWert);
+  };
+  
+  // Drehzahl fertig - wird bei "Loslassen" aufgerufen
+  const handleDrehzahlFertig = () => {
+    if (!initialisiert) return;
+    sendeDrehzahl(drehzahl);
+  };
+  
+  // Gang auswählen
+  const handleGangWaehlen = (gang: Gang) => {
+    if (!gaengeFreigegeben) return;
+    setAusgewaehlterGang(gang);
+    sendeGang(gang);
+  };
+  
+  // === RENDER ===
+  return (
+    <div className={`manuell-panel ${istGesperrt ? 'gesperrt' : ''}`}>
+      {/* Fehler-Popup */}
+      {zeigeFehlerPopup && (
+        <FehlerPopup 
+          nachricht={fehlermeldung}
+          onSchliessen={handleFehlerPopupSchliessen}
+        />
+      )}
+      
+      {/* Status-Anzeige */}
+      <StatusAnzeige 
+        wartAufAntwort={wartAufAntwort}
+        statusLog={statusLog}
+        typ={statusTyp}
+      />
+      
+      {/* Drehzahl-Regler */}
+      <DrehzahlRegler
+        wert={drehzahl}
+        onChange={handleDrehzahlLokal}
+        onFertig={handleDrehzahlFertig}
+        disabled={!drehzahlFreigegeben}
+      />
+      
+      {/* Gang-Buttons */}
+      <GangButtons
+        ausgewaehlterGang={ausgewaehlterGang}
+        onGangWaehlen={handleGangWaehlen}
+        disabled={!gaengeFreigegeben}
+      />
+      
+      {/* Hinweis-Texte */}
+      {!gaengeFreigegebenVomBackend && !istGesperrt && initialisiert && (
+        <div className="manuell-hinweis warnung">
+          ⚠️ Drehzahl auf mindestens 300 U/min erhöhen um Gänge freizuschalten
+        </div>
+      )}
+      
+      {istGesperrt && (
+        <div className="manuell-hinweis info">
+          ⏳ Befehl wird ausgeführt, bitte warten...
+        </div>
+      )}
     </div>
   );
 };

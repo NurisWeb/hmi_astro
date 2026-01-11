@@ -24,6 +24,7 @@
   max-height: 0;
   transition: max-height 0.4s ease, padding 0.4s ease, background 0.3s ease;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  margin: 0px auto 20px;
 }
 
 .bottom-menu-panel::before {
@@ -37,7 +38,7 @@
 }
 
 .bottom-menu-panel.open {
-  max-height: 400px;
+  max-height: 700px;
   padding: 20px;
   overflow-y: auto;
 }
@@ -46,7 +47,8 @@
 @media (min-width: 1600px) {
   .bottom-menu-panel {
     max-width: 1400px;
-    margin: 0 auto;
+    margin: 0px auto 20px;
+    width: 100%;
   }
 }
 
@@ -61,10 +63,10 @@
 
 .bottom-menu-panel-title {
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: 2px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
 }
 
@@ -323,6 +325,7 @@
 
 .rpm-slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 28px;
   background: transparent;
@@ -458,14 +461,14 @@
   background: linear-gradient(180deg, rgba(0, 168, 204, 0.2) 0%, rgba(0, 168, 204, 0.05) 100%);
 }
 
-/* Program Panel - Industrial List */
-.program-list {
+/* Prüfplan Panel - Industrial List */
+.pruefplan-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
-.program-item {
+.pruefplan-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -478,30 +481,26 @@
   box-shadow: var(--shadow-sm);
 }
 
-.program-item:hover {
+.pruefplan-item:hover {
   border-color: var(--color-blue);
   background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-light) 100%);
 }
 
-.program-item:active {
+.pruefplan-item:active {
   box-shadow: var(--shadow-inset);
 }
 
-.program-item.running {
+.pruefplan-item.running {
   border-color: var(--color-green);
   background: linear-gradient(180deg, rgba(0, 179, 65, 0.2) 0%, rgba(0, 179, 65, 0.05) 100%);
   box-shadow: 0 0 10px var(--glow-green);
 }
 
-.program-icon {
-  font-size: 22px;
-}
-
-.program-info {
+.pruefplan-info {
   flex: 1;
 }
 
-.program-name {
+.pruefplan-name {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -509,13 +508,13 @@
   margin-bottom: 2px;
 }
 
-.program-desc {
+.pruefplan-desc {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 10px;
   color: var(--text-dim);
 }
 
-.program-status {
+.pruefplan-status {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
   font-weight: 600;
@@ -528,7 +527,7 @@
   letter-spacing: 1px;
 }
 
-.program-item.running .program-status {
+.pruefplan-item.running .pruefplan-status {
   background: rgba(0, 179, 65, 0.2);
   border-color: var(--color-green);
   color: var(--color-green);
@@ -1196,6 +1195,7 @@
 
 .load-slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 28px;
   background: transparent;
@@ -1290,4 +1290,1044 @@
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 10px;
   color: var(--color-orange);
+}
+
+/* ============================================
+   Prüfplan Panel - Industrial Test Plan Design
+   ============================================ */
+
+/* Prüfplan Liste */
+.pruefplan-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pruefplan-liste-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+
+.pruefplan-liste-item:hover {
+  border-color: var(--color-blue);
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-light) 100%);
+}
+
+.pruefplan-liste-item:active {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
+}
+
+.pruefplan-liste-info {
+  flex: 1;
+}
+
+.pruefplan-liste-name {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.pruefplan-liste-schritte {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.pruefplan-liste-pfeil {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--text-dim);
+  transition: transform 0.15s, color 0.15s;
+}
+
+.pruefplan-liste-item:hover .pruefplan-liste-pfeil {
+  transform: translateX(4px);
+  color: var(--color-blue);
+}
+
+/* Prüfplan Aktiv */
+.pruefplan-aktiv {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pruefplan-aktiv-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.pruefplan-zurueck-btn {
+  padding: 8px 14px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+
+.pruefplan-zurueck-btn:hover {
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-light) 100%);
+  color: var(--text-primary);
+}
+
+.pruefplan-zurueck-btn:active {
+  box-shadow: var(--shadow-inset);
+}
+
+.pruefplan-aktiv-titel {
+  flex: 1;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pruefplan-aktiv-fortschritt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--color-cyan);
+  padding: 4px 10px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 3px;
+}
+
+/* Prüfschritte Liste */
+.pruefplan-schritte-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Prüfschritt Item */
+.pruefschritt-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.pruefschritt-item.wartend {
+  opacity: 0.6;
+}
+
+.pruefschritt-item.aktiv {
+  border-color: var(--color-green);
+  background: linear-gradient(180deg, rgba(0, 179, 65, 0.15) 0%, rgba(0, 179, 65, 0.05) 100%);
+  box-shadow: 0 0 8px var(--glow-green);
+}
+
+.pruefschritt-item.abgeschlossen {
+  border-color: var(--color-cyan);
+  background: linear-gradient(180deg, rgba(0, 168, 204, 0.1) 0%, rgba(0, 168, 204, 0.02) 100%);
+}
+
+.pruefschritt-nummer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--metal-mid);
+  border: 2px solid var(--glass-border);
+  border-radius: 50%;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.pruefschritt-item.aktiv .pruefschritt-nummer {
+  border-color: var(--color-green);
+  color: var(--color-green);
+  background: rgba(0, 179, 65, 0.2);
+}
+
+.pruefschritt-item.abgeschlossen .pruefschritt-nummer {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  background: rgba(0, 168, 204, 0.15);
+}
+
+.pruefschritt-bezeichnung {
+  flex: 1;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.pruefschritt-item.aktiv .pruefschritt-bezeichnung {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.pruefschritt-item.abgeschlossen .pruefschritt-bezeichnung {
+  color: var(--text-primary);
+}
+
+.pruefschritt-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 2px;
+  background: var(--metal-mid);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pruefschritt-item.aktiv .pruefschritt-status {
+  background: rgba(0, 179, 65, 0.2);
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+
+.pruefschritt-item.abgeschlossen .pruefschritt-status {
+  background: rgba(0, 168, 204, 0.15);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+/* ============================================
+   Prüfplan Animationen
+   ============================================ */
+
+/* Basis-Animationen */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation-Klassen */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.35s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+/* Gestaffelte Animation für Listen-Items */
+.pruefplan-liste-item {
+  animation: slideUp 0.35s ease-out forwards;
+  opacity: 0;
+}
+
+.pruefplan-schritte-liste .pruefschritt-item {
+  animation: slideUp 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+/* ============================================
+   LoadingDots Animation
+   ============================================ */
+
+.loading-dots {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.loading-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--color-green);
+  border-radius: 50%;
+  animation: dotPulse 1s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 200ms;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 400ms;
+}
+
+@keyframes dotPulse {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   Aktiver Schritt Marker
+   ============================================ */
+
+.pruefschritt-marker {
+  color: var(--color-green);
+  margin-right: 8px;
+  animation: markerPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes markerPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+   Header Styling Updates
+   ============================================ */
+
+.pruefplan-aktiv-titel {
+  flex: 1;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.pruefplan-aktiv-titel:hover {
+  color: var(--color-cyan);
+}
+
+/* Verbesserter Zurück-Button */
+.pruefplan-zurueck-btn {
+  padding: 8px 12px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Wartende Schritte ausgrauen */
+.pruefschritt-item.wartend {
+  opacity: 0.4;
+}
+
+.pruefschritt-item.wartend .pruefschritt-status {
+  display: none;
+}
+
+/* Aktiver Schritt verstärken */
+.pruefschritt-item.aktiv {
+  opacity: 1;
+  border-width: 2px;
+}
+
+.pruefschritt-item.aktiv .pruefschritt-bezeichnung {
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+/* ============================================
+   Condition Popup - Modal Dialog
+   ============================================ */
+
+.condition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.condition-popup {
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
+  border: 2px solid var(--color-orange);
+  border-radius: 8px;
+  padding: 32px 40px;
+  min-width: 380px;
+  max-width: 500px;
+  box-shadow: 
+    0 0 30px rgba(255, 152, 0, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+.condition-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.condition-icon {
+  font-size: 32px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.condition-titel {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-orange);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.condition-nachricht {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  text-align: center;
+  padding: 20px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  margin-bottom: 28px;
+}
+
+.condition-btn {
+  display: block;
+  width: 100%;
+  padding: 16px 32px;
+  background: linear-gradient(180deg, var(--color-orange) 0%, #e65100 100%);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.condition-btn:hover {
+  background: linear-gradient(180deg, #ffb74d 0%, var(--color-orange) 100%);
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+.condition-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255, 152, 0, 0.3);
+}
+
+/* ============================================
+   Test-Button (temporär)
+   ============================================ */
+
+.test-btn {
+  padding: 8px 16px;
+  background: linear-gradient(180deg, #9c27b0 0%, #7b1fa2 100%);
+  border: 1px solid #ba68c8;
+  border-radius: 4px;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-left: auto;
+}
+
+.test-btn:hover {
+  background: linear-gradient(180deg, #ba68c8 0%, #9c27b0 100%);
+}
+
+.test-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Manuelle Gangauswahl Panel
+   ============================================ */
+
+.manuell-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 8px;
+}
+
+.manuell-section-title {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  background: var(--metal-dark);
+  border-left: 2px solid var(--color-cyan);
+}
+
+/* Status-Log */
+.manuell-status-log {
+  padding: 6px 12px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Drehzahl-Regler */
+.drehzahl-regler-section {
+  padding: 10px 12px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.drehzahl-regler-section .manuell-section-title {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.drehzahl-slider-container {
+  position: relative;
+  padding-bottom: 20px;
+  margin-top: 0;
+  flex: 1;
+  min-width: 150px;
+}
+
+.drehzahl-slider-track {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--metal-dark);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-inset);
+}
+
+.drehzahl-slider-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-cyan), var(--color-blue));
+  transition: width 0.1s;
+}
+
+.drehzahl-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.drehzahl-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 24px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 2px solid var(--color-cyan);
+  border-radius: 3px;
+  box-shadow: var(--shadow-sm), 0 0 6px var(--glow-cyan);
+  transition: transform 0.15s;
+  cursor: grab;
+}
+
+.drehzahl-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-light) 100%);
+}
+
+.drehzahl-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+}
+
+.drehzahl-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.drehzahl-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  border-color: var(--glass-border);
+  box-shadow: none;
+}
+
+/* Markierungen unter dem Slider */
+.drehzahl-markierungen {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+}
+
+.drehzahl-mark {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  color: var(--text-dim);
+  transition: color 0.15s;
+}
+
+.drehzahl-mark.aktiv {
+  color: var(--color-cyan);
+}
+
+/* Drehzahl-Anzeige */
+.drehzahl-anzeige {
+  margin-top: 0;
+  text-align: center;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.drehzahl-wert {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--lcd-text);
+  background: var(--lcd-bg);
+  padding: 2px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--metal-dark);
+  box-shadow: var(--shadow-inset);
+  text-shadow: 0 0 8px var(--lcd-text);
+  min-width: 50px;
+  display: inline-block;
+}
+
+/* Gang-Buttons Section */
+.gang-buttons-section {
+  padding: 10px 12px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+}
+
+/* Gang-Reihen */
+.gang-reihe {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.gang-reihe.alle {
+  gap: 4px;
+}
+
+.gang-reihe.sonder {
+  margin-top: 8px;
+  gap: 12px;
+}
+
+/* Gang-Button */
+.manuell-gang-btn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 2px solid var(--glass-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--metal-highlight);
+  
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.manuell-gang-btn:hover:not(.disabled) {
+  border-color: var(--color-cyan);
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-light) 100%);
+  box-shadow: var(--shadow-sm), 0 0 8px var(--glow-cyan);
+}
+
+.manuell-gang-btn:active:not(.disabled) {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
+}
+
+.manuell-gang-btn.aktiv {
+  border-color: var(--color-green);
+  background: linear-gradient(180deg, rgba(0, 179, 65, 0.3) 0%, rgba(0, 179, 65, 0.1) 100%);
+  box-shadow: 0 0 15px var(--glow-green), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: var(--color-green);
+  text-shadow: 0 0 10px var(--glow-green);
+}
+
+.manuell-gang-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--glass-border);
+}
+
+.manuell-gang-btn.disabled:hover {
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Hinweis-Box */
+.manuell-hinweis {
+  padding: 6px 10px;
+  background: linear-gradient(180deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 152, 0, 0.05) 100%);
+  border: 1px solid var(--color-orange);
+  border-radius: 3px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10px;
+  color: var(--color-orange);
+  text-align: center;
+}
+
+.manuell-hinweis.info {
+  background: linear-gradient(180deg, rgba(0, 150, 200, 0.15) 0%, rgba(0, 150, 200, 0.05) 100%);
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+/* Responsive: Kleine Bildschirme */
+@media (max-width: 480px) {
+  .manuell-panel {
+    gap: 8px;
+    padding: 0 4px;
+  }
+  
+  .manuell-gang-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    border-radius: 3px;
+  }
+  
+  .gang-reihe {
+    gap: 4px;
+  }
+  
+  .gang-reihe.sonder {
+    gap: 8px;
+  }
+  
+  .drehzahl-regler-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px;
+  }
+  
+  .drehzahl-slider-container {
+    min-width: 100%;
+  }
+  
+  .drehzahl-anzeige {
+    justify-content: center;
+  }
+  
+  .drehzahl-wert {
+    font-size: 16px;
+    padding: 2px 8px;
+  }
+  
+  .manuell-section-title {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  .manuell-status-log {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+/* Touch-Optimierung für große Bildschirme */
+@media (min-width: 768px) {
+  .manuell-gang-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+  
+  .drehzahl-slider::-webkit-slider-thumb {
+    width: 20px;
+    height: 32px;
+  }
+  
+  .drehzahl-wert {
+    font-size: 20px;
+    min-width: 60px;
+  }
+}
+
+/* ============================================
+   Gesperrt-Zustand (während API-Anfrage)
+   ============================================ */
+
+.manuell-panel.gesperrt {
+  pointer-events: none;
+}
+
+.manuell-panel.gesperrt .drehzahl-regler-section,
+.manuell-panel.gesperrt .gang-buttons-section {
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+/* Status-Log Varianten */
+.manuell-status-log.wartend {
+  background: linear-gradient(180deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 152, 0, 0.1) 100%);
+  border: 1px solid var(--color-orange);
+  color: var(--color-orange);
+}
+
+.manuell-status-log.erfolg {
+  background: linear-gradient(180deg, rgba(0, 179, 65, 0.2) 0%, rgba(0, 179, 65, 0.1) 100%);
+  border: 1px solid var(--color-green);
+  color: var(--color-green);
+}
+
+/* Kleiner Spinner im Status-Log */
+.spinner-klein {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-orange);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Hinweis Varianten */
+.manuell-hinweis.warnung {
+  background: linear-gradient(180deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 152, 0, 0.05) 100%);
+  border-color: var(--color-orange);
+  color: var(--color-orange);
+}
+
+.manuell-hinweis.info {
+  background: linear-gradient(180deg, rgba(0, 168, 204, 0.15) 0%, rgba(0, 168, 204, 0.05) 100%);
+  border: 1px solid var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+/* ============================================
+   Fehler-Popup
+   ============================================ */
+
+.fehler-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fehler-popup {
+  background: linear-gradient(180deg, #2a1a1a 0%, #1a0a0a 100%);
+  border: 2px solid var(--color-red);
+  border-radius: 12px;
+  padding: 32px 40px;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+  animation: popIn 0.3s ease;
+}
+
+@keyframes popIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+}
+
+.fehler-popup h3 {
+  color: var(--color-red);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.fehler-popup p {
+  color: var(--text-primary);
+  font-size: 16px;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.fehler-popup .fehler-details {
+  color: var(--color-red);
+  font-family: 'IBM Plex Mono', monospace;
+  background: rgba(255, 0, 0, 0.1);
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  margin: 16px 0;
+}
+
+.fehler-popup .hinweis {
+  color: var(--color-orange);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.fehler-popup-btn {
+  margin-top: 24px;
+  padding: 14px 40px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--color-red);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fehler-popup-btn:hover {
+  background: #cc0000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+}
+
+.fehler-popup-btn:active {
+  transform: translateY(0);
+}
+
+/* Status-Log Fehler-Variante */
+.manuell-status-log.fehler {
+  background: linear-gradient(180deg, rgba(255, 0, 0, 0.2) 0%, rgba(255, 0, 0, 0.1) 100%);
+  border: 1px solid var(--color-red);
+  color: var(--color-red);
 }

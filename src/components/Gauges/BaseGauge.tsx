@@ -177,7 +177,9 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
     return tickElements;
   }, [showTicks, tickInterval, minValue, maxValue, startAngle, totalAngle, center, tickConfig, warningThreshold, dangerThreshold]);
 
-  const displayValue = formatValue ? formatValue(value) : value.toFixed(value >= 100 ? 0 : 1);
+  // Keine Minuswerte anzeigen - immer absolute Werte
+  const absValue = Math.abs(value);
+  const displayValue = formatValue ? formatValue(absValue) : absValue.toFixed(absValue >= 100 ? 0 : 1);
 
   return (
     <div 

@@ -146,65 +146,84 @@
   filter: drop-shadow(0 0 12px var(--glow-red));
 }
 
-/* Ticks - Industrial Style */
+/* Ticks - Industrial Style
+   Dickere Striche für bessere Sichtbarkeit
+   Light-Mode: Schwarze Striche statt weiße */
 .gauge-tick {
-  stroke: rgba(255, 255, 255, 0.15);
-  stroke-width: 1;
-  stroke-linecap: butt;
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1.5;
+  stroke-linecap: round;
 }
 
 .gauge-tick.major {
-  stroke: rgba(255, 255, 255, 0.35);
-  stroke-width: 2;
+  stroke: rgba(255, 255, 255, 0.5);
+  stroke-width: 2.5;
 }
 
-[data-theme="light"] .gauge-tick {
-  stroke: rgba(0, 0, 0, 0.2);
+/* LIGHT MODE - Schwarze Striche für Kontrast */
+[data-theme="light"] .gauge-tick,
+:root:not([data-theme="dark"]) .gauge-tick {
+  stroke: rgba(30, 40, 50, 0.35);
+  stroke-width: 1.5;
 }
 
-[data-theme="light"] .gauge-tick.major {
-  stroke: rgba(0, 0, 0, 0.4);
+[data-theme="light"] .gauge-tick.major,
+:root:not([data-theme="dark"]) .gauge-tick.major {
+  stroke: rgba(30, 40, 50, 0.6);
+  stroke-width: 2.5;
 }
 
 .gauge-tick.warning {
   stroke: var(--color-amber);
-  opacity: 0.9;
+  stroke-width: 2;
+  opacity: 1;
 }
 
 .gauge-tick.danger {
   stroke: var(--color-red);
-  opacity: 0.9;
+  stroke-width: 2;
+  opacity: 1;
 }
 
-/* Tick Labels - Industrial Mono */
+/* Tick Labels - Industrial Mono
+   Größere Schrift für bessere Lesbarkeit */
 .gauge-tick-label {
   fill: var(--text-secondary);
   font-family: 'JetBrains Mono', monospace;
   text-anchor: middle;
   dominant-baseline: middle;
+  font-weight: 600;
 }
 
 .gauge-container.small .gauge-tick-label {
-  font-size: 7px;
-  font-weight: 500;
+  font-size: 9px;
+  font-weight: 600;
 }
 
 .gauge-container.medium .gauge-tick-label {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .gauge-container.large .gauge-tick-label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Light Mode - Dunklere Schrift */
+[data-theme="light"] .gauge-tick-label,
+:root:not([data-theme="dark"]) .gauge-tick-label {
+  fill: var(--text-primary);
 }
 
 .gauge-tick-label.warning {
   fill: var(--color-amber);
+  font-weight: 700;
 }
 
 .gauge-tick-label.danger {
   fill: var(--color-red);
+  font-weight: 700;
 }
 
 /* Needle - Industrial Metal */
@@ -243,46 +262,64 @@
   transition: fill 0.3s, filter 0.3s;
 }
 
-/* Digital Display - LCD Style */
+/* Digital Display - LCD Style 
+   Position: Weiter unten, damit Nadel sichtbar bleibt
+   Breite: Mindestens 3 Ziffern + Einheit */
 .gauge-digital-display {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, 20%);
+  transform: translate(-50%, 45%);
   text-align: center;
   pointer-events: none;
   background: var(--lcd-bg);
-  padding: 4px 8px;
-  border-radius: 2px;
+  padding: 6px 12px;
+  border-radius: 3px;
   border: 1px solid var(--metal-dark);
-  box-shadow: var(--shadow-inset);
+  box-shadow: var(--shadow-inset),
+              0 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 60px;
 }
 
 .gauge-container.small .gauge-digital-display {
-  transform: translate(-50%, 15%);
-  padding: 2px 4px;
+  transform: translate(-50%, 40%);
+  padding: 4px 8px;
+  min-width: 48px;
+}
+
+.gauge-container.medium .gauge-digital-display {
+  transform: translate(-50%, 50%);
+  padding: 5px 10px;
+  min-width: 65px;
+}
+
+.gauge-container.large .gauge-digital-display {
+  transform: translate(-50%, 55%);
+  padding: 8px 14px;
+  min-width: 85px;
 }
 
 .gauge-value {
   font-family: 'JetBrains Mono', monospace;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--lcd-text);
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   line-height: 1;
-  text-shadow: 0 0 8px var(--lcd-text);
+  text-shadow: 0 0 10px var(--lcd-text);
   transition: color 0.3s, text-shadow 0.3s;
 }
 
 .gauge-container.small .gauge-value {
-  font-size: 16px;
+  font-size: 18px;
+  letter-spacing: 1px;
 }
 
 .gauge-container.medium .gauge-value {
-  font-size: 24px;
+  font-size: 26px;
 }
 
 .gauge-container.large .gauge-value {
-  font-size: 36px;
+  font-size: 40px;
 }
 
 .gauge-value.warning {
@@ -322,68 +359,85 @@
   font-size: 10px;
 }
 
-/* Gauge Title - Industrial Label */
+/* ============================================
+   Gauge Title - HIERARCHIE LEVEL 1 (Wichtigste Info)
+   Klarer, prominenter Label oben
+   ============================================ */
 .gauge-title {
   font-family: 'IBM Plex Sans', sans-serif;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 4px;
-  padding: 2px 8px;
-  background: var(--metal-dark);
-  border-radius: 2px;
+  margin-bottom: 2px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  text-align: center;
+  width: 100%;
 }
 
 .gauge-container.small .gauge-title {
-  font-size: 8px;
-  letter-spacing: 1px;
-  padding: 1px 4px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  margin-bottom: 1px;
 }
 
 .gauge-container.medium .gauge-title {
-  font-size: 10px;
+  font-size: 11px;
+  letter-spacing: 0.8px;
 }
 
 .gauge-container.large .gauge-title {
-  font-size: 11px;
+  font-size: 13px;
+  letter-spacing: 1px;
 }
 
-/* Status Badge - Industrial */
+/* ============================================
+   Status Badge - HIERARCHIE LEVEL 4 (Dezent)
+   Klein und unaufdringlich unten
+   ============================================ */
 .gauge-status-badge {
-  padding: 3px 10px;
-  border-radius: 2px;
+  padding: 2px 8px;
+  border-radius: 10px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 7px;
   font-weight: 600;
-  margin-top: 6px;
+  margin-top: 4px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  border: 1px solid;
+  letter-spacing: 0.5px;
+  border: none;
+  opacity: 0.9;
 }
 
 .gauge-container.small .gauge-status-badge {
+  font-size: 6px;
+  padding: 1px 5px;
+  margin-top: 2px;
+}
+
+.gauge-container.medium .gauge-status-badge {
   font-size: 7px;
-  padding: 2px 6px;
-  margin-top: 4px;
+}
+
+.gauge-container.large .gauge-status-badge {
+  font-size: 8px;
+  padding: 3px 10px;
 }
 
 .gauge-status-badge.normal {
-  background: rgba(0, 179, 65, 0.15);
+  background: rgba(0, 179, 65, 0.25);
   color: var(--color-green);
-  border-color: var(--color-green);
 }
 
 .gauge-status-badge.warning {
-  background: rgba(255, 123, 0, 0.15);
+  background: rgba(255, 123, 0, 0.25);
   color: var(--color-orange);
-  border-color: var(--color-orange);
 }
 
 .gauge-status-badge.danger {
-  background: rgba(220, 38, 38, 0.15);
+  background: rgba(220, 38, 38, 0.25);
   color: var(--color-red);
-  border-color: var(--color-red);
   animation: blink 0.5s ease-in-out infinite;
 }
 
@@ -422,50 +476,77 @@
   font-size: 8px;
 }
 
-/* Motor ID Badge - Industrial Tag */
+/* ============================================
+   Motor ID Badge - HIERARCHIE LEVEL 3 (Sekundäre Info)
+   Wichtig aber nicht dominant
+   ============================================ */
 .gauge-motor-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 4px;
+  right: 4px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 2px 6px;
-  background: var(--metal-dark);
-  border: 1px solid var(--glass-border);
-  border-radius: 2px;
-  transition: color 0.3s;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  padding: 2px 5px;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 3px;
+  transition: color 0.3s, background 0.3s;
 }
 
 .gauge-container.small .gauge-motor-badge {
-  font-size: 8px;
-  top: 4px;
-  right: 4px;
+  font-size: 9px;
+  top: 3px;
+  right: 3px;
   padding: 1px 4px;
 }
 
-/* Sensor ID Badge */
+.gauge-container.medium .gauge-motor-badge {
+  font-size: 11px;
+}
+
+.gauge-container.large .gauge-motor-badge {
+  font-size: 14px;
+  padding: 3px 8px;
+}
+
+/* ============================================
+   Sensor ID Badge - HIERARCHIE LEVEL 5 (Sehr dezent)
+   Nur als technische Referenz, fast unsichtbar
+   ============================================ */
 .gauge-sensor-badge {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: 4px;
+  left: 4px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 500;
   color: var(--text-dim);
-  letter-spacing: 0.5px;
-  padding: 2px 6px;
-  background: var(--metal-dark);
-  border: 1px solid var(--glass-border);
-  border-radius: 2px;
+  letter-spacing: 0;
+  padding: 1px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  opacity: 0.5;
 }
 
 .gauge-container.small .gauge-sensor-badge {
   font-size: 7px;
-  top: 4px;
-  left: 4px;
-  padding: 1px 3px;
+  top: 3px;
+  left: 3px;
+  padding: 0;
+  opacity: 0.4;
+}
+
+.gauge-container.medium .gauge-sensor-badge {
+  font-size: 8px;
+  opacity: 0.5;
+}
+
+.gauge-container.large .gauge-sensor-badge {
+  font-size: 9px;
+  opacity: 0.5;
 }
 
 /* Warning Alert - Industrial Alarm */

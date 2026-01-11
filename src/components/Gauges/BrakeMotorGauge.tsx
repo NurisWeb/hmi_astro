@@ -1,5 +1,6 @@
 // ============================================
-// BrakeMotorGauge - Bremsmotor Drehmoment (0-1500 Nm)
+// BrakeMotorGauge - Bremsleistung
+// Main_Doku.json: 0-6 KW (grün 0-2, orange 2-4, rot 4-6)
 // ============================================
 
 import React from 'react';
@@ -8,7 +9,7 @@ import type { GaugeSize } from '../../types/dashboard.types';
 import { GAUGE_CONSTANTS, COLORS } from '../../types/dashboard.types';
 
 interface BrakeMotorGaugeProps {
-  value: number;
+  value: number;  // Wert in KW
   size: GaugeSize;
   motorId: 1 | 2;
   label?: string;
@@ -24,38 +25,38 @@ const BrakeMotorGauge: React.FC<BrakeMotorGaugeProps> = ({
   
   const accentColor = motorId === 1 ? COLORS.CYAN : COLORS.PURPLE;
 
-  const warningThreshold = GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE * 
-    (GAUGE_CONSTANTS.BRAKE_MOTOR.WARNING_PERCENT / 100);
-  const dangerThreshold = GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE * 
-    (GAUGE_CONSTANTS.BRAKE_MOTOR.DANGER_PERCENT / 100);
+  // Farbe basierend auf Wert (Main_Doku.json Bereiche)
+  const getColor = () => {
+    if (value >= GAUGE_CONSTANTS.BRAKE_KW.DANGER) return COLORS.RED;
+    if (value >= GAUGE_CONSTANTS.BRAKE_KW.WARNING) return COLORS.ORANGE;
+    return COLORS.GREEN;
+  };
 
-  const kw = (value * GAUGE_CONSTANTS.BRAKE_MOTOR.MOTOR_RPM) / 9549;
-  const loadPercent = (value / GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE) * 100;
+  const loadPercent = (value / GAUGE_CONSTANTS.BRAKE_KW.MAX) * 100;
 
   return (
     <BaseGauge
       value={value}
-      maxValue={GAUGE_CONSTANTS.BRAKE_MOTOR.MAX_TORQUE}
+      maxValue={GAUGE_CONSTANTS.BRAKE_KW.MAX}
       minValue={0}
-      warningThreshold={warningThreshold}
-      dangerThreshold={dangerThreshold}
-      unit="Nm"
+      warningThreshold={GAUGE_CONSTANTS.BRAKE_KW.WARNING}
+      dangerThreshold={GAUGE_CONSTANTS.BRAKE_KW.DANGER}
+      unit="kW"
       label={displayLabel}
       size={size}
-      accentColor={accentColor}
+      accentColor={getColor()}
       warningColor={COLORS.ORANGE}
       dangerColor={COLORS.RED}
       showNeedle={true}
       showTicks={true}
-      tickInterval={{ major: 300, minor: 150 }}
-      formatValue={(v) => Math.round(v).toString()}
+      tickInterval={{ major: 2, minor: 1 }}
+      formatValue={(v) => v.toFixed(1)}
       className="brake-motor-gauge"
     >
       <div 
         className="gauge-motor-badge" 
         style={{ 
-          color: value >= dangerThreshold ? COLORS.RED : 
-                 value >= warningThreshold ? COLORS.ORANGE : accentColor 
+          color: getColor()
         }}
       >
         M{motorId}
@@ -75,7 +76,7 @@ const BrakeMotorGauge: React.FC<BrakeMotorGaugeProps> = ({
           }}
         >
           <span>
-            <strong style={{ color: accentColor }}>{kw.toFixed(1)}</strong> kW
+            <strong style={{ color: getColor() }}>{value.toFixed(1)}</strong> kW
           </span>
           <span>
             <strong style={{ color: 'var(--text-secondary)' }}>{loadPercent.toFixed(0)}</strong>%

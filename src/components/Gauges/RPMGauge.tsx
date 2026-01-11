@@ -1,5 +1,6 @@
 // ============================================
-// RPMGauge - Drehzahlanzeige (0-12000 U/min)
+// RPMGauge - Drehzahlanzeige Eingangsmotor
+// Main_Doku.json: 0-3530 (grün 0-2000, orange 2000-3000, rot 3000-3530)
 // ============================================
 
 import React from 'react';
@@ -11,7 +12,6 @@ interface RPMGaugeProps {
   value: number;
   size: GaugeSize;
   gear?: GearPosition;
-  redlineRPM?: number;
   label?: string;
 }
 
@@ -19,11 +19,17 @@ const RPMGauge: React.FC<RPMGaugeProps> = ({
   value,
   size,
   gear = 'N',
-  redlineRPM = GAUGE_CONSTANTS.RPM.REDLINE,
   label = 'Drehzahl',
 }) => {
   const formatRPM = (rpm: number) => {
     return (rpm / 1000).toFixed(1);
+  };
+
+  // Farbe basierend auf Wert (Main_Doku.json Bereiche)
+  const getColor = () => {
+    if (value >= GAUGE_CONSTANTS.RPM.REDLINE) return COLORS.RED;
+    if (value >= GAUGE_CONSTANTS.RPM.WARNING) return COLORS.ORANGE;
+    return COLORS.GREEN;
   };
 
   return (
@@ -31,24 +37,24 @@ const RPMGauge: React.FC<RPMGaugeProps> = ({
       value={value}
       maxValue={GAUGE_CONSTANTS.RPM.MAX}
       minValue={0}
-      warningThreshold={redlineRPM - 1000}
-      dangerThreshold={redlineRPM}
+      warningThreshold={GAUGE_CONSTANTS.RPM.WARNING}
+      dangerThreshold={GAUGE_CONSTANTS.RPM.REDLINE}
       unit="× 1000 U/min"
       label={label}
       size={size}
-      accentColor={COLORS.BLUE}
+      accentColor={COLORS.GREEN}
       warningColor={COLORS.ORANGE}
       dangerColor={COLORS.RED}
       showNeedle={true}
       showTicks={true}
-      tickInterval={{ major: 1000, minor: 500 }}
+      tickInterval={{ major: 500, minor: 100 }}
       formatValue={formatRPM}
       className="rpm-gauge"
     >
       <div 
         className="gauge-motor-badge" 
         style={{ 
-          color: value >= redlineRPM ? COLORS.RED : COLORS.BLUE,
+          color: getColor(),
           fontSize: size === 'small' ? '14px' : size === 'medium' ? '18px' : '24px',
           fontWeight: 300,
         }}
