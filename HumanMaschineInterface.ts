@@ -1719,10 +1719,7 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
         </div>
       </div>
 
-      {/* Status Badge */}
-      <div className={`gauge-status-badge ${status}`}>
-        {status === 'danger' ? 'Kritisch' : status === 'warning' ? 'Hoch' : 'Normal'}
-      </div>
+
 
       {/* Additional children (motor ID, sensor ID, etc.) */}
       {children}

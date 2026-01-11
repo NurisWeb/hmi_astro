@@ -288,16 +288,13 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
         </svg>
 
         <div className="gauge-digital-display">
-          <div className={`gauge-value ${status}`} style={{ color: currentColor }}>
+          <div className={`gauge-value text-large ${status}`} style={{ color: currentColor }}>
             {displayValue}
           </div>
           <div className="gauge-unit">{unit}</div>
         </div>
       </div>
 
-      <div className={`gauge-status-badge ${status}`}>
-        {status === 'danger' ? 'Kritisch' : status === 'warning' ? 'Hoch' : 'Normal'}
-      </div>
 
       {children}
 

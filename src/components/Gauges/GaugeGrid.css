@@ -153,6 +153,24 @@
 }
 
 /* ============================================
+   TRIPLE ROW - 3 Gauges nebeneinander
+   ============================================ */
+.gauge-row--triple {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gauge-grid.expanded .gauge-row--triple {
+  gap: 14px;
+}
+
+.gauge-grid.compact .gauge-row--triple {
+  gap: 6px;
+}
+
+/* ============================================
    MOTOR (Zentral)
    ============================================ */
 .gauge-center-motor {
