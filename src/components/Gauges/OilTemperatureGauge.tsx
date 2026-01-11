@@ -1,5 +1,6 @@
 // ============================================
-// OilTemperatureGauge - Öltemperaturanzeige (0-150°C)
+// OilTemperatureGauge - Öltemperaturanzeige
+// Main_Doku.json: 0-110°C (grün 0-70, orange 70-90, rot 90-110)
 // ============================================
 
 import React from 'react';
@@ -22,10 +23,10 @@ const OilTemperatureGauge: React.FC<OilTemperatureGaugeProps> = ({
 }) => {
   const displayLabel = label || `Öltemperatur${sensorId > 1 ? ` T${sensorId}` : ''}`;
   
-  // Temperatur-spezifische Farben: Blau (kalt) -> Orange (warm) -> Rot (heiß)
+  // Temperatur-spezifische Farben nach Main_Doku.json
   const getTemperatureColor = () => {
     if (value < GAUGE_CONSTANTS.OIL_TEMPERATURE.COLD) return COLORS.BLUE;
-    if (value < GAUGE_CONSTANTS.OIL_TEMPERATURE.WARNING) return COLORS.AMBER;
+    if (value < GAUGE_CONSTANTS.OIL_TEMPERATURE.WARNING) return COLORS.GREEN;
     if (value < GAUGE_CONSTANTS.OIL_TEMPERATURE.DANGER) return COLORS.ORANGE;
     return COLORS.RED;
   };
@@ -48,7 +49,7 @@ const OilTemperatureGauge: React.FC<OilTemperatureGaugeProps> = ({
       dangerColor={COLORS.RED}
       showNeedle={true}
       showTicks={true}
-      tickInterval={{ major: 30, minor: 10 }}
+      tickInterval={{ major: 20, minor: 10 }}
       formatValue={(v) => v.toFixed(0)}
       className="oil-temperature-gauge"
     >

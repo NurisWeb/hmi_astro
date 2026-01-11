@@ -32,37 +32,54 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
+  padding: 16px 24px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 50%, var(--metal-dark) 100%);
   border: 1px solid var(--glass-border);
-  border-radius: 4px 4px 0 0;
+  border-radius: 6px 6px 0 0;
   box-shadow: var(--shadow-md),
               inset 0 1px 0 var(--metal-highlight);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
 }
 
+/* Durchgehender oberer Balken - Industrial Akzent */
 .dashboard-header::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--color-cyan) 0%, 
+    var(--color-blue) 50%, 
+    var(--color-cyan) 100%);
+  border-radius: 6px 6px 0 0;
+}
+
+/* Unterer Highlight für Tiefe */
+.dashboard-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
   height: 1px;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    var(--metal-highlight) 20%, 
-    var(--metal-highlight) 80%, 
+    var(--glass-border) 20%, 
+    var(--glass-border) 80%, 
     transparent 100%);
 }
 
 .dashboard-title {
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--text-primary);
+  margin-left: 8px;
 }
 
 .dashboard-header-right {

@@ -56,11 +56,11 @@ const ParameterBar: React.FC<ParameterBarProps> = ({
 
       <div className="parameter-divider" />
 
-      {/* Öl-Temperatur */}
+      {/* Öl-Temperatur Hydraulik */}
       <div className="parameter-item">
         <span className="parameter-icon">🌡</span>
         <span className="parameter-label">Öl-Temp:</span>
-        <span className={`parameter-value parameter-value--temp parameter-value--${tempStatus}`}>
+        <span className={`parameter-value parameter-value--temp parameter-value--${tempStatus}`} title="Öltemperatur Hydraulik">
           {isConnected ? `${oilTemperature.toFixed(0)}°C` : '--°C'}
         </span>
       </div>

@@ -1,82 +1,203 @@
 /* ============================================
-   Industrial GaugeGrid Layout Styles
-   Prüfstand Instrument Panel Layout
+   GaugeGrid Layout Styles
+   Prüfstand Dashboard - Strukturiertes Layout
+   
+   EXPANDED (Normal):
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │  LINKS (Drücke)    │    MITTE (Motor)     │   RECHTS (Drehzahlen)  │
+   │  K1, K2 Öldruck    │   Antriebmotor groß  │   Drehzahl K1, K2      │
+   │  System, EDiff     │                      │   Ausgleich, Auslast.  │
+   │  Öltemp Hydr/Rads  │   KWB1 ══════  KWB2  │                        │
+   └─────────────────────────────────────────────────────────────────────┘
+   
+   COMPACT (Menu offen):
+   ┌────────────────────────────────────────────────────────────────────┐
+   │ K1 K2 Sys Ediff │ Motor │ KWB1 KWB2 │ DK1 DK2 Ausg Ausl │ T1 T2  │
+   └────────────────────────────────────────────────────────────────────┘
    ============================================ */
 
+/* ============================================
+   HAUPTCONTAINER
+   ============================================ */
 .gauge-grid {
-  display: grid;
-  gap: 10px;
-  width: 100%;
-  transition: all 0.4s ease;
-}
-
-/* Expanded Layout - Full View */
-.gauge-grid.expanded {
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: auto auto;
-  grid-template-areas:
-    "oil1 oil2 rpm motor1 placeholder1"
-    "oil3 oil4 rpm motor2 placeholder2";
-}
-
-.gauge-grid.expanded .gauge-grid-item.rpm {
-  grid-area: rpm;
   display: flex;
   justify-content: center;
-  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 12px;
+  transition: all 0.3s ease;
 }
 
-.gauge-grid.expanded .gauge-grid-item.oil1 { grid-area: oil1; }
-.gauge-grid.expanded .gauge-grid-item.oil2 { grid-area: oil2; }
-.gauge-grid.expanded .gauge-grid-item.oil3 { grid-area: oil3; }
-.gauge-grid.expanded .gauge-grid-item.oil4 { grid-area: oil4; }
-.gauge-grid.expanded .gauge-grid-item.motor1 { grid-area: motor1; }
-.gauge-grid.expanded .gauge-grid-item.motor2 { grid-area: motor2; }
-.gauge-grid.expanded .gauge-grid-item.oiltemp { grid-area: placeholder1; }
-.gauge-grid.expanded .gauge-grid-item.flowrate { grid-area: placeholder2; }
+/* ============================================
+   EXPANDED MODE - 3 Spalten Layout
+   ============================================ */
+.gauge-grid.expanded {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 20px;
+  padding: 16px;
+  align-items: flex-start;
+}
 
-/* Compact Layout - When Menu is Open */
+/* ============================================
+   COMPACT MODE - Horizontale Leiste
+   Alle Gauges in einer Reihe, horizontal scrollbar
+   ============================================ */
 .gauge-grid.compact {
-  grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: 1fr;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 8px;
-  padding: 10px;
+  padding: 8px 12px;
   background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
   border: 1px solid var(--glass-border);
   border-radius: 4px;
   box-shadow: var(--shadow-md),
               inset 0 1px 0 var(--metal-highlight);
+  overflow-x: auto;
+  overflow-y: hidden;
+  align-items: stretch;
+  justify-content: flex-start;
 }
 
-.gauge-grid.compact .gauge-grid-item {
+/* Scrollbar styling für Compact */
+.gauge-grid.compact::-webkit-scrollbar {
+  height: 4px;
+}
+
+.gauge-grid.compact::-webkit-scrollbar-track {
+  background: var(--metal-dark);
+  border-radius: 2px;
+}
+
+.gauge-grid.compact::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 2px;
+}
+
+/* ============================================
+   SEKTIONEN (Links, Mitte, Rechts)
+   ============================================ */
+.gauge-section {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* EXPANDED: Vertikale Sektionen */
+.gauge-grid.expanded .gauge-section {
+  flex-direction: column;
+}
+
+.gauge-grid.expanded .gauge-section--left {
+  align-items: flex-end;
+}
+
+.gauge-grid.expanded .gauge-section--center {
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.gauge-grid.expanded .gauge-section--right {
+  align-items: flex-start;
+}
+
+/* COMPACT: Horizontale Sektionen nebeneinander */
+.gauge-grid.compact .gauge-section {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 6px;
   align-items: center;
 }
 
-/* Grid Item Styling */
-.gauge-grid-item {
+.gauge-grid.compact .gauge-section--left,
+.gauge-grid.compact .gauge-section--center,
+.gauge-grid.compact .gauge-section--right {
+  align-items: center;
+}
+
+/* Trennlinie zwischen Sektionen im Compact Mode */
+.gauge-grid.compact .gauge-section--left::after,
+.gauge-grid.compact .gauge-section--center::after {
+  content: '';
+  width: 1px;
+  height: 80%;
+  background: linear-gradient(180deg, 
+    transparent 0%, 
+    var(--glass-border) 20%, 
+    var(--glass-border) 80%, 
+    transparent 100%);
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   ZEILEN (2 Gauges nebeneinander)
+   ============================================ */
+.gauge-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gauge-grid.expanded .gauge-row {
+  gap: 12px;
+}
+
+.gauge-grid.compact .gauge-row {
+  gap: 6px;
+  flex-direction: row;
+}
+
+/* ============================================
+   MOTOR (Zentral)
+   ============================================ */
+.gauge-center-motor {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-/* Hover Effects - Industrial subtle */
-.gauge-grid-item:hover {
-  transform: scale(1.01);
-  z-index: 10;
+.gauge-grid.compact .gauge-center-motor {
+  transform: scale(0.85);
+  margin: 0 4px;
 }
 
-.gauge-grid.compact .gauge-grid-item:hover {
-  transform: scale(1.03);
+/* ============================================
+   BREMSEN REIHE (Horizontal, Equalizer-Style)
+   ============================================ */
+.gauge-bremsen-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, 
+    rgba(0, 0, 0, 0.05) 0%, 
+    rgba(0, 0, 0, 0.1) 100%);
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  flex-shrink: 0;
 }
 
-/* Animation for mode switch */
+.gauge-grid.compact .gauge-bremsen-row {
+  gap: 8px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+}
+
+/* ============================================
+   ANIMATION - Sanftes Erscheinen
+   ============================================ */
 @keyframes gaugeAppear {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
@@ -84,60 +205,105 @@
   }
 }
 
-.gauge-grid-item {
-  animation: gaugeAppear 0.25s ease forwards;
+.gauge-section {
+  animation: gaugeAppear 0.3s ease forwards;
 }
 
-.gauge-grid-item:nth-child(1) { animation-delay: 0ms; }
-.gauge-grid-item:nth-child(2) { animation-delay: 25ms; }
-.gauge-grid-item:nth-child(3) { animation-delay: 50ms; }
-.gauge-grid-item:nth-child(4) { animation-delay: 75ms; }
-.gauge-grid-item:nth-child(5) { animation-delay: 100ms; }
-.gauge-grid-item:nth-child(6) { animation-delay: 125ms; }
-.gauge-grid-item:nth-child(7) { animation-delay: 150ms; }
-.gauge-grid-item:nth-child(8) { animation-delay: 175ms; }
-.gauge-grid-item:nth-child(9) { animation-delay: 200ms; }
+.gauge-section--left { animation-delay: 0ms; }
+.gauge-section--center { animation-delay: 40ms; }
+.gauge-section--right { animation-delay: 80ms; }
 
-/* Responsive Adjustments */
+/* ============================================
+   HOVER EFFEKTE
+   ============================================ */
+.gauge-row:hover {
+  z-index: 5;
+}
+
+/* ============================================
+   RESPONSIVE - Große Bildschirme
+   ============================================ */
+@media (min-width: 1600px) {
+  .gauge-grid.expanded {
+    gap: 30px;
+    padding: 20px;
+  }
+  
+  .gauge-grid.expanded .gauge-row {
+    gap: 16px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Tablet (Expanded)
+   ============================================ */
 @media (max-width: 1200px) {
   .gauge-grid.expanded {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-areas:
-      "rpm rpm oil1 oil2"
-      "rpm rpm oil3 oil4"
-      "motor1 motor2 placeholder1 placeholder2";
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .gauge-grid.expanded .gauge-section--center {
+    order: -1;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .gauge-grid.expanded .gauge-section--left,
+  .gauge-grid.expanded .gauge-section--right {
+    flex: 1;
+    min-width: 280px;
+    align-items: center;
   }
 }
 
-@media (max-width: 900px) {
+/* ============================================
+   RESPONSIVE - Mobile (Expanded)
+   ============================================ */
+@media (max-width: 768px) {
   .gauge-grid.expanded {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-areas:
-      "rpm rpm rpm"
-      "oil1 oil2 oil3"
-      "oil4 motor1 motor2"
-      "placeholder1 placeholder2 .";
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
 
-  .gauge-grid.compact {
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: auto auto;
+  .gauge-grid.expanded .gauge-section--left,
+  .gauge-grid.expanded .gauge-section--center,
+  .gauge-grid.expanded .gauge-section--right {
+    width: 100%;
+    align-items: center;
+  }
+
+  .gauge-grid.expanded .gauge-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .gauge-grid.expanded .gauge-bremsen-row {
+    width: 100%;
+    max-width: 300px;
   }
 }
 
-@media (max-width: 600px) {
-  .gauge-grid.expanded {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas:
-      "rpm rpm"
-      "oil1 oil2"
-      "oil3 oil4"
-      "motor1 motor2"
-      "placeholder1 placeholder2";
+/* ============================================
+   RESPONSIVE - Kleine Mobile
+   ============================================ */
+@media (max-width: 480px) {
+  .gauge-grid {
+    padding: 8px;
+    gap: 8px;
   }
 
-  .gauge-grid.compact {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto auto auto;
+  .gauge-row {
+    gap: 6px;
+  }
+
+  .gauge-bremsen-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
   }
 }

@@ -1,6 +1,7 @@
 // ============================================
 // DashboardWrapper - Haupt-Container mit DSG-Integration
 // Layout: Header → Parameter-Leiste → Hauptbereich → Footer
+// Telemetrie-Daten nach Main_Doku.json Struktur
 // ============================================
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
@@ -9,6 +10,7 @@ import { BottomMenu } from '../Menu';
 import ParameterBar from './ParameterBar';
 import { VerbindungsButton, BlankState, VerbindungsProvider, useVerbindung } from '../Verbindung';
 import { useMockData } from '../../hooks/useMockData';
+import { useTelemetrie } from '../../hooks/useTelemetrie';
 import { useTheme } from '../../hooks/useTheme';
 import type { 
   MenuPanel, 
@@ -60,6 +62,11 @@ const DashboardContent: React.FC = () => {
   const prevGearRef = useRef<string>('N');
 
   const { isDark, toggleTheme } = useTheme();
+
+  // ============================================
+  // Telemetrie-Daten nach Main_Doku.json
+  // ============================================
+  const { daten: telemetrie } = useTelemetrie(100);
 
   const { 
     data, 
@@ -248,14 +255,49 @@ const DashboardContent: React.FC = () => {
     }, 1000);
   }, [addLog, loescheStatus]);
 
+  // Sensor-Daten für Panel (basierend auf Telemetrie nach Main_Doku.json)
   type SensorStatus = 'normal' | 'warning' | 'danger';
+  const p = telemetrie?.p ?? [0, 0, 0, 0];  // Öldrücke
+  const m = telemetrie?.m ?? [0, 0, 0];      // Antriebmotor, KWB1, KWB2
+  const l = telemetrie?.l ?? [0, 0, 0];      // Temperaturen, Auslastung
+  
   const sensorData: { name: string; value: number; unit: string; status: SensorStatus }[] = [
-    { name: 'Drehzahl', value: data.rpm, unit: 'U/min', status: (data.rpm > GAUGE_CONSTANTS.RPM.REDLINE ? 'danger' : 'normal') as SensorStatus },
-    { name: 'Öldruck 1', value: data.oilPressures[0], unit: 'bar', status: (data.oilPressures[0] > 15 ? 'danger' : data.oilPressures[0] > 12 ? 'warning' : 'normal') as SensorStatus },
-    { name: 'Öldruck 2', value: data.oilPressures[1], unit: 'bar', status: (data.oilPressures[1] > 15 ? 'danger' : data.oilPressures[1] > 12 ? 'warning' : 'normal') as SensorStatus },
-    { name: 'Motor 1', value: data.brakeMotors.motor1.torque, unit: 'Nm', status: (data.brakeMotors.motor1.load > 85 ? 'danger' : data.brakeMotors.motor1.load > 70 ? 'warning' : 'normal') as SensorStatus },
-    { name: 'Motor 2', value: data.brakeMotors.motor2.torque, unit: 'Nm', status: (data.brakeMotors.motor2.load > 85 ? 'danger' : data.brakeMotors.motor2.load > 70 ? 'warning' : 'normal') as SensorStatus },
-    { name: 'Temperatur', value: data.temperature, unit: '°C', status: (data.temperature > 90 ? 'danger' : data.temperature > 75 ? 'warning' : 'normal') as SensorStatus },
+    { 
+      name: 'Antriebmotor', 
+      value: m[0], 
+      unit: 'U/min', 
+      status: (m[0] > GAUGE_CONSTANTS.RPM.REDLINE ? 'danger' : m[0] > GAUGE_CONSTANTS.RPM.WARNING ? 'warning' : 'normal') as SensorStatus 
+    },
+    { 
+      name: 'K1 Öldruck', 
+      value: p[0], 
+      unit: 'bar', 
+      status: (p[0] > GAUGE_CONSTANTS.OIL_PRESSURE.DANGER ? 'danger' : p[0] > GAUGE_CONSTANTS.OIL_PRESSURE.WARNING ? 'warning' : 'normal') as SensorStatus 
+    },
+    { 
+      name: 'K2 Öldruck', 
+      value: p[1], 
+      unit: 'bar', 
+      status: (p[1] > GAUGE_CONSTANTS.OIL_PRESSURE.DANGER ? 'danger' : p[1] > GAUGE_CONSTANTS.OIL_PRESSURE.WARNING ? 'warning' : 'normal') as SensorStatus 
+    },
+    { 
+      name: 'KWB1', 
+      value: m[1], 
+      unit: 'kW', 
+      status: (m[1] > GAUGE_CONSTANTS.BRAKE_KW.DANGER ? 'danger' : m[1] > GAUGE_CONSTANTS.BRAKE_KW.WARNING ? 'warning' : 'normal') as SensorStatus 
+    },
+    { 
+      name: 'KWB2', 
+      value: m[2], 
+      unit: 'kW', 
+      status: (m[2] > GAUGE_CONSTANTS.BRAKE_KW.DANGER ? 'danger' : m[2] > GAUGE_CONSTANTS.BRAKE_KW.WARNING ? 'warning' : 'normal') as SensorStatus 
+    },
+    { 
+      name: 'Öltemp Hydraulik', 
+      value: l[0], 
+      unit: '°C', 
+      status: (l[0] > GAUGE_CONSTANTS.OIL_TEMPERATURE.DANGER ? 'danger' : l[0] > GAUGE_CONSTANTS.OIL_TEMPERATURE.WARNING ? 'warning' : 'normal') as SensorStatus 
+    },
   ];
 
   // Datum formatieren: DD.MM.YYYY
@@ -285,7 +327,7 @@ const DashboardContent: React.FC = () => {
           Rechts: Verbindungs-Button, Datum/Zeit, Theme-Toggle
           ============================================ */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">🔧 DSG-Prüfstand CarParts24</h1>
+        <h1 className="dashboard-title">DSG-Prüfstand CarParts24</h1>
         <div className="dashboard-header-right">
           {/* Verbindungs-Button (3 Zustände) */}
           <VerbindungsButton
@@ -327,15 +369,19 @@ const DashboardContent: React.FC = () => {
           {/* Parameter-Leiste mit Verbindungs-Laufzeit */}
           <ParameterBar
             runtimeFormatted={laufzeit}
-            oilTemperature={data.oilTemperature}
+            oilTemperature={telemetrie?.l[0] ?? 0}
             activeGear={dsgState.activeGear}
             isConnected={istVerbunden}
           />
 
-          {/* Hauptbereich - Gauges */}
+          {/* Hauptbereich - Gauges nach Main_Doku.json */}
           <main className="dashboard-main">
             <section className="dashboard-gauges">
-              <GaugeGrid data={data} isCompact={isCompact} />
+              <GaugeGrid 
+                telemetrie={telemetrie} 
+                isCompact={isCompact} 
+                activeGear={dsgState.activeGear}
+              />
             </section>
           </main>
 

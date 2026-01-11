@@ -22,7 +22,7 @@ const BlankState: React.FC<BlankStateProps> = ({
   // Render: Nicht verbunden - CTA Button
   const renderGetrennt = () => (
     <div className="blankstate-content">
-      <div className="blankstate-icon">🔌</div>
+      <div className="blankstate-icon">📶</div>
       <h2 className="blankstate-title">Verbindung aufbauen</h2>
       <p className="blankstate-subtitle">
         Klicken um Prüfstand zu verbinden
@@ -31,7 +31,6 @@ const BlankState: React.FC<BlankStateProps> = ({
         className="blankstate-button"
         onClick={onVerbinden}
       >
-        <span className="blankstate-button-icon">🔌</span>
         <span className="blankstate-button-text">Jetzt verbinden</span>
       </button>
     </div>

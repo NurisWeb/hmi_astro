@@ -1,13 +1,13 @@
 // ============================================
 // PruefplaenePanel - Haupt-Container mit State-Management
-// Enthält Condition-Popup und Schritt-Fortschritt-Simulation
-// Mit StatusBar-Integration
+// Verwendet jetzt echte API-Calls nach Main_Doku.json
 // ============================================
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import type { Pruefplan, PruefplanAnsicht, PruefschrittStatus } from '../../types/menu.types';
 import type { StatusTyp } from '../StatusLog';
 import { pruefplanService } from '../../services/PruefplanService';
+import { executeStep } from '../../services/commands';
 import PruefplanListe from './PruefplanListe';
 import PruefplanAktiv from './PruefplanAktiv';
 import ConditionPopup from './ConditionPopup';
@@ -26,6 +26,7 @@ interface PruefplaenePanelProps {
 interface ConditionPopupState {
   sichtbar: boolean;
   nachricht: string;
+  wartAufBestaetigung: boolean;
 }
 
 const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
@@ -41,10 +42,11 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
   const [conditionPopup, setConditionPopup] = useState<ConditionPopupState>({
     sichtbar: false,
     nachricht: '',
+    wartAufBestaetigung: false,
   });
 
-  // Timeout-Ref für Cleanup
-  const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Abbruch-Flag
+  const abbruchRef = useRef<boolean>(false);
 
   // Prüfpläne aus Service laden
   const pruefplaene = pruefplanService.getPruefplaene();
@@ -89,124 +91,121 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
   // ============================================
   // Condition-Popup Funktionen
   // ============================================
-  const zeigeCondition = useCallback((nachricht: string) => {
-    setConditionPopup({ sichtbar: true, nachricht });
+  const zeigeCondition = useCallback((nachricht: string, wartAufBestaetigung: boolean = false) => {
+    setConditionPopup({ sichtbar: true, nachricht, wartAufBestaetigung });
   }, []);
 
   const schliesseCondition = useCallback(() => {
-    setConditionPopup({ sichtbar: false, nachricht: '' });
-    
-    // Nächsten Schritt starten (wenn vorhanden)
-    setAusgewaehlterPlan((prevPlan) => {
-      if (!prevPlan) return null;
-      
-      const naechsterIndex = aktiverSchrittIndex + 1;
-      
-      if (naechsterIndex < prevPlan.schritte.length) {
-        // Nächsten Schritt aktivieren
-        setAktiverSchrittIndex(naechsterIndex);
-        
-        // Simulation für nächsten Schritt fortsetzen
-        simuliereNaechstenSchritt(naechsterIndex, prevPlan);
-      } else {
-        // Alle Schritte abgeschlossen
-        setSimulationLaeuft(false);
-        updateStatus(`${prevPlan.name} abgeschlossen`, 'erfolg');
-      }
-      
-      return prevPlan;
-    });
-  }, [aktiverSchrittIndex, updateStatus]);
+    setConditionPopup({ sichtbar: false, nachricht: '', wartAufBestaetigung: false });
+  }, []);
 
   // ============================================
-  // Simulation: Nächster Schritt
+  // Einzelnen Schritt ausführen (echter API-Call!)
   // ============================================
-  const simuliereNaechstenSchritt = useCallback((schrittIndex: number, plan: Pruefplan) => {
-    // Aktuellen Schritt auf aktiv setzen
-    updateSchrittStatus(schrittIndex, 'aktiv');
-    
-    // Status in der StatusBar aktualisieren
+  const fuehreSchrittAus = useCallback(async (schrittIndex: number, plan: Pruefplan): Promise<boolean> => {
     const schritt = plan.schritte[schrittIndex];
-    updateStatus(`Schritt ${schrittIndex + 1}: ${schritt.bezeichnung}...`, 'info');
-
-    // Simulierte Dauer (2-4 Sekunden zufällig)
-    const dauer = 2000 + Math.random() * 2000;
-
-    simulationTimeoutRef.current = setTimeout(() => {
-      // Schritt abgeschlossen
+    
+    // Status auf aktiv setzen
+    updateSchrittStatus(schrittIndex, 'aktiv');
+    updateStatus(`Schritt ${schritt.nummer}: ${schritt.bezeichnung}...`, 'info');
+    
+    // Hat dieser Schritt eine Condition? → Zuerst anzeigen
+    if (schritt.condition) {
+      zeigeCondition(schritt.condition, true);
+      
+      // Warten auf Benutzer-Bestätigung
+      return new Promise((resolve) => {
+        const checkPopup = setInterval(() => {
+          // Prüfen ob Popup geschlossen wurde
+          setConditionPopup((current) => {
+            if (!current.sichtbar && current.wartAufBestaetigung === false) {
+              clearInterval(checkPopup);
+              
+              // Jetzt API-Call machen
+              executeStep(schritt.endpointUrl).then((result) => {
+                if (result.ok && result.result === 'iO') {
+                  updateSchrittStatus(schrittIndex, 'abgeschlossen');
+                  updateStatus(`Schritt ${schritt.nummer}: Erfolgreich ✓`, 'erfolg');
+                  resolve(true);
+                } else {
+                  updateSchrittStatus(schrittIndex, 'fehler');
+                  updateStatus(`Schritt ${schritt.nummer}: Fehlgeschlagen ✗`, 'fehler');
+                  resolve(false);
+                }
+              });
+            }
+            return current;
+          });
+        }, 100);
+      });
+    }
+    
+    // Kein Condition → Direkt API-Call
+    const result = await executeStep(schritt.endpointUrl);
+    
+    if (result.ok && result.result === 'iO') {
       updateSchrittStatus(schrittIndex, 'abgeschlossen');
-
-      // Condition-Nachricht für diesen Schritt
-      const conditionNachrichten: Record<string, string> = {
-        's1': 'Getriebeöl wurde befüllt. Bitte Füllstand visuell prüfen und bestätigen.',
-        's2': 'Öltemperatur hat Betriebstemperatur erreicht. Temperaturanzeige prüfen.',
-        's3': 'Druckaufbau abgeschlossen. Keine Leckagen festgestellt.',
-        's4': 'Gangwechsel-Test erfolgreich. Alle Gänge funktionieren.',
-        's5': 'Drehmoment gemessen: 450 Nm. Wert im Toleranzbereich.',
-        's6': 'Vibrationsprüfung abgeschlossen. Keine Auffälligkeiten.',
-        's7': 'Abkühlung eingeleitet. System kühlt kontrolliert ab.',
-        's8': 'Prüfprotokoll wurde erstellt und gespeichert.',
-        'b1': 'Motor erfolgreich angeschlossen. Anschlüsse prüfen.',
-        'b2': 'Bremse wurde gelöst. Freie Rotation bestätigt.',
-        'b3': 'Drehzahl: 1500 U/min erreicht.',
-        'b4': 'Bremskraft gemessen: 850 N. Wert korrekt.',
-        'b5': 'Protokoll erstellt.',
-        'o1': 'System befüllt. Keine Luftblasen sichtbar.',
-        'o2': 'Betriebsdruck: 12 bar erreicht.',
-        'o3': 'Keine Leckage festgestellt. System dicht.',
-      };
-
-      const nachricht = conditionNachrichten[schritt.id] || 
-        `Schritt "${schritt.bezeichnung}" wurde abgeschlossen.`;
-
-      zeigeCondition(nachricht);
-    }, dauer);
-  }, [updateSchrittStatus, zeigeCondition, updateStatus]);
+      updateStatus(`Schritt ${schritt.nummer}: Erfolgreich ✓`, 'erfolg');
+      return true;
+    } else {
+      updateSchrittStatus(schrittIndex, 'fehler');
+      updateStatus(`Schritt ${schritt.nummer}: Fehlgeschlagen (${result.result})`, 'fehler');
+      return false;
+    }
+  }, [updateSchrittStatus, updateStatus, zeigeCondition]);
 
   // ============================================
-  // Test-Simulation starten
+  // Prüfablauf starten
   // ============================================
-  const simulierePruefablauf = useCallback(() => {
+  const startePruefablauf = useCallback(async () => {
     if (!ausgewaehlterPlan || simulationLaeuft) return;
 
     setSimulationLaeuft(true);
+    abbruchRef.current = false;
     updateStatus(`${ausgewaehlterPlan.name} gestartet...`, 'info');
     
     // Alle Schritte zurücksetzen
     setAusgewaehlterPlan((prevPlan) => {
       if (!prevPlan) return null;
-      
-      const resetSchritte = prevPlan.schritte.map((schritt) => ({
-        ...schritt,
-        status: 'wartend' as PruefschrittStatus,
-      }));
-
       return {
         ...prevPlan,
-        schritte: resetSchritte,
+        schritte: prevPlan.schritte.map(s => ({ ...s, status: 'wartend' as PruefschrittStatus })),
       };
     });
 
-    // Ersten Schritt starten
-    setAktiverSchrittIndex(0);
-    
-    // Kurze Verzögerung damit Reset angewendet wird
-    setTimeout(() => {
-      if (ausgewaehlterPlan) {
-        updateSchrittStatus(0, 'aktiv');
-        simuliereNaechstenSchritt(0, ausgewaehlterPlan);
+    // Schritte nacheinander ausführen
+    for (let i = 0; i < ausgewaehlterPlan.schritte.length; i++) {
+      if (abbruchRef.current) {
+        updateStatus('Prüfablauf abgebrochen', 'warnung');
+        break;
       }
-    }, 100);
-  }, [ausgewaehlterPlan, simulationLaeuft, updateSchrittStatus, simuliereNaechstenSchritt, updateStatus]);
+      
+      setAktiverSchrittIndex(i);
+      
+      const erfolg = await fuehreSchrittAus(i, ausgewaehlterPlan);
+      
+      if (!erfolg) {
+        updateStatus(`${ausgewaehlterPlan.name} fehlgeschlagen bei Schritt ${i + 1}`, 'fehler');
+        setSimulationLaeuft(false);
+        return;
+      }
+      
+      // Kurze Pause zwischen Schritten
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    if (!abbruchRef.current) {
+      updateStatus(`${ausgewaehlterPlan.name} erfolgreich abgeschlossen ✓`, 'erfolg');
+    }
+    
+    setSimulationLaeuft(false);
+  }, [ausgewaehlterPlan, simulationLaeuft, updateStatus, fuehreSchrittAus]);
 
   // ============================================
   // Plan auswählen
   // ============================================
   const handlePlanAuswaehlen = useCallback((plan: Pruefplan) => {
-    // Vorherige Simulation abbrechen
-    if (simulationTimeoutRef.current) {
-      clearTimeout(simulationTimeoutRef.current);
-    }
+    abbruchRef.current = true;
     setSimulationLaeuft(false);
     
     // Plan mit zurückgesetzten Status kopieren
@@ -226,12 +225,9 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
   // Zurück zur Liste
   // ============================================
   const handleZurueck = useCallback(() => {
-    // Simulation abbrechen
-    if (simulationTimeoutRef.current) {
-      clearTimeout(simulationTimeoutRef.current);
-    }
+    abbruchRef.current = true;
     setSimulationLaeuft(false);
-    setConditionPopup({ sichtbar: false, nachricht: '' });
+    setConditionPopup({ sichtbar: false, nachricht: '', wartAufBestaetigung: false });
     
     setAnsicht('liste');
     setAusgewaehlterPlan(null);
@@ -244,11 +240,17 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
   // Schritt anklicken
   // ============================================
   const handleSchrittKlick = useCallback((schrittIndex: number) => {
-    // Nur erlauben wenn keine Simulation läuft
     if (!simulationLaeuft) {
       setAktiverSchrittIndex(schrittIndex);
     }
   }, [simulationLaeuft]);
+
+  // ============================================
+  // Condition bestätigen
+  // ============================================
+  const handleConditionBestaetigen = useCallback(() => {
+    setConditionPopup({ sichtbar: false, nachricht: '', wartAufBestaetigung: false });
+  }, []);
 
   // ============================================
   // Render
@@ -262,13 +264,13 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
           onZurueck={handleZurueck}
           onSchrittKlick={handleSchrittKlick}
           simulationLaeuft={simulationLaeuft}
-          onSimulationStarten={simulierePruefablauf}
+          onSimulationStarten={startePruefablauf}
         />
         
         <ConditionPopup
           sichtbar={conditionPopup.sichtbar}
           nachricht={conditionPopup.nachricht}
-          onBestaetigen={schliesseCondition}
+          onBestaetigen={handleConditionBestaetigen}
         />
       </>
     );

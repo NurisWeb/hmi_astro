@@ -24,16 +24,19 @@ const PruefschrittItem: React.FC<PruefschrittItemProps> = ({
     if (istAktiv) return 'aktiv';
     switch (schritt.status) {
       case 'abgeschlossen': return 'abgeschlossen';
+      case 'fehler': return 'fehler';
       case 'aktiv': return 'aktiv';
       default: return 'wartend';
     }
   };
 
   const getStatusText = () => {
-    if (istAktiv) return 'Aktiv';
+    // Kein Text wenn aktiv - LoadingDots zeigen den Status
+    if (istAktiv) return '';
     switch (schritt.status) {
       case 'abgeschlossen': return '✓';
-      case 'aktiv': return 'Aktiv';
+      case 'fehler': return '✗';
+      case 'aktiv': return '';  // LoadingDots werden angezeigt
       default: return '';
     }
   };

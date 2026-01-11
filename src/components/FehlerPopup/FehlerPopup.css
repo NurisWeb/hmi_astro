@@ -1,0 +1,133 @@
+/* FehlerPopup Styles */
+
+.fehler-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.fehler-popup {
+  background: #1a1a2e;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  border: 2px solid;
+  animation: popupEin 0.3s ease-out;
+}
+
+@keyframes popupEin {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Typ-spezifische Farben */
+.fehler-warnung {
+  border-color: #ffc107;
+}
+
+.fehler-fehler {
+  border-color: #ff5722;
+}
+
+.fehler-kritisch {
+  border-color: #f44336;
+  animation: kritischPulse 1s ease-in-out infinite;
+}
+
+@keyframes kritischPulse {
+  0%, 100% {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 20px rgba(244, 67, 54, 0.3);
+  }
+  50% {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 40px rgba(244, 67, 54, 0.5);
+  }
+}
+
+.fehler-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.fehler-titel {
+  margin: 0 0 12px 0;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.fehler-nachricht {
+  margin: 0 0 16px 0;
+  color: #b0b0b0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.fehler-hinweis {
+  margin: 0 0 20px 0;
+  padding: 12px;
+  background: rgba(244, 67, 54, 0.15);
+  border-radius: 8px;
+  color: #ff8a80;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.fehler-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.fehler-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fehler-btn.schliessen {
+  background: #333;
+  color: #fff;
+}
+
+.fehler-btn.schliessen:hover {
+  background: #444;
+}
+
+.fehler-btn.retry {
+  background: #2a4a6a;
+  color: #90caf9;
+}
+
+.fehler-btn.retry:hover {
+  background: #3a5a7a;
+}
+
+.fehler-kritisch .fehler-btn.schliessen {
+  background: #f44336;
+  color: #fff;
+}
+
+.fehler-kritisch .fehler-btn.schliessen:hover {
+  background: #e53935;
+}

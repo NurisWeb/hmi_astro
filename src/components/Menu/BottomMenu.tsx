@@ -44,7 +44,7 @@ interface BottomMenuProps {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'gear', label: 'Gang', icon: '⚙️', subtitle: 'Gangauswahl' },
+  { id: 'gear', label: 'Manuell', icon: '⚙️', subtitle: 'Manuelle Steuerung' },
   { id: 'program', label: 'Prüfpläne', icon: '▶️', subtitle: 'Prüfpläne' },
 ];
 
@@ -79,7 +79,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
 
   const getPanelTitle = () => {
     switch (activePanel) {
-      case 'gear': return '⚙️ DSG-7 Gangauswahl & Prüfstand-Steuerung';
+      case 'gear': return '◀ Manuelle Gangauswahl vom SIM-Gang DSG';
       case 'program': return '▶️ Prüfpläne';
       case 'sensors': return '📊 Sensorwerte';
       case 'regelung': return '🎛️ Regelungslauf';
@@ -97,17 +97,8 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
       case 'gear':
         return (
           <GearSelectionPanel
-            selectedGear={selectedGear}
-            onGearSelect={onGearSelect}
-            manualRPM={manualRPM}
-            onRPMChange={onRPMChange}
-            isAutoRunning={isAutoRunning}
-            onAutoRunToggle={onAutoRunToggle}
-            autoSpeed={autoSpeed}
-            onAutoSpeedChange={onAutoSpeedChange}
-            dsgState={dsgState}
-            load={load}
-            onLoadChange={onLoadChange}
+            onPanelSchliessen={() => onPanelChange('none')}
+            onGangGeaendert={onGearSelect}
           />
         );
       case 'program':

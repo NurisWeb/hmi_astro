@@ -1,48 +1,90 @@
 // ============================================
-// Prüfplan Service - Mock-Daten für Prüfpläne
+// Prüfplan Service - EXAKT nach Main_Doku.json
 // ============================================
 
-import type { Pruefplan, Pruefschritt } from '../types/menu.types';
+import type { Pruefplan, Pruefschritt, PruefschrittStatus } from '../types/menu.types';
 
 // ============================================
-// Mock Prüfpläne
+// Prüfpläne EXAKT aus Main_Doku.json
 // ============================================
 
-const mockPruefplaene: Pruefplan[] = [
+const pruefplaeneAusMainDoku: Pruefplan[] = [
   {
-    id: 'dsg-grund',
-    name: 'DSG-Grundprüfung',
+    id: 0,
+    name: 'Funktionstest lastfrei',
     schritte: [
-      { id: 's1', nummer: 1, bezeichnung: 'Getriebeöl befüllen', status: 'wartend' },
-      { id: 's2', nummer: 2, bezeichnung: 'Öl auf Temperatur bringen', status: 'wartend' },
-      { id: 's3', nummer: 3, bezeichnung: 'Druckaufbau prüfen', status: 'wartend' },
-      { id: 's4', nummer: 4, bezeichnung: 'Gangwechsel-Test', status: 'wartend' },
-      { id: 's5', nummer: 5, bezeichnung: 'Drehmoment messen', status: 'wartend' },
-      { id: 's6', nummer: 6, bezeichnung: 'Vibrationsprüfung', status: 'wartend' },
-      { id: 's7', nummer: 7, bezeichnung: 'Abkühlung einleiten', status: 'wartend' },
-      { id: 's8', nummer: 8, bezeichnung: 'Protokoll erstellen', status: 'wartend' },
-    ]
+      {
+        id: 0,
+        nummer: 1,
+        bezeichnung: 'Elektrische Prüfung SAP/CCP',
+        endpointUrl: '/api/cmd/seqcheckelectric',
+        condition: null,
+        status: 'wartend',
+      },
+      {
+        id: 1,
+        nummer: 2,
+        bezeichnung: 'Sensordaten Validierung',
+        endpointUrl: '/api/cmd/seqchecksensordata',
+        condition: null,
+        status: 'wartend',
+      },
+      {
+        id: 2,
+        nummer: 3,
+        bezeichnung: 'Prüfung der Schaltung',
+        endpointUrl: '/api/cmd/seqshifttest',
+        condition: null,
+        status: 'wartend',
+      },
+      {
+        id: 3,
+        nummer: 4,
+        bezeichnung: 'Prüfung der Kupplungen',
+        endpointUrl: '/api/cmd/sequenzSafe',
+        condition: null,
+        status: 'wartend',
+      },
+      {
+        id: 4,
+        nummer: 5,
+        bezeichnung: 'Beschleunigungstest',
+        endpointUrl: '/api/cmd/sequenzacctesthigh',
+        condition: null,
+        status: 'wartend',
+      },
+      {
+        id: 5,
+        nummer: 6,
+        bezeichnung: 'Dichtheitsprüfung',
+        endpointUrl: '/api/cmd/seqsealtest',
+        condition: "Prüfen Sie das Getriebe auf sichtbare Undichtigkeiten und bestätigen Sie mit 'Weiter', falls keine Undichtigkeit vorliegt.",
+        status: 'wartend',
+      },
+    ],
   },
   {
-    id: 'bremsmotor',
-    name: 'Bremsmotor-Prüfung',
+    id: 1,
+    name: 'Lasttest mit Lastverteilung',
     schritte: [
-      { id: 'b1', nummer: 1, bezeichnung: 'Motor anschließen', status: 'wartend' },
-      { id: 'b2', nummer: 2, bezeichnung: 'Bremse lösen', status: 'wartend' },
-      { id: 'b3', nummer: 3, bezeichnung: 'Drehzahl hochfahren', status: 'wartend' },
-      { id: 'b4', nummer: 4, bezeichnung: 'Bremskraft messen', status: 'wartend' },
-      { id: 'b5', nummer: 5, bezeichnung: 'Protokoll erstellen', status: 'wartend' },
-    ]
+      {
+        id: 0,
+        nummer: 1,
+        bezeichnung: 'Beschleunigungstest inkl. Schaltverhalten',
+        endpointUrl: '/api/cmd/seqaccshiftfast',
+        condition: null,
+        status: 'wartend',
+      },
+      {
+        id: 1,
+        nummer: 2,
+        bezeichnung: 'Dichtheitsprüfung',
+        endpointUrl: '/api/cmd/seqsealtest',
+        condition: "Prüfen Sie die Bohrung A auf Undichtigkeit. Bestätigen Sie mit 'Weiter', falls keine Undichtigkeit vorliegt, ansonsten 'Abbruch'.",
+        status: 'wartend',
+      },
+    ],
   },
-  {
-    id: 'oeldruck',
-    name: 'Öldruckprüfung',
-    schritte: [
-      { id: 'o1', nummer: 1, bezeichnung: 'System befüllen', status: 'wartend' },
-      { id: 'o2', nummer: 2, bezeichnung: 'Druck aufbauen', status: 'wartend' },
-      { id: 'o3', nummer: 3, bezeichnung: 'Leckage prüfen', status: 'wartend' },
-    ]
-  }
 ];
 
 // ============================================
@@ -50,7 +92,7 @@ const mockPruefplaene: Pruefplan[] = [
 // ============================================
 
 class PruefplanService {
-  private pruefplaene: Pruefplan[] = this.deepClone(mockPruefplaene);
+  private pruefplaene: Pruefplan[] = this.deepClone(pruefplaeneAusMainDoku);
 
   // Alle Prüfpläne abrufen
   getPruefplaene(): Pruefplan[] {
@@ -58,15 +100,15 @@ class PruefplanService {
   }
 
   // Einzelnen Prüfplan abrufen
-  getPruefplan(id: string): Pruefplan | undefined {
+  getPruefplan(id: number): Pruefplan | undefined {
     return this.pruefplaene.find(p => p.id === id);
   }
 
   // Schritt-Status aktualisieren
   updateSchrittStatus(
-    pruefplanId: string, 
-    schrittId: string, 
-    status: Pruefschritt['status']
+    pruefplanId: number, 
+    schrittId: number, 
+    status: PruefschrittStatus
   ): void {
     const plan = this.pruefplaene.find(p => p.id === pruefplanId);
     if (plan) {
@@ -78,7 +120,7 @@ class PruefplanService {
   }
 
   // Alle Schritte eines Plans zurücksetzen
-  resetPruefplan(pruefplanId: string): void {
+  resetPruefplan(pruefplanId: number): void {
     const plan = this.pruefplaene.find(p => p.id === pruefplanId);
     if (plan) {
       plan.schritte.forEach(s => {
@@ -89,7 +131,7 @@ class PruefplanService {
 
   // Alle Prüfpläne zurücksetzen
   resetAll(): void {
-    this.pruefplaene = this.deepClone(mockPruefplaene);
+    this.pruefplaene = this.deepClone(pruefplaeneAusMainDoku);
   }
 
   // Deep Clone Helper
