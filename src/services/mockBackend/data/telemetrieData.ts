@@ -74,7 +74,7 @@ export const drehzahlParams: ParameterConfig[] = [
   },
   {
     id: 'drehzahl_ausgleich',
-    name: 'Drehzahl Ausgleich',
+    name: 'Ausgleich',
     unit: 'U/min',
     min: 0, max: 1000,
     green: [0, 400], orange: [400, 800], red: [800, 1000],

@@ -11,7 +11,7 @@ import { GAUGE_CONSTANTS, COLORS } from '../../types/dashboard.types';
 interface DrehzahlKGaugeProps {
   value: number;
   size: GaugeSize;
-  typ: 'K1' | 'K2' | 'Ausgleich';
+  typ: 'K1' | 'K2' | '';
   label?: string;
 }
 
@@ -36,7 +36,7 @@ const DrehzahlKGauge: React.FC<DrehzahlKGaugeProps> = ({
     switch (typ) {
       case 'K1': return COLORS.CYAN;
       case 'K2': return COLORS.PURPLE;
-      case 'Ausgleich': return COLORS.BLUE;
+      case '': return COLORS.BLUE;
     }
   };
 

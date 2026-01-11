@@ -145,7 +145,8 @@ const GaugeGrid: React.FC<GaugeGridProps> = ({ telemetrie, isCompact, activeGear
           <DrehzahlKGauge
             value={Math.abs(r[2])}
             size={gaugeSize}
-            typ="Ausgleich"
+            typ=""
+            label="Drehzahl Ausgleich"
           />
           <AuslastungGauge
             value={l[2]}
