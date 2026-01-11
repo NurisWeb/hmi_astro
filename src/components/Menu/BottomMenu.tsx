@@ -1,14 +1,23 @@
 // ============================================
 // BottomMenu - Ausklappbares Menü mit DSG-Support
+// Mit StatusBar-Integration für Gang- und Prüfpläne-Panel
 // ============================================
 
 import React from 'react';
 import type { MenuPanel, MenuItem, MockDataMode, DSGState } from '../../types/dashboard.types';
+import { StatusBar } from '../StatusLog';
+import type { StatusTyp } from '../StatusLog';
 import GearSelectionPanel from './GearSelectionPanel';
-import ProgramPanel from './ProgramPanel';
+import PruefplaenePanel from './PruefplaenePanel';
 import SensorPanel from './SensorPanel';
 import DSGPanel from './DSGPanel';
 import './menu.css';
+
+// Status-Log State Interface
+interface StatusLogState {
+  nachricht: string;
+  typ: StatusTyp;
+}
 
 interface BottomMenuProps {
   activePanel: MenuPanel;
@@ -29,15 +38,14 @@ interface BottomMenuProps {
   dsgState?: DSGState;
   load?: number;
   onLoadChange?: (load: number) => void;
+  // Status-Log Props
+  statusLog?: StatusLogState | null;
+  setzeStatus?: (nachricht: string, typ?: StatusTyp) => void;
 }
 
 const menuItems: MenuItem[] = [
   { id: 'gear', label: 'Gang', icon: '⚙️', subtitle: 'Gangauswahl' },
-  { id: 'program', label: 'Programm', icon: '▶️', subtitle: 'Testprogramme' },
-  { id: 'sensors', label: 'Sensoren', icon: '📊', subtitle: 'Live-Daten' },
-  { id: 'regelung', label: 'Regelung', icon: '🎛️', subtitle: 'PID' },
-  { id: 'config', label: 'Config', icon: '⚡', subtitle: 'Einstellungen' },
-  { id: 'dsg', label: 'DSG', icon: '🔀', subtitle: 'Kupplung' },
+  { id: 'program', label: 'Prüfpläne', icon: '▶️', subtitle: 'Prüfpläne' },
 ];
 
 const BottomMenu: React.FC<BottomMenuProps> = ({
@@ -58,6 +66,8 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
   dsgState,
   load = 0,
   onLoadChange,
+  statusLog,
+  setzeStatus,
 }) => {
   const handlePanelToggle = (panel: MenuPanel) => {
     if (activePanel === panel) {
@@ -70,7 +80,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
   const getPanelTitle = () => {
     switch (activePanel) {
       case 'gear': return '⚙️ DSG-7 Gangauswahl & Prüfstand-Steuerung';
-      case 'program': return '▶️ Testprogramme';
+      case 'program': return '▶️ Prüfpläne';
       case 'sensors': return '📊 Sensorwerte';
       case 'regelung': return '🎛️ Regelungslauf';
       case 'config': return '⚡ Konfiguration';
@@ -78,6 +88,9 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
       default: return '';
     }
   };
+
+  // Status-Bar nur bei Gang- oder Prüfpläne-Panel anzeigen
+  const sollStatusBarAnzeigen = activePanel === 'gear' || activePanel === 'program';
 
   const renderPanelContent = () => {
     switch (activePanel) {
@@ -98,7 +111,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
           />
         );
       case 'program':
-        return <ProgramPanel />;
+        return <PruefplaenePanel setzeStatus={setzeStatus} />;
       case 'sensors':
         return <SensorPanel sensors={sensorData} />;
       case 'config':
@@ -149,8 +162,8 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
   };
 
   return (
-    <div className="bottom-menu">
-      <div className={`bottom-menu-panel ${activePanel !== 'none' ? 'open' : ''}`}>
+    <div className="bottom-menu py-8">
+      <div className={`bottom-menu-panel mb-4 ${activePanel !== 'none' ? 'open' : ''}`}>
         {activePanel !== 'none' && (
           <>
             <div className="bottom-menu-panel-header">
@@ -162,6 +175,16 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
                 ✕
               </button>
             </div>
+            
+            {/* StatusBar - Nur bei Gang und Prüfpläne */}
+            {sollStatusBarAnzeigen && statusLog && (
+              <StatusBar
+                nachricht={statusLog.nachricht}
+                typ={statusLog.typ}
+                sichtbar={true}
+              />
+            )}
+            
             <div className="bottom-menu-panel-content">
               {renderPanelContent()}
             </div>
@@ -169,7 +192,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
         )}
       </div>
 
-      <div className="bottom-menu-bar">
+      <div className="bottom-menu-bar py-1">
         {menuItems.map((item) => (
           <button
             key={item.id}
@@ -181,10 +204,7 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
           </button>
         ))}
         
-        <button className="menu-btn emergency" onClick={onEmergencyStop}>
-          <span className="menu-btn-icon">🛑</span>
-          <span className="menu-btn-label">NOT-AUS</span>
-        </button>
+      
       </div>
     </div>
   );

@@ -204,3 +204,97 @@
 .status-log-content::-webkit-scrollbar-thumb:hover {
   background: var(--glass-border);
 }
+
+/* ============================================
+   StatusBar - Kompakte einzeilige Anzeige
+   Für Panel-Kontexte (Gang, Prüfpläne)
+   ============================================ */
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  background: var(--metal-dark);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  border-left: 4px solid;
+  animation: statusBarAppear 0.3s ease forwards;
+  box-shadow: var(--shadow-inset);
+}
+
+@keyframes statusBarAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-bar__icon {
+  font-size: 16px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.status-bar__nachricht {
+  flex: 1;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Info - Blau/Cyan (IEC 60073) */
+.status-bar--info {
+  border-left-color: var(--color-cyan);
+  background: rgba(0, 168, 204, 0.1);
+}
+
+.status-bar--info .status-bar__nachricht {
+  color: var(--color-cyan);
+}
+
+/* Warnung - Gelb/Orange (IEC 60073) */
+.status-bar--warnung {
+  border-left-color: var(--color-orange);
+  background: rgba(255, 152, 0, 0.12);
+}
+
+.status-bar--warnung .status-bar__nachricht {
+  color: var(--color-orange);
+}
+
+/* Erfolg - Grün (IEC 60073) */
+.status-bar--erfolg {
+  border-left-color: var(--color-green);
+  background: rgba(0, 230, 118, 0.1);
+}
+
+.status-bar--erfolg .status-bar__nachricht {
+  color: var(--color-green);
+}
+
+/* Fehler - Rot (IEC 60073) */
+.status-bar--fehler {
+  border-left-color: var(--color-red);
+  background: rgba(255, 59, 92, 0.12);
+  animation: statusBarAppear 0.3s ease forwards, statusBarPulse 1s ease infinite;
+}
+
+.status-bar--fehler .status-bar__nachricht {
+  color: var(--color-red);
+}
+
+@keyframes statusBarPulse {
+  0%, 100% { 
+    box-shadow: var(--shadow-inset);
+  }
+  50% { 
+    box-shadow: var(--shadow-inset), 0 0 8px var(--glow-red);
+  }
+}

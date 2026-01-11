@@ -1,11 +1,13 @@
 // ============================================
 // DashboardWrapper - Haupt-Container mit DSG-Integration
+// Layout: Header → Parameter-Leiste → Hauptbereich → Footer
 // ============================================
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GaugeGrid } from '../Gauges';
-import { StatusLog } from '../StatusLog';
 import { BottomMenu } from '../Menu';
+import ParameterBar from './ParameterBar';
+import { VerbindungsButton, BlankState, VerbindungsProvider, useVerbindung } from '../Verbindung';
 import { useMockData } from '../../hooks/useMockData';
 import { useTheme } from '../../hooks/useTheme';
 import type { 
@@ -14,10 +16,23 @@ import type {
   GearPosition,
   MockDataMode,
 } from '../../types/dashboard.types';
+import type { StatusTyp } from '../StatusLog';
 import { GAUGE_CONSTANTS } from '../../types/dashboard.types';
 import './DashboardWrapper.css';
+import '../Verbindung/verbindung.css';
 
-const DashboardWrapper: React.FC = () => {
+// ============================================
+// Status-Log State Interface
+// ============================================
+export interface StatusLogState {
+  nachricht: string;
+  typ: StatusTyp;
+}
+
+// ============================================
+// DashboardContent - Innere Komponente mit Context-Zugriff
+// ============================================
+const DashboardContent: React.FC = () => {
   const [activePanel, setActivePanel] = useState<MenuPanel>('none');
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [manualRPM, setManualRPM] = useState(800);
@@ -26,6 +41,23 @@ const DashboardWrapper: React.FC = () => {
   const [mockMode, setMockMode] = useState<MockDataMode>('random');
   const [isEmergencyStop, setIsEmergencyStop] = useState(false);
   const [datetime, setDatetime] = useState(new Date());
+  
+  // ============================================
+  // Verbindungs-Context nutzen
+  // ============================================
+  const {
+    verbindung,
+    laufzeit,
+    fortschritt,
+    istVerbunden,
+    verbindungAufbauen,
+    verbindungTrennen,
+    fehlerZuruecksetzen,
+  } = useVerbindung();
+  
+  // Status-Log State für Panels (Gang, Prüfpläne)
+  const [statusLog, setStatusLog] = useState<StatusLogState | null>(null);
+  const prevGearRef = useRef<string>('N');
 
   const { isDark, toggleTheme } = useTheme();
 
@@ -46,6 +78,18 @@ const DashboardWrapper: React.FC = () => {
     updateInterval: 50,
   });
 
+  // ============================================
+  // Status-Log Funktionen
+  // ============================================
+  const setzeStatus = useCallback((nachricht: string, typ: StatusTyp = 'info') => {
+    setStatusLog({ nachricht, typ });
+  }, []);
+
+  const loescheStatus = useCallback(() => {
+    setStatusLog(null);
+  }, []);
+
+  // Datum/Uhrzeit aktualisieren
   useEffect(() => {
     const interval = setInterval(() => setDatetime(new Date()), 1000);
     return () => clearInterval(interval);
@@ -61,22 +105,94 @@ const DashboardWrapper: React.FC = () => {
     setLogs(prev => [newEntry, ...prev].slice(0, 100));
   }, []);
 
-  const clearLogs = useCallback(() => {
-    setLogs([]);
-    addLog('info', 'Log gelöscht');
-  }, [addLog]);
+  // ============================================
+  // Verbindungs-Handler (Wrapper für Context + lokale Actions)
+  // ============================================
+  const handleVerbinden = useCallback(() => {
+    addLog('info', '🔌 Verbindung wird aufgebaut...');
+    verbindungAufbauen();
+  }, [addLog, verbindungAufbauen]);
 
+  const handleTrennen = useCallback(() => {
+    // 1. Context-Verbindung trennen
+    verbindungTrennen();
+    
+    // 2. Alle laufenden Prozesse stoppen
+    stopAutoMode();
+    reset();
+    
+    // 3. Alle offenen Panels schließen
+    setActivePanel('none');
+    
+    // 4. Status-Log löschen
+    loescheStatus();
+    
+    // 5. Manuelle Werte zurücksetzen
+    setManualRPM(800);
+    setLoad(0);
+    setAutoSpeed('normal');
+    
+    // 6. Log-Eintrag
+    addLog('warning', '🔌 Verbindung getrennt');
+  }, [addLog, verbindungTrennen, stopAutoMode, reset, loescheStatus]);
+
+  // Log wenn Verbindung hergestellt wurde
+  useEffect(() => {
+    if (istVerbunden) {
+      addLog('success', '✅ Verbindung hergestellt');
+    }
+  }, [istVerbunden, addLog]);
+
+  // Log bei Verbindungsfehler
+  useEffect(() => {
+    if (verbindung.letzterFehler) {
+      addLog('error', `❌ ${verbindung.letzterFehler}`);
+    }
+  }, [verbindung.letzterFehler, addLog]);
+
+  // Panel-Wechsel mit Status-Reset
   const handlePanelChange = useCallback((panel: MenuPanel) => {
+    // Status löschen wenn Panel geschlossen wird
+    if (panel === 'none') {
+      loescheStatus();
+    } else if (panel === 'gear') {
+      // Initial-Status für Gang-Panel
+      setzeStatus('Bereit für Gangwechsel', 'info');
+    } else if (panel === 'program') {
+      // Initial-Status für Prüfpläne-Panel
+      setzeStatus('Prüfplan auswählen', 'info');
+    } else {
+      // Andere Panels: kein Status
+      loescheStatus();
+    }
+    
     setActivePanel(panel);
     if (panel !== 'none') {
-      addLog('info', `${panel.charAt(0).toUpperCase() + panel.slice(1)} geöffnet`);
+      const panelName = panel === 'program' ? 'Prüfplan' : panel.charAt(0).toUpperCase() + panel.slice(1);
+      addLog('info', `${panelName} geöffnet`);
     }
-  }, [addLog]);
+  }, [addLog, setzeStatus, loescheStatus]);
 
+  // Gang-Auswahl mit Status-Feedback
   const handleGearSelect = useCallback((gear: string) => {
+    prevGearRef.current = dsgState.activeGear;
     setGear(gear as GearPosition);
+    
+    // Status während des Schaltvorgangs
+    setzeStatus(`Gang ${gear} wird eingelegt...`, 'info');
     addLog('success', `Gang ${gear} angefordert`);
-  }, [addLog, setGear]);
+  }, [addLog, setGear, setzeStatus, dsgState.activeGear]);
+
+  // Status aktualisieren wenn Gang gewechselt wurde
+  useEffect(() => {
+    if (activePanel === 'gear' && !dsgState.isShifting && dsgState.activeGear !== 'N') {
+      // Schaltvorgang beendet
+      if (prevGearRef.current !== dsgState.activeGear) {
+        setzeStatus(`Gang ${dsgState.activeGear} eingelegt`, 'erfolg');
+        prevGearRef.current = dsgState.activeGear;
+      }
+    }
+  }, [dsgState.activeGear, dsgState.isShifting, activePanel, setzeStatus]);
 
   const handleRPMChange = useCallback((rpm: number) => {
     setManualRPM(rpm);
@@ -91,19 +207,22 @@ const DashboardWrapper: React.FC = () => {
   const handleAutoRunToggle = useCallback(() => {
     if (isAutoModeActive) {
       stopAutoMode();
+      setzeStatus('DSG-Prüflauf gestoppt', 'info');
       addLog('info', 'DSG-Prüflauf gestoppt');
     } else {
       startAutoMode(autoSpeed);
+      setzeStatus('DSG-Prüflauf läuft...', 'info');
       addLog('info', `DSG-Prüflauf gestartet (${autoSpeed === 'slow' ? 'Langsam' : autoSpeed === 'normal' ? 'Normal' : 'Schnell'})`);
     }
-  }, [isAutoModeActive, autoSpeed, addLog, startAutoMode, stopAutoMode]);
+  }, [isAutoModeActive, autoSpeed, addLog, startAutoMode, stopAutoMode, setzeStatus]);
 
   // Log DSG-Schaltvorgänge
   useEffect(() => {
-    if (dsgState.isShifting) {
+    if (dsgState.isShifting && activePanel === 'gear') {
+      setzeStatus(`Schalten: ${dsgState.activeGear} → ${dsgState.preselectedGear}`, 'info');
       addLog('info', `⚡ Schalten: ${dsgState.activeGear} → ${dsgState.preselectedGear}`);
     }
-  }, [dsgState.isShifting, dsgState.activeGear, dsgState.preselectedGear, addLog]);
+  }, [dsgState.isShifting, dsgState.activeGear, dsgState.preselectedGear, addLog, activePanel, setzeStatus]);
 
   const handleMockModeChange = useCallback((mode: MockDataMode) => {
     setMockMode(mode);
@@ -115,17 +234,19 @@ const DashboardWrapper: React.FC = () => {
     setIsEmergencyStop(true);
     stopAutoMode();
     reset();
+    setzeStatus('NOT-AUS AKTIVIERT!', 'fehler');
     addLog('error', '🛑 NOT-AUS AKTIVIERT!');
     addLog('error', 'Alle Systeme werden gestoppt...');
-  }, [addLog, reset, stopAutoMode]);
+  }, [addLog, reset, stopAutoMode, setzeStatus]);
 
   const handleEmergencyReset = useCallback(() => {
     setIsEmergencyStop(false);
+    loescheStatus();
     addLog('warning', 'System wird zurückgesetzt...');
     setTimeout(() => {
       addLog('success', 'System bereit');
     }, 1000);
-  }, [addLog]);
+  }, [addLog, loescheStatus]);
 
   type SensorStatus = 'normal' | 'warning' | 'danger';
   const sensorData: { name: string; value: number; unit: string; status: SensorStatus }[] = [
@@ -137,37 +258,48 @@ const DashboardWrapper: React.FC = () => {
     { name: 'Temperatur', value: data.temperature, unit: '°C', status: (data.temperature > 90 ? 'danger' : data.temperature > 75 ? 'warning' : 'normal') as SensorStatus },
   ];
 
-  const formatRuntime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
+  // Datum formatieren: DD.MM.YYYY
+  const formatDate = (date: Date): string => {
+    return date.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
+  // Uhrzeit formatieren: HH:MM
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString('de-DE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const isCompact = activePanel !== 'none';
 
   return (
-    <div className={`dashboard-wrapper ${isCompact ? 'menu-open' : ''}`}>
+    <div className={`dashboard-wrapper ${isCompact ? 'menu-open' : ''} ${!istVerbunden ? 'dashboard-wrapper--disconnected' : ''}`}>
+      {/* ============================================
+          HEADER - Immer sichtbar
+          Links: Titel
+          Rechts: Verbindungs-Button, Datum/Zeit, Theme-Toggle
+          ============================================ */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">🔧 DSG-7 Prüfstand</h1>
+        <h1 className="dashboard-title">🔧 DSG-Prüfstand CarParts24</h1>
         <div className="dashboard-header-right">
-          <div className={`mode-indicator ${mockMode === 'realistic' ? 'realistic' : ''}`}>
-            {mockMode === 'random' ? '🎛️ Manuell' : '🔄 Automatik'}
-          </div>
-          {/* DSG-Status-Anzeige */}
-          <div className="dsg-status-badge">
-            <span className="dsg-gear-indicator">{dsgState.activeGear}</span>
-            {dsgState.preselectedGear && dsgState.activeGear !== 'N' && (
-              <span className="dsg-preselect-indicator">→{dsgState.preselectedGear}</span>
-            )}
-          </div>
-          <div className="connection-status">
-            <div className={`connection-dot ${isConnected ? '' : 'disconnected'}`} />
-            <span>{isConnected ? 'Verbunden' : 'Getrennt'}</span>
-          </div>
+          {/* Verbindungs-Button (3 Zustände) */}
+          <VerbindungsButton
+            status={verbindung.status}
+            onVerbinden={handleVerbinden}
+            onTrennen={handleTrennen}
+          />
+          
+          {/* Datum und Uhrzeit */}
           <span className="dashboard-datetime">
-            {datetime.toLocaleString('de-DE')}
+            {formatDate(datetime)} | {formatTime(datetime)}
           </span>
+          
+          {/* Theme Toggle */}
           <button 
             className="theme-toggle" 
             onClick={toggleTheme}
@@ -178,97 +310,63 @@ const DashboardWrapper: React.FC = () => {
         </div>
       </header>
 
-      <main className="dashboard-main">
-        <section className="dashboard-gauges">
-          <GaugeGrid data={data} isCompact={isCompact} />
-        </section>
-
-        <section className={`dashboard-lower ${isCompact ? 'compact' : ''}`}>
-          <StatusLog
-            logs={logs}
-            maxVisible={5}
-            onClear={clearLogs}
+      {/* ============================================
+          CONTENT: BlankState ODER Dashboard
+          ============================================ */}
+      {!istVerbunden ? (
+        // BLANK-STATE: Nicht verbunden
+        <BlankState
+          status={verbindung.status}
+          onVerbinden={handleVerbinden}
+          fortschritt={fortschritt}
+          fehler={verbindung.letzterFehler}
+        />
+      ) : (
+        // VERBUNDEN: Normales Dashboard
+        <>
+          {/* Parameter-Leiste mit Verbindungs-Laufzeit */}
+          <ParameterBar
+            runtimeFormatted={laufzeit}
+            oilTemperature={data.oilTemperature}
+            activeGear={dsgState.activeGear}
+            isConnected={istVerbunden}
           />
 
-          {!isCompact && (
-            <div className="dashboard-stats">
-              <div className="stats-grid">
-                <div className="stat-item">
-                  <span className="stat-value">{formatRuntime(data.runtime)}</span>
-                  <span className="stat-label">Laufzeit</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-value">{data.cycles}</span>
-                  <span className="stat-label">Zyklen</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-value">{data.oilTemperature.toFixed(0)}°C</span>
-                  <span className="stat-label">Öltemp.</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-value" style={{ color: 'var(--color-cyan)' }}>
-                    {dsgState.activeGear}
-                  </span>
-                  <span className="stat-label">Gang</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-value" style={{ color: 'var(--color-green)' }}>
-                    {Math.round(dsgState.load)}%
-                  </span>
-                  <span className="stat-label">Last</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
-      </main>
+          {/* Hauptbereich - Gauges */}
+          <main className="dashboard-main">
+            <section className="dashboard-gauges">
+              <GaugeGrid data={data} isCompact={isCompact} />
+            </section>
+          </main>
 
-      <footer className="dashboard-footer">
-        <div className="footer-stats">
-          <div className="footer-stat">
-            <span>Laufzeit:</span>
-            <span className="footer-stat-value">{formatRuntime(data.runtime)}</span>
-          </div>
-          <div className="footer-stat">
-            <span>Zyklen:</span>
-            <span className="footer-stat-value">{data.cycles}</span>
-          </div>
-          <div className="footer-stat">
-            <span>K1:</span>
-            <span className="footer-stat-value" style={{ color: dsgState.clutch1.isActive ? 'var(--color-green)' : 'var(--text-dim)' }}>
-              {Math.round(dsgState.clutch1.engagement)}%
-            </span>
-          </div>
-          <div className="footer-stat">
-            <span>K2:</span>
-            <span className="footer-stat-value" style={{ color: dsgState.clutch2.isActive ? 'var(--color-green)' : 'var(--text-dim)' }}>
-              {Math.round(dsgState.clutch2.engagement)}%
-            </span>
-          </div>
-        </div>
-        <span>DSG-7 Prüfstand v2.0 | {isConnected ? 'Simulation Active' : 'Disconnected'}</span>
-      </footer>
+          {/* Bottom Menu - Navigation mit Status-Log */}
+          <BottomMenu
+            activePanel={activePanel}
+            onPanelChange={handlePanelChange}
+            onEmergencyStop={handleEmergencyStop}
+            selectedGear={dsgState.activeGear}
+            onGearSelect={handleGearSelect}
+            manualRPM={manualRPM}
+            onRPMChange={handleRPMChange}
+            isAutoRunning={isAutoModeActive}
+            onAutoRunToggle={handleAutoRunToggle}
+            autoSpeed={autoSpeed}
+            onAutoSpeedChange={setAutoSpeed}
+            sensorData={sensorData}
+            mockMode={mockMode}
+            onMockModeChange={handleMockModeChange}
+            dsgState={dsgState}
+            load={load}
+            onLoadChange={handleLoadChange}
+            statusLog={statusLog}
+            setzeStatus={setzeStatus}
+          />
+        </>
+      )}
 
-      <BottomMenu
-        activePanel={activePanel}
-        onPanelChange={handlePanelChange}
-        onEmergencyStop={handleEmergencyStop}
-        selectedGear={dsgState.activeGear}
-        onGearSelect={handleGearSelect}
-        manualRPM={manualRPM}
-        onRPMChange={handleRPMChange}
-        isAutoRunning={isAutoModeActive}
-        onAutoRunToggle={handleAutoRunToggle}
-        autoSpeed={autoSpeed}
-        onAutoSpeedChange={setAutoSpeed}
-        sensorData={sensorData}
-        mockMode={mockMode}
-        onMockModeChange={handleMockModeChange}
-        dsgState={dsgState}
-        load={load}
-        onLoadChange={handleLoadChange}
-      />
-
+      {/* ============================================
+          EMERGENCY OVERLAY
+          ============================================ */}
       {isEmergencyStop && (
         <div className="emergency-overlay">
           <div className="emergency-content">
@@ -282,6 +380,17 @@ const DashboardWrapper: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+// ============================================
+// DashboardWrapper - Äußere Komponente mit VerbindungsProvider
+// ============================================
+const DashboardWrapper: React.FC = () => {
+  return (
+    <VerbindungsProvider>
+      <DashboardContent />
+    </VerbindungsProvider>
   );
 };
 

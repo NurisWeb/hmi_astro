@@ -152,16 +152,15 @@ export interface MenuItem {
 }
 
 // ============================================
-// Program Types
+// Prüfplan Types
 // ============================================
 
-export type ProgramStatus = 'ready' | 'running' | 'paused' | 'completed' | 'error';
+export type PruefplanStatus = 'ready' | 'running' | 'paused' | 'completed' | 'error';
 
-export interface TestProgram {
+export interface Pruefplan {
   id: string;
   name: string;
-  icon: string;
-  status: ProgramStatus;
+  status: PruefplanStatus;
   progress?: number;
   description?: string;
 }

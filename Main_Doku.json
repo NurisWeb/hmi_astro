@@ -1,0 +1,130 @@
+{
+  "t": "tele",
+  "ts": 877194,
+  "p": [
+    "#K1ÖLDRUCK#",
+    "#K2ÖLDRUCK#",
+    "#SYSTEMÖLDRUCK#",
+    "#EDIFFÖLDRUCK#"
+  ],
+  "g": [ // vielleicht in status zeile
+    "#PRIMÄRGANG#",
+    "#SEKUNDÄRGANG"
+  ],
+  "r": [
+    "#DREHZAHLK1#",
+    "#DREHZAHLK2#",
+    "#DREHZAHLAUSGLEICH#"
+  ],
+  "m": [
+    "#DREHZAHLANRTRIEBMOTOR#",
+    "#KWB1#", //<-- low prio
+    "#KWB2#" //<-- low prio
+  ],
+  "l": [
+    "#ÖLTEMPHYDRAULIK#",
+    "#ÖLTEMPRADSATZ#",
+    "#PRUEFSTANDAUSLASTUNG#"
+  ],
+  "s": "#STATUS NACHRICHT#"
+}
+
+
+// api/stream/telementry
+
+{
+  "t": "plans",
+  "plans": [
+    {
+      "id": 0,
+      "name": "Funktionstest lastfrei",
+      "steps": [
+        {
+          "id": 0,
+          "name": "Elektrische Prüfung SAP/CCP",
+          "endpointUrl": "/api/cmd/seqcheckelectric",
+          "condition": null
+        },
+        {
+          "id": 1,
+          "name": "Sensordaten Validierung",
+          "endpointUrl": "/api/cmd/seqchecksensordata",
+          "condition": null
+        },
+        {
+          "id": 2,
+          "name": "Prüfung der Schaltung",
+          "endpointUrl": "/api/cmd/seqshifttest",
+          "condition": null
+        },
+        {
+          "id": 3,
+          "name": "Prüfung der Kupplungen",
+          "endpointUrl": "/api/cmd/sequenzSafe",
+          "condition": null
+        },
+        {
+          "id": 4,
+          "name": "Beschleunigungstest",
+          "endpointUrl": "/api/cmd/sequenzacctesthigh",
+          "condition": null
+        },
+        {
+          "id": 5,
+          "name": "Dichtheitsprüfung",
+          "endpointUrl": "/api/cmd/seqsealtest",
+          "condition": "Prüfen Sie das Getriebe auf sichtbare Undichtigkeiten und bestätigen Sie mit 'Weiter', falls keine Undichtigkeit vorliegt."
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Lasttest mit Lastverteilung",
+      "steps": [
+        {
+          "id": 0,
+          "name": "Beschleunigungstest inkl. Schaltverhalten",
+          "endpointUrl": "/api/cmd/seqaccshiftfast",
+          "condition": null
+        },
+        {
+          "id": 1,
+          "name": "Dichtheitsprüfung",
+          "endpointUrl": "/api/cmd/seqsealtest",
+          "condition": "Prüfen Sie die Bohrung A auf Undichtigkeit. Bestätigen Sie mit 'Weiter', falls keine Undichtigkeit vorliegt, ansonsten 'Abbruch'."
+        }
+      ]
+    }
+  ]
+}
+
+// api/pruefplaene
+
+
+
+/api/handshake -> HTTP200: INIT, HTTP200: BUSY, HTTP_ELSE: Retry!
+/api/isAlive -> HTTP200: ok-n
+  wenn 200 -> retry in 2 sekunden
+  wenn else -> 2 eskalationsstufen, 1) retry in 2 sekunden, 2) connection lost
+
+/api/cmd/x -> syncron! gibt dir einen 200er wenn fertig. der 200er hat entweder einen iO, oder niO
+
+/api/cmd/startManual -> HTTP200: ok / ELSE: nok
+/api/cmd/stopManual -> HTTP200: ok / ELSE: nok
+/api/cmd/setGear -> (POST) primärgang HTTP200: OK / ELSE: nok
+/api/cmd/setFuMotorFreq -> drehzahl HTTP200: OK / ELSE: nok
+/api/cmd/stop -> HTTP200: ok / ELSE: nok
+
+
+Drehzahl: 0-3530 eingangsmotor (grün = 0-2000, orange = 2000-3000, rot 3000-3530)
+          k1 (0-1000) grün 0-400 orange 400-800 rot 800-1000
+          k2 (0-1000) grün 0-400 orange 400-800 rot 800-1000
+          Ausgleich (0-1000) grün 0-400 orange 400-800 rot 800-1000
+bremsen in KW 0-6 KW (grün = 0-2, orange 2-4, rot 4-6)
+drücke (öl): 0-60 bar (grün = 0-35 bar, orange = 35-50, rot = 50-60)
+temparaturen: 0-110 ( grün = 0-70, orange ist 70-90, rot 90-110)
+
+prüfstand auslastung 0-100  grün 0-60 orange 60-80 rot 80-100
+
+
+

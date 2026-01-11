@@ -23,19 +23,32 @@ export interface MenuItem {
 }
 
 // ============================================
-// Program Types
+// Prüfplan Types
 // ============================================
 
-export type ProgramStatus = 'ready' | 'running' | 'paused' | 'completed' | 'error';
+export type PruefschrittStatus = 'wartend' | 'aktiv' | 'abgeschlossen';
 
-export interface TestProgram {
+export interface Pruefschritt {
+  id: string;
+  nummer: number;
+  bezeichnung: string;
+  status: PruefschrittStatus;
+}
+
+export interface Pruefplan {
   id: string;
   name: string;
-  icon: string;
-  status: ProgramStatus;
-  progress?: number;
-  description?: string;
+  schritte: Pruefschritt[];
 }
+
+export interface ConditionNachricht {
+  id: string;
+  text: string;
+  schrittId: string;
+}
+
+export type PruefplanAnsicht = 'liste' | 'aktiv';
+
 
 
 
