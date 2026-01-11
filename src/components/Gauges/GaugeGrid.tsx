@@ -50,10 +50,10 @@ const GaugeGrid: React.FC<GaugeGridProps> = ({ telemetrie, isCompact, activeGear
       
       {/* ============================================
           LINKE SPALTE: Öldrücke + Temperaturen
-          Gruppierung: Alle Druck- und Temp-Sensoren
+          3 Gauges pro Reihe für breiteres Layout
           ============================================ */}
       <section className="gauge-section gauge-section--left">
-        <div className="gauge-row">
+        <div className="gauge-row gauge-row--triple">
           <OilPressureGauge
             value={p[0]}
             size={gaugeSize}
@@ -66,22 +66,20 @@ const GaugeGrid: React.FC<GaugeGridProps> = ({ telemetrie, isCompact, activeGear
             sensorId={2}
             label="K2 Öldruck"
           />
-        </div>
-        <div className="gauge-row">
           <OilPressureGauge
             value={p[2]}
             size={gaugeSize}
             sensorId={3}
             label="System Öldruck"
           />
+        </div>
+        <div className="gauge-row gauge-row--triple">
           <OilPressureGauge
             value={p[3]}
             size={gaugeSize}
             sensorId={4}
             label="EDiff Öldruck"
           />
-        </div>
-        <div className="gauge-row">
           <OilTemperatureGauge
             value={l[0]}
             size={gaugeSize}

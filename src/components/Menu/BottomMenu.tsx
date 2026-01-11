@@ -153,8 +153,8 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
   };
 
   return (
-    <div className="bottom-menu py-8">
-      <div className={`bottom-menu-panel mb-4 ${activePanel !== 'none' ? 'open' : ''}`}>
+    <div className="bottom-menu pt-8">
+      <div className={`bottom-menu-panel w-full mb-4 ${activePanel !== 'none' ? 'open' : ''}`}>
         {activePanel !== 'none' && (
           <>
             <div className="bottom-menu-panel-header">
