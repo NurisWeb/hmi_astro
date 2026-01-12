@@ -107,6 +107,19 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
     : { start: '#e0e5ec', end: '#c8cfd8' };
   
   const hubInnerColor = isDark ? '#1a1a24' : '#d4dae3';
+  
+  // Gauge Face Farben - werden dynamisch über CSS-Variablen gesetzt
+  // um korrekt auf Theme-Wechsel zu reagieren
+  const gaugeFaceColor = isDark ? '#1f2228' : '#dde1e6';
+  const gaugeFaceStroke = isDark ? '#3d4450' : '#a8b4c0';
+  
+  // Track Background Farbe
+  const trackBgColor = isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(0, 0, 0, 0.08)';
+  
+  // Tick Farben
+  const tickColors = isDark
+    ? { normal: '#6b7280', major: '#9ca3af', label: '#e8eaed' }
+    : { normal: '#9ca3af', major: '#4b5563', label: '#374151' };
 
   const status: GaugeStatus = useMemo(() => {
     if (dangerThreshold && value >= dangerThreshold) return 'danger';
@@ -145,6 +158,15 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
       if (isDanger) tickClass += ' danger';
       else if (isWarning) tickClass += ' warning';
 
+      // Tick-Farbe basierend auf Status
+      const tickColor = isDanger 
+        ? dangerColor 
+        : isWarning 
+        ? warningColor 
+        : isMajor 
+        ? tickColors.major 
+        : tickColors.normal;
+
       tickElements.push(
         <line
           key={`tick-${val}`}
@@ -153,6 +175,8 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
           x2={inner.x}
           y2={inner.y}
           className={tickClass}
+          stroke={tickColor}
+          strokeWidth={isMajor ? 2 : 1}
         />
       );
 
@@ -161,6 +185,13 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
         let labelClass = 'gauge-tick-label';
         if (isDanger) labelClass += ' danger';
         else if (isWarning) labelClass += ' warning';
+        
+        // Label-Farbe
+        const labelColor = isDanger 
+          ? dangerColor 
+          : isWarning 
+          ? warningColor 
+          : tickColors.label;
 
         tickElements.push(
           <text
@@ -168,6 +199,7 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
             x={labelPos.x}
             y={labelPos.y}
             className={labelClass}
+            fill={labelColor}
           >
             {val}
           </text>
@@ -175,7 +207,7 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
       }
     }
     return tickElements;
-  }, [showTicks, tickInterval, minValue, maxValue, startAngle, totalAngle, center, tickConfig, warningThreshold, dangerThreshold]);
+  }, [showTicks, tickInterval, minValue, maxValue, startAngle, totalAngle, center, tickConfig, warningThreshold, dangerThreshold, tickColors, dangerColor, warningColor]);
 
   // Keine Minuswerte anzeigen - immer absolute Werte
   const absValue = Math.abs(value);
@@ -211,11 +243,15 @@ const BaseGauge: React.FC<BaseGaugeProps> = ({
             cx={center}
             cy={center}
             r={center - 5}
+            fill={gaugeFaceColor}
+            stroke={gaugeFaceStroke}
+            strokeWidth={2}
           />
 
           <path
             className="gauge-track-bg"
             d={describeArc(center, center, trackRadius, startAngle, endAngle)}
+            stroke={trackBgColor}
           />
 
           <path

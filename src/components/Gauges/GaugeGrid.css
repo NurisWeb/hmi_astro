@@ -1,20 +1,37 @@
 /* ============================================
-   GaugeGrid Layout Styles
+   GaugeGrid Layout Styles - OPTIMIERT
    Prüfstand Dashboard - Strukturiertes Layout
+   HMI-Anforderung: Alles auf einen Blick, KEINE Scrollbars!
    
-   EXPANDED (Normal):
-   ┌─────────────────────────────────────────────────────────────────────┐
-   │  LINKS (Drücke)    │    MITTE (Motor)     │   RECHTS (Drehzahlen)  │
-   │  K1, K2 Öldruck    │   Antriebmotor groß  │   Drehzahl K1, K2      │
-   │  System, EDiff     │                      │   Ausgleich, Auslast.  │
-   │  Öltemp Hydr/Rads  │   KWB1 ══════  KWB2  │                        │
-   └─────────────────────────────────────────────────────────────────────┘
+   EXPANDED (Normal, >= 1024px):
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │  LINKS (6 Gauges)       │   MITTE (Motor+Balken)   │  RECHTS (2 Gauges)    │
+   │  ┌─────┬─────┬─────┐    │  ┌─────────────────┐     │  ┌─────────────────┐  │
+   │  │ K1  │ K2  │ Sys │    │  │   ANTRIEBMOTOR  │     │  │ Drehz. Ausgleich│  │
+   │  │Öldr.│Öldr.│Öldr.│    │  │    (medium)     │     │  ├─────────────────┤  │
+   │  ├─────┼─────┼─────┤    │  ├────────┬────────┤     │  │ Prüfst. Auslast.│  │
+   │  │EDiff│T.Hyd│T.Rad│    │  │  KWB1  │  KWB2  │     │  └─────────────────┘  │
+   │  │Öldr.│     │     │    │  ├────────┼────────┤     │                       │
+   │  └─────┴─────┴─────┘    │  │Drehz K1│Drehz K2│     │                       │
+   │                         │  └────────┴────────┘     │                       │
+   └─────────────────────────────────────────────────────────────────────────────┘
    
    COMPACT (Menu offen):
    ┌────────────────────────────────────────────────────────────────────┐
    │ K1 K2 Sys Ediff │ Motor │ KWB1 KWB2 │ DK1 DK2 Ausg Ausl │ T1 T2  │
    └────────────────────────────────────────────────────────────────────┘
    ============================================ */
+
+/* ============================================
+   WICHTIG: KEINE SCROLLBARS IN HMI!
+   ============================================ */
+.gauge-grid,
+.gauge-section,
+.gauge-grid-6,
+.gauge-balken-row,
+.gauge-row-vertical {
+  overflow: visible !important;
+}
 
 /* ============================================
    HAUPTCONTAINER
@@ -33,19 +50,19 @@
    ============================================ */
 .gauge-grid.expanded {
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 20px;
   padding: 16px;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 /* ============================================
    COMPACT MODE - Horizontale Leiste
-   Alle Gauges in einer Reihe, horizontal scrollbar
+   Alle Gauges in einer Reihe
    ============================================ */
 .gauge-grid.compact {
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 8px 12px;
   background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
@@ -53,25 +70,8 @@
   border-radius: 4px;
   box-shadow: var(--shadow-md),
               inset 0 1px 0 var(--metal-highlight);
-  overflow-x: auto;
-  overflow-y: hidden;
   align-items: stretch;
-  justify-content: flex-start;
-}
-
-/* Scrollbar styling für Compact */
-.gauge-grid.compact::-webkit-scrollbar {
-  height: 4px;
-}
-
-.gauge-grid.compact::-webkit-scrollbar-track {
-  background: var(--metal-dark);
-  border-radius: 2px;
-}
-
-.gauge-grid.compact::-webkit-scrollbar-thumb {
-  background: var(--glass-border);
-  border-radius: 2px;
+  justify-content: center;
 }
 
 /* ============================================
@@ -91,25 +91,27 @@
 }
 
 .gauge-grid.expanded .gauge-section--left {
-  align-items: flex-end;
+  align-items: center;
 }
 
 .gauge-grid.expanded .gauge-section--center {
   align-items: center;
   justify-content: flex-start;
-  gap: 16px;
+  gap: 12px;
 }
 
 .gauge-grid.expanded .gauge-section--right {
-  align-items: flex-start;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 /* COMPACT: Horizontale Sektionen nebeneinander */
 .gauge-grid.compact .gauge-section {
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 6px;
   align-items: center;
+  justify-content: center;
 }
 
 .gauge-grid.compact .gauge-section--left,
@@ -134,7 +136,64 @@
 }
 
 /* ============================================
-   ZEILEN (2 Gauges nebeneinander)
+   6-GAUGE GRID (Links) - 3x2 Layout
+   ============================================ */
+.gauge-grid-6 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 10px;
+  justify-items: center;
+  align-items: start;
+}
+
+/* Responsive für 6-Grid */
+@media (max-width: 768px) {
+  .gauge-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, auto);
+  }
+}
+
+/* ============================================
+   BALKEN-REIHE für KWB und Drehzahl
+   ============================================ */
+.gauge-balken-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+}
+
+.gauge-balken-row > * {
+  flex: 1;
+  min-width: 100px;
+  max-width: 140px;
+}
+
+/* Compact Mode */
+.gauge-grid.compact .gauge-balken-row {
+  gap: 6px;
+}
+
+.gauge-grid.compact .gauge-balken-row > * {
+  min-width: 80px;
+  max-width: 120px;
+}
+
+/* ============================================
+   RECHTE SPALTE VERTIKAL
+   ============================================ */
+.gauge-row-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ============================================
+   LEGACY: ZEILEN (2 Gauges nebeneinander)
    ============================================ */
 .gauge-row {
   display: flex;
@@ -186,7 +245,7 @@
 }
 
 /* ============================================
-   BREMSEN REIHE (Horizontal, Equalizer-Style)
+   LEGACY: BREMSEN REIHE (Falls noch verwendet)
    ============================================ */
 .gauge-bremsen-row {
   display: flex;
@@ -234,31 +293,71 @@
 /* ============================================
    HOVER EFFEKTE
    ============================================ */
-.gauge-row:hover {
+.gauge-row:hover,
+.gauge-balken-row:hover {
   z-index: 5;
 }
 
 /* ============================================
-   RESPONSIVE - Große Bildschirme
+   RESPONSIVE - Sehr große Bildschirme (>= 1400px)
+   3 Spalten nebeneinander, großzügige Abstände
    ============================================ */
-@media (min-width: 1600px) {
+@media (min-width: 1400px) {
   .gauge-grid.expanded {
     gap: 30px;
     padding: 20px;
   }
   
-  .gauge-grid.expanded .gauge-row {
-    gap: 16px;
+  .gauge-grid-6 {
+    gap: 14px;
+  }
+  
+  .gauge-balken-row {
+    gap: 12px;
+  }
+  
+  .gauge-balken-row > * {
+    max-width: 160px;
+  }
+  
+  .gauge-row-vertical {
+    gap: 14px;
   }
 }
 
 /* ============================================
-   RESPONSIVE - Tablet (Expanded)
+   RESPONSIVE - Große Bildschirme (1024-1399px)
+   3 Spalten, engere Abstände
    ============================================ */
-@media (max-width: 1200px) {
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .gauge-grid.expanded {
+    gap: 16px;
+    padding: 12px;
+  }
+  
+  .gauge-grid-6 {
+    gap: 8px;
+  }
+  
+  .gauge-balken-row {
+    gap: 6px;
+  }
+  
+  .gauge-balken-row > * {
+    min-width: 90px;
+    max-width: 120px;
+  }
+}
+
+/* ============================================
+   RESPONSIVE - Tablet (768-1023px)
+   Motor oben (volle Breite), Links+Rechts darunter
+   ============================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
   .gauge-grid.expanded {
     flex-wrap: wrap;
     gap: 16px;
+    justify-content: center;
   }
 
   .gauge-grid.expanded .gauge-section--center {
@@ -267,7 +366,12 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 16px;
+  }
+  
+  .gauge-grid.expanded .gauge-center-motor {
+    width: 100%;
+    justify-content: center;
   }
 
   .gauge-grid.expanded .gauge-section--left,
@@ -276,12 +380,18 @@
     min-width: 280px;
     align-items: center;
   }
+  
+  .gauge-row-vertical {
+    flex-direction: row;
+    gap: 12px;
+  }
 }
 
 /* ============================================
-   RESPONSIVE - Mobile (Expanded)
+   RESPONSIVE - Mobile (< 768px)
+   Alles untereinander, 6-Grid wird 2x3
    ============================================ */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .gauge-grid.expanded {
     flex-direction: column;
     align-items: center;
@@ -294,10 +404,33 @@
     width: 100%;
     align-items: center;
   }
+  
+  .gauge-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, auto);
+    gap: 8px;
+  }
 
   .gauge-grid.expanded .gauge-row {
     flex-wrap: wrap;
     justify-content: center;
+  }
+  
+  .gauge-balken-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .gauge-balken-row > * {
+    min-width: 120px;
+    max-width: 150px;
+  }
+  
+  .gauge-row-vertical {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
   }
 
   .gauge-grid.expanded .gauge-bremsen-row {
@@ -307,7 +440,7 @@
 }
 
 /* ============================================
-   RESPONSIVE - Kleine Mobile
+   RESPONSIVE - Kleine Mobile (< 480px)
    ============================================ */
 @media (max-width: 480px) {
   .gauge-grid {
@@ -324,11 +457,20 @@
     align-items: center;
     gap: 8px;
   }
+  
+  .gauge-grid-6 {
+    gap: 6px;
+  }
+  
+  .gauge-balken-row > * {
+    min-width: 100%;
+    max-width: 100%;
+  }
 }
 
 /* ============================================
    HEIGHT-COMPACT MODE
-   Für kleine Laptops mit Höhe < 900px
+   Für kleine Laptops mit Höhe < 750px
    Motor links, 3 Spalten mit Balken untereinander
    KEIN SCROLLEN - Alles auf einen Blick!
    ============================================ */
@@ -370,7 +512,7 @@
 /* ============================================
    RESPONSIVE - Kleine Bildschirmhöhe
    ============================================ */
-@media (max-height: 900px) {
+@media (max-height: 750px) {
   .gauge-grid.expanded {
     padding: 8px 12px;
     gap: 12px;
@@ -387,6 +529,14 @@
   .gauge-bremsen-row {
     padding: 4px 8px;
     gap: 8px;
+  }
+  
+  .gauge-grid-6 {
+    gap: 6px;
+  }
+  
+  .gauge-balken-row {
+    gap: 6px;
   }
 }
 

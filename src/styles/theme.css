@@ -52,15 +52,27 @@
   --glow-red: rgba(185, 28, 28, 0.25);
   
   /* Gauge specific - Light Metallic */
-  --gauge-track-bg: rgba(0, 0, 0, 0.1);
+  --gauge-track-bg: rgba(0, 0, 0, 0.08);
   --gauge-hub-outer: linear-gradient(145deg, #f0f2f5 0%, #d4d8dc 100%);
   --gauge-hub-inner: #e8ebef;
   --gauge-needle-gradient: linear-gradient(180deg, #374151 0%, #4b5563 40%, #6b7280 100%);
+  
+  /* Gauge Ring - Light Mode (sanfter Kontrast) */
+  --gauge-outer-ring-fill: linear-gradient(145deg, #c8cfd8 0%, #e8ebef 50%, #d4dae3 100%);
+  --gauge-outer-ring-stroke: #b4bcc8;
+  --gauge-face-bg: linear-gradient(145deg, #e8ebef 0%, #f0f2f5 50%, #e0e4e8 100%);
+  --gauge-tick-color: #6b7280;
+  --gauge-tick-major-color: #4b5563;
+  --gauge-tick-label-color: #374151;
   
   /* LCD Display Colors - Light */
   --lcd-bg: #1a1d21;
   --lcd-text: #00dd77;
   --lcd-text-dim: rgba(0, 221, 119, 0.3);
+  
+  /* Bar/Balken Track - Light Mode (sanfter) */
+  --bar-track-bg: #c8cfd8;
+  --bar-track-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
   
   /* Shadows - Light Industrial */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -127,10 +139,22 @@
   --gauge-hub-inner: #1f2228;
   --gauge-needle-gradient: linear-gradient(180deg, #e8eaed 0%, #9ca3af 40%, #6b7280 100%);
   
+  /* Gauge Ring - Dark Mode */
+  --gauge-outer-ring-fill: linear-gradient(145deg, #2d3139 0%, #1f2228 50%, #252830 100%);
+  --gauge-outer-ring-stroke: #3d4450;
+  --gauge-face-bg: linear-gradient(145deg, #1f2228 0%, #252830 50%, #1a1d21 100%);
+  --gauge-tick-color: #6b7280;
+  --gauge-tick-major-color: #9ca3af;
+  --gauge-tick-label-color: #e8eaed;
+  
   /* LCD Display Colors */
   --lcd-bg: #0a0c0f;
   --lcd-text: #00ff88;
   --lcd-text-dim: rgba(0, 255, 136, 0.3);
+  
+  /* Bar/Balken Track - Dark Mode */
+  --bar-track-bg: #1a1d21;
+  --bar-track-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
   
   /* Shadows - Industrial */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);

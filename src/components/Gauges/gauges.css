@@ -1,626 +1,462 @@
 /* ============================================
-   Industrial Gauge Styles für Prüfstand Dashboard
-   Metallischer Look mit LCD-Anzeigen
+   GaugeGrid Layout Styles
+   Prüfstand Dashboard - Professionelles HMI
+   
+   LAYOUT (1024px+):
+   ┌────────────────────────────────────────────────────────────────────────┐
+   │  LINKS (6 Gauges)      │    MITTE (Motor+Balken)  │  RECHTS (2 Gauges) │
+   │  ┌─────┬─────┬─────┐   │   ┌─────────────────┐    │  ┌─────────────┐  │
+   │  │ K1  │ K2  │ Sys │   │   │   ANTRIEBMOTOR  │    │  │  Ausgleich  │  │
+   │  ├─────┼─────┼─────┤   │   │     (medium)    │    │  ├─────────────┤  │
+   │  │EDiff│T.Hyd│T.Rad│   │   ├────────┬────────┤    │  │  Auslastung │  │
+   │  └─────┴─────┴─────┘   │   │  KWB1  │  KWB2  │    │  └─────────────┘  │
+   │                        │   ├────────┼────────┤    │                   │
+   │                        │   │  DK1   │  DK2   │    │                   │
+   │                        │   └────────┴────────┘    │                   │
+   └────────────────────────────────────────────────────────────────────────┘
+   
+   KEIN SCROLLEN - Alles auf einen Blick!
    ============================================ */
-
-/* Gauge Container - Industrial Metal Panel */
-.gauge-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 50%, var(--metal-dark) 100%);
-  border: 1px solid var(--glass-border);
-  border-radius: 6px;
-  padding: 12px;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-md),
-              inset 0 1px 0 var(--metal-highlight),
-              inset 0 -1px 0 var(--metal-shadow);
-}
-
-.gauge-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    var(--metal-highlight) 20%, 
-    var(--metal-highlight) 80%, 
-    transparent 100%);
-  border-radius: 6px 6px 0 0;
-}
-
-.gauge-container:hover {
-  box-shadow: var(--shadow-lg),
-              inset 0 1px 0 var(--metal-highlight),
-              inset 0 -1px 0 var(--metal-shadow);
-  transform: translateY(-1px);
-}
-
-/* Size Variants */
-.gauge-container.small {
-  width: 120px;
-  height: 140px;
-  padding: 8px;
-  border-radius: 4px;
-}
-
-.gauge-container.medium {
-  width: 180px;
-  height: 200px;
-  padding: 12px;
-}
-
-.gauge-container.large {
-  width: 260px;
-  height: 280px;
-  padding: 16px;
-}
-
-/* SVG Container */
-.gauge-svg-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gauge-container.small .gauge-svg-wrapper {
-  width: 100px;
-  height: 100px;
-}
-
-.gauge-container.medium .gauge-svg-wrapper {
-  width: 150px;
-  height: 150px;
-}
-
-.gauge-container.large .gauge-svg-wrapper {
-  width: 220px;
-  height: 220px;
-}
-
-.gauge-svg {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(var(--shadow-sm));
-}
-
-/* Gauge Elements - Industrial */
-.gauge-outer-ring {
-  fill: none;
-  stroke: var(--glass-border);
-  stroke-width: 2;
-}
-
-.gauge-track-bg {
-  fill: none;
-  stroke: var(--gauge-track-bg);
-  stroke-linecap: butt;
-}
-
-.gauge-container.small .gauge-track-bg {
-  stroke-width: 12;
-}
-
-.gauge-container.medium .gauge-track-bg {
-  stroke-width: 16;
-}
-
-.gauge-container.large .gauge-track-bg {
-  stroke-width: 20;
-}
-
-.gauge-track-progress {
-  fill: none;
-  stroke-linecap: butt;
-  transition: stroke-dashoffset 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.gauge-container.small .gauge-track-progress {
-  stroke-width: 12;
-}
-
-.gauge-container.medium .gauge-track-progress {
-  stroke-width: 16;
-}
-
-.gauge-container.large .gauge-track-progress {
-  stroke-width: 20;
-}
-
-.gauge-track-progress.normal {
-  filter: drop-shadow(0 0 6px var(--current-glow));
-}
-
-.gauge-track-progress.warning {
-  filter: drop-shadow(0 0 10px var(--glow-orange));
-}
-
-.gauge-track-progress.danger {
-  filter: drop-shadow(0 0 12px var(--glow-red));
-}
-
-/* Ticks - Industrial Style
-   Dickere Striche für bessere Sichtbarkeit
-   Light-Mode: Schwarze Striche statt weiße */
-.gauge-tick {
-  stroke: rgba(255, 255, 255, 0.25);
-  stroke-width: 1.5;
-  stroke-linecap: round;
-}
-
-.gauge-tick.major {
-  stroke: rgba(255, 255, 255, 0.5);
-  stroke-width: 2.5;
-}
-
-/* LIGHT MODE - Schwarze Striche für Kontrast */
-[data-theme="light"] .gauge-tick,
-:root:not([data-theme="dark"]) .gauge-tick {
-  stroke: rgba(30, 40, 50, 0.35);
-  stroke-width: 1.5;
-}
-
-[data-theme="light"] .gauge-tick.major,
-:root:not([data-theme="dark"]) .gauge-tick.major {
-  stroke: rgba(30, 40, 50, 0.6);
-  stroke-width: 2.5;
-}
-
-.gauge-tick.warning {
-  stroke: var(--color-amber);
-  stroke-width: 2;
-  opacity: 1;
-}
-
-.gauge-tick.danger {
-  stroke: var(--color-red);
-  stroke-width: 2;
-  opacity: 1;
-}
-
-/* Tick Labels - Industrial Mono
-   Größere Schrift für bessere Lesbarkeit */
-.gauge-tick-label {
-  fill: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
-  text-anchor: middle;
-  dominant-baseline: middle;
-  font-weight: 600;
-}
-
-.gauge-container.small .gauge-tick-label {
-  font-size: 9px;
-  font-weight: 600;
-}
-
-.gauge-container.medium .gauge-tick-label {
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.gauge-container.large .gauge-tick-label {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-/* Light Mode - Dunklere Schrift */
-[data-theme="light"] .gauge-tick-label,
-:root:not([data-theme="dark"]) .gauge-tick-label {
-  fill: var(--text-primary);
-}
-
-.gauge-tick-label.warning {
-  fill: var(--color-amber);
-  font-weight: 700;
-}
-
-.gauge-tick-label.danger {
-  fill: var(--color-red);
-  font-weight: 700;
-}
-
-/* Needle - Industrial Metal */
-.gauge-needle-group {
-  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.gauge-needle {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-}
-
-.gauge-needle-glow {
-  filter: blur(2px);
-  opacity: 0.3;
-  transition: fill 0.3s, opacity 0.3s;
-}
-
-.gauge-needle-glow.warning {
-  opacity: 0.5;
-}
-
-.gauge-needle-glow.danger {
-  opacity: 0.6;
-}
-
-/* Center Hub - Metallic */
-.gauge-center-hub-outer {
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
-}
-
-.gauge-center-hub-inner {
-  fill: var(--gauge-hub-inner);
-}
-
-.gauge-center-hub-dot {
-  transition: fill 0.3s, filter 0.3s;
-}
-
-/* Digital Display - LCD Style 
-   Position: Weiter unten, damit Nadel sichtbar bleibt
-   Breite: Mindestens 3 Ziffern + Einheit */
-.gauge-digital-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 45%);
-  text-align: center;
-  pointer-events: none;
-  background: var(--lcd-bg);
-  padding: 6px 12px;
-  border-radius: 3px;
-  border: 1px solid var(--metal-dark);
-  box-shadow: var(--shadow-inset),
-              0 2px 4px rgba(0, 0, 0, 0.2);
-  min-width: 60px;
-}
-
-.gauge-container.small .gauge-digital-display {
-  transform: translate(-50%, 40%);
-  padding: 4px 8px;
-  min-width: 48px;
-}
-
-.gauge-container.medium .gauge-digital-display {
-  transform: translate(-50%, 50%);
-  padding: 5px 10px;
-  min-width: 65px;
-}
-
-.gauge-container.large .gauge-digital-display {
-  transform: translate(-50%, 55%);
-  padding: 8px 14px;
-  min-width: 85px;
-}
-
-.gauge-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  color: var(--lcd-text);
-  letter-spacing: 2px;
-  line-height: 1;
-  text-shadow: 0 0 10px var(--lcd-text);
-  transition: color 0.3s, text-shadow 0.3s;
-}
-
-.gauge-container.small .gauge-value {
-  font-size: 18px;
-  letter-spacing: 1px;
-}
-
-.gauge-container.medium .gauge-value {
-  font-size: 26px;
-}
-
-.gauge-container.large .gauge-value {
-  font-size: 40px;
-}
-
-.gauge-value.warning {
-  color: var(--color-orange);
-  text-shadow: 0 0 12px var(--glow-orange);
-}
-
-.gauge-value.danger {
-  color: var(--color-red);
-  text-shadow: 0 0 12px var(--glow-red);
-  animation: blink 0.8s ease-in-out infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.gauge-unit {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 400;
-  color: var(--lcd-text-dim);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-top: 2px;
-}
-
-.gauge-container.small .gauge-unit {
-  font-size: 7px;
-}
-
-.gauge-container.medium .gauge-unit {
-  font-size: 9px;
-}
-
-.gauge-container.large .gauge-unit {
-  font-size: 10px;
-}
 
 /* ============================================
-   Gauge Title - HIERARCHIE LEVEL 1 (Wichtigste Info)
-   Klarer, prominenter Label oben
+   HAUPTCONTAINER
    ============================================ */
-.gauge-title {
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-  padding: 0;
-  background: transparent;
-  border-radius: 0;
-  text-align: center;
-  width: 100%;
-}
-
-.gauge-container.small .gauge-title {
-  font-size: 9px;
-  letter-spacing: 0.5px;
-  margin-bottom: 1px;
-}
-
-.gauge-container.medium .gauge-title {
-  font-size: 11px;
-  letter-spacing: 0.8px;
-}
-
-.gauge-container.large .gauge-title {
-  font-size: 13px;
-  letter-spacing: 1px;
-}
-
-/* ============================================
-   Status Badge - HIERARCHIE LEVEL 4 (Dezent)
-   Klein und unaufdringlich unten
-   ============================================ */
-.gauge-status-badge {
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 7px;
-  font-weight: 600;
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: none;
-  opacity: 0.9;
-}
-
-.gauge-container.small .gauge-status-badge {
-  font-size: 6px;
-  padding: 1px 5px;
-  margin-top: 2px;
-}
-
-.gauge-container.medium .gauge-status-badge {
-  font-size: 7px;
-}
-
-.gauge-container.large .gauge-status-badge {
-  font-size: 8px;
-  padding: 3px 10px;
-}
-
-.gauge-status-badge.normal {
-  background: rgba(0, 179, 65, 0.25);
-  color: var(--color-green);
-}
-
-.gauge-status-badge.warning {
-  background: rgba(255, 123, 0, 0.25);
-  color: var(--color-orange);
-}
-
-.gauge-status-badge.danger {
-  background: rgba(220, 38, 38, 0.25);
-  color: var(--color-red);
-  animation: blink 0.5s ease-in-out infinite;
-}
-
-/* Placeholder Gauge - Industrial */
-.gauge-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--metal-mid);
-  border: 2px dashed var(--glass-border);
-  border-radius: 6px;
-  color: var(--text-dim);
-}
-
-.gauge-placeholder-icon {
-  font-size: 28px;
-  margin-bottom: 8px;
-  opacity: 0.4;
-}
-
-.gauge-container.small .gauge-placeholder-icon {
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.gauge-placeholder-text {
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.gauge-container.small .gauge-placeholder-text {
-  font-size: 8px;
-}
-
-/* ============================================
-   Motor ID Badge - HIERARCHIE LEVEL 3 (Sekundäre Info)
-   Wichtig aber nicht dominant
-   ============================================ */
-.gauge-motor-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0;
-  padding: 2px 5px;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-  border-radius: 3px;
-  transition: color 0.3s, background 0.3s;
-}
-
-.gauge-container.small .gauge-motor-badge {
-  font-size: 9px;
-  top: 3px;
-  right: 3px;
-  padding: 1px 4px;
-}
-
-.gauge-container.medium .gauge-motor-badge {
-  font-size: 11px;
-}
-
-.gauge-container.large .gauge-motor-badge {
-  font-size: 14px;
-  padding: 3px 8px;
-}
-
-/* ============================================
-   Sensor ID Badge - HIERARCHIE LEVEL 5 (Sehr dezent)
-   Nur als technische Referenz, fast unsichtbar
-   ============================================ */
-.gauge-sensor-badge {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  font-weight: 500;
-  color: var(--text-dim);
-  letter-spacing: 0;
-  padding: 1px 4px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  opacity: 0.5;
-}
-
-.gauge-container.small .gauge-sensor-badge {
-  font-size: 7px;
-  top: 3px;
-  left: 3px;
-  padding: 0;
-  opacity: 0.4;
-}
-
-.gauge-container.medium .gauge-sensor-badge {
-  font-size: 8px;
-  opacity: 0.5;
-}
-
-.gauge-container.large .gauge-sensor-badge {
-  font-size: 9px;
-  opacity: 0.5;
-}
-
-/* Warning Alert - Industrial Alarm */
-.gauge-warning-alert {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 2px;
-  opacity: 0;
-  transition: opacity 0.3s;
-  z-index: 10;
-  border: 1px solid;
-}
-
-.gauge-warning-alert.visible {
-  opacity: 1;
-}
-
-.gauge-warning-alert.warning {
-  background: rgba(255, 123, 0, 0.2);
-  border-color: var(--color-orange);
-}
-
-.gauge-warning-alert.danger {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: var(--color-red);
-  animation: blink 0.5s ease-in-out infinite;
-}
-
-.gauge-warning-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  animation: signalPulse 0.8s ease-in-out infinite;
-}
-
-@keyframes signalPulse {
-  0%, 100% { 
-    opacity: 1; 
-    box-shadow: 0 0 4px currentColor;
+   .gauge-grid {
+    display: flex;
+    justify-content: center;
+    align-items: stretch; /* Gleiche Höhe für alle Spalten */
+    gap: 16px;
+    width: 100%;
+    padding: 12px;
+    transition: all 0.3s ease;
+    overflow: visible !important;
   }
-  50% { 
-    opacity: 0.5; 
-    box-shadow: 0 0 8px currentColor;
+  
+  /* ============================================
+     EXPANDED MODE - 3 Spalten, unten bündig
+     ============================================ */
+  .gauge-grid.expanded {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px;
+    align-items: stretch;
+    justify-content: center;
   }
-}
-
-.gauge-warning-alert.warning .gauge-warning-dot {
-  background: var(--color-orange);
-  color: var(--color-orange);
-}
-
-.gauge-warning-alert.danger .gauge-warning-dot {
-  background: var(--color-red);
-  color: var(--color-red);
-}
-
-.gauge-warning-text {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.gauge-warning-alert.warning .gauge-warning-text {
-  color: var(--color-orange);
-}
-
-.gauge-warning-alert.danger .gauge-warning-text {
-  color: var(--color-red);
-}
+  
+  /* ============================================
+     SEKTIONEN - Flexbox mit gleicher Höhe
+     ============================================ */
+  .gauge-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.3s ease;
+    background: linear-gradient(180deg, 
+      rgba(255, 255, 255, 0.02) 0%, 
+      rgba(0, 0, 0, 0.05) 100%);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  
+  /* LINKS: 6 Gauges (3x2 Grid) */
+  .gauge-section--left {
+    flex: 0 1 auto;
+    justify-content: center;
+  }
+  
+  /* MITTE: Motor + Balken */
+  .gauge-section--center {
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between; /* Verteilt Motor und Balken */
+    min-width: 240px;
+  }
+  
+  /* RECHTS: 2 Gauges vertikal */
+  .gauge-section--right {
+    flex: 0 1 auto;
+    justify-content: center;
+  }
+  
+  /* ============================================
+     6-GAUGE GRID (Links) - 3x2 Layout
+     ============================================ */
+  .gauge-grid-6 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 10px;
+    justify-items: center;
+    align-items: start;
+  }
+  
+  /* ============================================
+     MOTOR (Mitte oben)
+     ============================================ */
+  .gauge-center-motor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  
+  /* ============================================
+     BALKEN REIHEN (KWB + Drehzahl)
+     ============================================ */
+  .gauge-balken-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+  }
+  
+  /* Balken nebeneinander, gleiche Breite */
+  .gauge-balken-row > * {
+    flex: 1;
+    min-width: 100px;
+    max-width: 130px;
+  }
+  
+  /* ============================================
+     RECHTE SPALTE - Vertikal gestapelt
+     ============================================ */
+  .gauge-row-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* ============================================
+     COMPACT MODE - Alles kleiner
+     ============================================ */
+  .gauge-grid.compact {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+  }
+  
+  .gauge-grid.compact .gauge-section {
+    padding: 8px;
+    gap: 6px;
+    background: transparent;
+    border: none;
+  }
+  
+  .gauge-grid.compact .gauge-grid-6 {
+    gap: 6px;
+  }
+  
+  .gauge-grid.compact .gauge-balken-row {
+    gap: 6px;
+  }
+  
+  .gauge-grid.compact .gauge-balken-row > * {
+    min-width: 80px;
+    max-width: 100px;
+  }
+  
+  /* ============================================
+     HEIGHT-COMPACT MODE (< 750px Höhe)
+     ============================================ */
+  .gauge-grid--height-compact {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-md);
+    overflow: visible !important;
+  }
+  
+  .gauge-compact-motor {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 12px;
+    border-right: 1px solid var(--glass-border);
+  }
+  
+  .gauge-compact-column {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 100px;
+    min-width: 90px;
+    max-width: 140px;
+  }
+  
+  /* ============================================
+     ANIMATION
+     ============================================ */
+  @keyframes gaugeAppear {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .gauge-section {
+    animation: gaugeAppear 0.3s ease forwards;
+  }
+  
+  .gauge-section--left { animation-delay: 0ms; }
+  .gauge-section--center { animation-delay: 50ms; }
+  .gauge-section--right { animation-delay: 100ms; }
+  
+  /* ============================================
+     RESPONSIVE - Große Bildschirme (1400px+)
+     3 Spalten nebeneinander, viel Platz
+     ============================================ */
+  @media (min-width: 1400px) {
+    .gauge-grid.expanded {
+      gap: 24px;
+      padding: 16px;
+    }
+    
+    .gauge-section {
+      padding: 16px;
+    }
+    
+    .gauge-grid-6 {
+      gap: 14px;
+    }
+    
+    .gauge-balken-row > * {
+      max-width: 150px;
+    }
+  }
+  
+  /* ============================================
+     RESPONSIVE - Normal (1024px - 1399px)
+     3 Spalten, etwas enger
+     ============================================ */
+  @media (min-width: 1024px) and (max-width: 1399px) {
+    .gauge-grid.expanded {
+      gap: 12px;
+      padding: 10px;
+    }
+    
+    .gauge-section {
+      padding: 10px;
+    }
+    
+    .gauge-grid-6 {
+      gap: 8px;
+    }
+    
+    .gauge-balken-row {
+      gap: 6px;
+    }
+    
+    .gauge-balken-row > * {
+      min-width: 90px;
+      max-width: 115px;
+    }
+  }
+  
+  /* ============================================
+     RESPONSIVE - Tablet (768px - 1023px)
+     Motor oben, Links+Rechts darunter
+     ============================================ */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .gauge-grid.expanded {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    /* Motor-Sektion ganz oben, volle Breite */
+    .gauge-section--center {
+      order: -1;
+      flex: 1 1 100%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      padding: 12px;
+    }
+    
+    .gauge-section--center .gauge-center-motor {
+      flex: 0 0 auto;
+    }
+    
+    .gauge-section--center .gauge-balken-row {
+      flex: 0 0 auto;
+    }
+    
+    /* Links und Rechts nebeneinander */
+    .gauge-section--left,
+    .gauge-section--right {
+      flex: 1 1 45%;
+      min-width: 300px;
+    }
+    
+    .gauge-section--left {
+      align-items: center;
+    }
+    
+    .gauge-section--right {
+      align-items: center;
+    }
+    
+    .gauge-row-vertical {
+      flex-direction: row;
+      gap: 12px;
+    }
+  }
+  
+  /* ============================================
+     RESPONSIVE - Mobile (< 768px)
+     Alles untereinander
+     ============================================ */
+  @media (max-width: 767px) {
+    .gauge-grid.expanded {
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .gauge-section {
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    /* Motor zuerst */
+    .gauge-section--center {
+      order: -1;
+    }
+    
+    /* 6-Grid wird 2x3 */
+    .gauge-grid-6 {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, auto);
+    }
+    
+    /* Rechte Spalte horizontal */
+    .gauge-row-vertical {
+      flex-direction: row;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    /* Balken untereinander auf sehr kleinen Screens */
+    .gauge-balken-row {
+      flex-wrap: wrap;
+    }
+  }
+  
+  /* ============================================
+     RESPONSIVE - Kleine Mobile (< 480px)
+     ============================================ */
+  @media (max-width: 479px) {
+    .gauge-grid {
+      padding: 6px;
+      gap: 8px;
+    }
+    
+    .gauge-section {
+      padding: 8px;
+    }
+    
+    .gauge-grid-6 {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+    
+    .gauge-balken-row {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .gauge-balken-row > * {
+      width: 100%;
+      max-width: 200px;
+    }
+  }
+  
+  /* ============================================
+     RESPONSIVE - Kleine Bildschirmhöhe
+     ============================================ */
+  @media (max-height: 800px) {
+    .gauge-grid.expanded {
+      padding: 8px;
+      gap: 10px;
+    }
+    
+    .gauge-section {
+      padding: 8px;
+      gap: 6px;
+    }
+  }
+  
+  @media (max-height: 700px) {
+    .gauge-grid--height-compact {
+      padding: 6px 10px;
+      gap: 8px;
+    }
+    
+    .gauge-compact-column {
+      gap: 3px;
+    }
+  }
+  
+  /* ============================================
+     KRITISCH: Keine Scrollbars!
+     ============================================ */
+  .gauge-grid,
+  .gauge-grid.expanded,
+  .gauge-grid.compact,
+  .gauge-grid--height-compact,
+  .gauge-section,
+  .gauge-grid-6,
+  .gauge-balken-row,
+  .gauge-row-vertical {
+    overflow: visible !important;
+  }
+  
+  .dashboard-gauges,
+  .dashboard-main {
+    overflow: visible !important;
+  }
+  
+  /* ============================================
+     LEGACY SUPPORT - Falls alte Klassen verwendet
+     ============================================ */
+  .gauge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .gauge-row--triple {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  
+  .gauge-bremsen-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+  }

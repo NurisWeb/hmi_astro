@@ -53,11 +53,11 @@ const OilTemperatureGauge: React.FC<OilTemperatureGaugeProps> = ({
       formatValue={(v) => v.toFixed(0)}
       className="oil-temperature-gauge"
     >
-      {/* Sensor Badge */}
+      {/* Sensor Badge 
       {sensorId > 1 && (
         <div className="gauge-sensor-badge">T{sensorId}</div>
       )}
-      
+      */}
       {/* Temperatur Icon */}
       <div 
         className="gauge-motor-badge" 

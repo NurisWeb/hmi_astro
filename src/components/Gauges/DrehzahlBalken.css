@@ -1,13 +1,14 @@
 /* ============================================
-   BremseBalken - Horizontale Balken Styles
-   Equalizer-Style für KWB1/KWB2
+   DrehzahlBalken - Horizontale Balken Styles
+   Equalizer-Style für Drehzahl K1/K2
    Platzsparende horizontale Darstellung
+   Farben: Cyan/Blau (unterscheidet sich von Orange der Bremsen)
    ============================================ */
 
 /* ============================================
-   HORIZONTALE VERSION (Standard)
+   HORIZONTALE VERSION
    ============================================ */
-.bremse-balken--horizontal {
+.drehzahl-balken--horizontal {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -22,32 +23,32 @@
               inset 0 -1px 0 var(--metal-shadow);
 }
 
-.bremse-balken--horizontal:hover {
+.drehzahl-balken--horizontal:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg);
 }
 
 /* Größen */
-.bremse-balken--horizontal.small {
+.drehzahl-balken--horizontal.small {
   padding: 6px 10px;
   min-width: 100px;
   gap: 4px;
 }
 
-.bremse-balken--horizontal.large {
+.drehzahl-balken--horizontal.large {
   padding: 12px 18px;
   min-width: 160px;
   gap: 8px;
 }
 
 /* Header: Label + Wert */
-.bremse-header {
+.drehzahl-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.bremse-label {
+.drehzahl-label {
   font-family: 'IBM Plex Sans', sans-serif;
   font-size: 11px;
   font-weight: 600;
@@ -56,16 +57,16 @@
   letter-spacing: 0.5px;
 }
 
-.bremse-balken--horizontal.small .bremse-label {
+.drehzahl-balken--horizontal.small .drehzahl-label {
   font-size: 9px;
 }
 
-.bremse-balken--horizontal.large .bremse-label {
+.drehzahl-balken--horizontal.large .drehzahl-label {
   font-size: 12px;
 }
 
 /* Wert-Anzeige */
-.bremse-value {
+.drehzahl-value {
   font-family: 'JetBrains Mono', monospace;
   font-size: 16px;
   font-weight: 700;
@@ -74,45 +75,44 @@
   gap: 2px;
 }
 
-.bremse-balken--horizontal.small .bremse-value {
+.drehzahl-balken--horizontal.small .drehzahl-value {
   font-size: 14px;
 }
 
-.bremse-balken--horizontal.large .bremse-value {
+.drehzahl-balken--horizontal.large .drehzahl-value {
   font-size: 20px;
 }
 
-.bremse-value.warning {
-  text-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+/* Glow-Effekte basierend auf Level */
+.drehzahl-value.low {
+  text-shadow: 0 0 6px rgba(0, 188, 212, 0.4);
 }
 
-.bremse-value.danger {
-  text-shadow: 0 0 10px rgba(244, 67, 54, 0.6);
-  animation: pulseText 1s ease-in-out infinite;
+.drehzahl-value.mid {
+  text-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
 }
 
-@keyframes pulseText {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+.drehzahl-value.high {
+  text-shadow: 0 0 10px rgba(63, 81, 181, 0.6);
 }
 
-.bremse-unit {
+.drehzahl-unit {
   font-size: 9px;
   font-weight: 500;
   color: var(--text-dim);
   text-transform: lowercase;
 }
 
-.bremse-balken--horizontal.small .bremse-unit {
+.drehzahl-balken--horizontal.small .drehzahl-unit {
   font-size: 8px;
 }
 
-.bremse-balken--horizontal.large .bremse-unit {
+.drehzahl-balken--horizontal.large .drehzahl-unit {
   font-size: 10px;
 }
 
 /* Bar Container */
-.bremse-bar-container {
+.drehzahl-bar-container {
   position: relative;
   width: 100%;
   height: 16px;
@@ -123,16 +123,16 @@
   box-shadow: var(--bar-track-shadow);
 }
 
-.bremse-balken--horizontal.small .bremse-bar-container {
+.drehzahl-balken--horizontal.small .drehzahl-bar-container {
   height: 12px;
 }
 
-.bremse-balken--horizontal.large .bremse-bar-container {
+.drehzahl-balken--horizontal.large .drehzahl-bar-container {
   height: 20px;
 }
 
 /* Hintergrund-Zonen (horizontal) */
-.bremse-zones-horizontal {
+.drehzahl-zones-horizontal {
   position: absolute;
   top: 0;
   left: 0;
@@ -141,12 +141,12 @@
   display: flex;
 }
 
-.bremse-zone-h {
+.drehzahl-zone-h {
   flex-shrink: 0;
 }
 
 /* Füllbalken (horizontal) */
-.bremse-fill-h {
+.drehzahl-fill-h {
   position: absolute;
   top: 0;
   left: 0;
@@ -155,31 +155,24 @@
   border-radius: 2px 0 0 2px;
 }
 
-/* Glow-Effekt bei Warnung/Gefahr */
-.bremse-fill-h.warning {
-  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5),
-              inset 0 0 8px rgba(255, 152, 0, 0.3);
+/* Glow-Effekt basierend auf Level */
+.drehzahl-fill-h.low {
+  box-shadow: 0 0 8px rgba(0, 188, 212, 0.4),
+              inset 0 0 6px rgba(0, 188, 212, 0.2);
 }
 
-.bremse-fill-h.danger {
-  box-shadow: 0 0 15px rgba(244, 67, 54, 0.6),
-              inset 0 0 10px rgba(244, 67, 54, 0.4);
-  animation: pulseDanger 1s ease-in-out infinite;
+.drehzahl-fill-h.mid {
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5),
+              inset 0 0 8px rgba(33, 150, 243, 0.3);
 }
 
-@keyframes pulseDanger {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(244, 67, 54, 0.6),
-                inset 0 0 10px rgba(244, 67, 54, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(244, 67, 54, 0.8),
-                inset 0 0 15px rgba(244, 67, 54, 0.5);
-  }
+.drehzahl-fill-h.high {
+  box-shadow: 0 0 12px rgba(63, 81, 181, 0.6),
+              inset 0 0 10px rgba(63, 81, 181, 0.4);
 }
 
 /* Schwellwert-Linien (horizontal) */
-.bremse-threshold-h {
+.drehzahl-threshold-h {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -187,41 +180,24 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-.bremse-threshold-h.warning {
-  background: rgba(255, 152, 0, 0.4);
+.drehzahl-threshold-h.mid {
+  background: rgba(33, 150, 243, 0.4);
 }
 
 /* Skala (horizontal) */
-.bremse-scale-h {
+.drehzahl-scale-h {
   display: flex;
   justify-content: space-between;
   padding: 0 2px;
 }
 
-.bremse-scale-h span {
+.drehzahl-scale-h span {
   font-family: 'JetBrains Mono', monospace;
   font-size: 8px;
   color: var(--text-dim);
   line-height: 1;
 }
 
-.bremse-balken--horizontal.large .bremse-scale-h span {
+.drehzahl-balken--horizontal.large .drehzahl-scale-h span {
   font-size: 9px;
-}
-
-/* ============================================
-   LEGACY VERTIKALE VERSION (falls noch benötigt)
-   ============================================ */
-.bremse-balken:not(.bremse-balken--horizontal) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 50%, var(--metal-dark) 100%);
-  border: 1px solid var(--glass-border);
-  border-radius: 6px;
-  padding: 12px 16px;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-md),
-              inset 0 1px 0 var(--metal-highlight),
-              inset 0 -1px 0 var(--metal-shadow);
 }
