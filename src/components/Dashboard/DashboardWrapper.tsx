@@ -7,7 +7,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GaugeGrid } from '../Gauges';
 import { BottomMenu } from '../Menu';
-import ParameterBar from './ParameterBar';
 import { VerbindungsButton, BlankState, VerbindungsProvider, useVerbindung } from '../Verbindung';
 import { useMockData } from '../../hooks/useMockData';
 import { useTelemetrie } from '../../hooks/useTelemetrie';
@@ -42,7 +41,8 @@ const DashboardContent: React.FC = () => {
   const [autoSpeed, setAutoSpeed] = useState<'slow' | 'normal' | 'fast'>('normal');
   const [mockMode, setMockMode] = useState<MockDataMode>('random');
   const [isEmergencyStop, setIsEmergencyStop] = useState(false);
-  const [datetime, setDatetime] = useState(new Date());
+  // SSR-sicher: null initial, wird nach Hydration gesetzt
+  const [datetime, setDatetime] = useState<Date | null>(null);
   
   // ============================================
   // Verbindungs-Context nutzen
@@ -96,8 +96,10 @@ const DashboardContent: React.FC = () => {
     setStatusLog(null);
   }, []);
 
-  // Datum/Uhrzeit aktualisieren
+  // Datum/Uhrzeit aktualisieren (SSR-sicher)
   useEffect(() => {
+    // Initial setzen nach Hydration
+    setDatetime(new Date());
     const interval = setInterval(() => setDatetime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
@@ -319,36 +321,91 @@ const DashboardContent: React.FC = () => {
 
   const isCompact = activePanel !== 'none';
 
+  // Öl-Temperatur Status für Farbgebung im Header
+  const getTemperatureStatus = (temp: number): 'cold' | 'normal' | 'warning' | 'danger' => {
+    if (temp < 40) return 'cold';
+    if (temp < 100) return 'normal';
+    if (temp < 120) return 'warning';
+    return 'danger';
+  };
+
+  const oilTemp = telemetrie?.l[0] ?? 0;
+  const tempStatus = getTemperatureStatus(oilTemp);
+
   return (
     <div className={`dashboard-wrapper ${isCompact ? 'menu-open' : ''} ${!istVerbunden ? 'dashboard-wrapper--disconnected' : ''}`}>
       {/* ============================================
-          HEADER - Immer sichtbar
-          Links: Titel
-          Rechts: Verbindungs-Button, Datum/Zeit, Theme-Toggle
+          HEADER - 2x2 Grid Layout
+          Links oben: Titel
+          Links unten: Menu-Buttons
+          Rechts oben: Laufzeit, Öltemp, Gang
+          Rechts unten: VerbindungsButton, Datum/Zeit, Theme-Toggle
           ============================================ */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">DSG-Prüfstand CarParts24</h1>
+        {/* LINKE SPALTE */}
+        <div className="dashboard-header-left">
+          <h1 className="dashboard-title">DSG-Prüfstand CarParts24</h1>
+          {/* Menu-Buttons nur wenn verbunden */}
+          {istVerbunden && (
+            <div className="header-menu-buttons">
+              <button
+                className={`header-menu-btn ${activePanel === 'gear' ? 'active' : ''}`}
+                onClick={() => handlePanelChange(activePanel === 'gear' ? 'none' : 'gear')}
+              >
+                <span className="header-menu-btn-icon">⚙️</span>
+                <span className="header-menu-btn-label">Manuell</span>
+              </button>
+              <button
+                className={`header-menu-btn ${activePanel === 'program' ? 'active' : ''}`}
+                onClick={() => handlePanelChange(activePanel === 'program' ? 'none' : 'program')}
+              >
+                <span className="header-menu-btn-icon">▶️</span>
+                <span className="header-menu-btn-label">Prüfpläne</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* RECHTE SPALTE */}
         <div className="dashboard-header-right">
-          {/* Verbindungs-Button (3 Zustände) */}
-          <VerbindungsButton
-            status={verbindung.status}
-            onVerbinden={handleVerbinden}
-            onTrennen={handleTrennen}
-          />
-          
-          {/* Datum und Uhrzeit */}
-          <span className="dashboard-datetime">
-            {formatDate(datetime)} | {formatTime(datetime)}
-          </span>
-          
-          {/* Theme Toggle */}
-          <button 
-            className="theme-toggle" 
-            onClick={toggleTheme}
-            title={isDark ? 'Zum Light Mode wechseln' : 'Zum Dark Mode wechseln'}
-          >
-            {isDark ? '☀️' : '🌙'}
-          </button>
+          {/* Obere Zeile: Parameter (nur wenn verbunden) */}
+          {istVerbunden && (
+            <div className="header-params">
+              <div className="header-param">
+                <span className="header-param-label">Laufzeit</span>
+                <span className="header-param-value header-param-value--runtime">{laufzeit}</span>
+              </div>
+              <div className="header-param">
+                <span className="header-param-label">Öl-Temp</span>
+                <span className={`header-param-value header-param-value--temp header-param-value--${tempStatus}`}>
+                  {oilTemp.toFixed(0)}°C
+                </span>
+              </div>
+              <div className="header-param">
+                <span className="header-param-label">Gang</span>
+                <span className="header-param-value header-param-value--gear">{dsgState.activeGear}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Untere Zeile: Controls */}
+          <div className="header-controls">
+            <VerbindungsButton
+              status={verbindung.status}
+              onVerbinden={handleVerbinden}
+              onTrennen={handleTrennen}
+            />
+            <span className="dashboard-datetime">
+              {datetime ? `${formatDate(datetime)} | ${formatTime(datetime)}` : '--.--.---- | --:--:--'}
+            </span>
+            <button 
+              className="theme-toggle" 
+              onClick={toggleTheme}
+              title={isDark ? 'Zum Light Mode wechseln' : 'Zum Dark Mode wechseln'}
+            >
+              {isDark ? '☀️' : '🌙'}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -366,14 +423,6 @@ const DashboardContent: React.FC = () => {
       ) : (
         // VERBUNDEN: Normales Dashboard
         <>
-          {/* Parameter-Leiste mit Verbindungs-Laufzeit */}
-          <ParameterBar
-            runtimeFormatted={laufzeit}
-            oilTemperature={telemetrie?.l[0] ?? 0}
-            activeGear={dsgState.activeGear}
-            isConnected={istVerbunden}
-          />
-
           {/* Hauptbereich - Gauges nach Main_Doku.json */}
           <main className="dashboard-main">
             <section className="dashboard-gauges">

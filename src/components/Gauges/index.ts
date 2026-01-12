@@ -17,6 +17,7 @@ export { default as DrehzahlKGauge } from './DrehzahlKGauge';
 export { default as AuslastungGauge } from './AuslastungGauge';
 export { default as Gauge } from './Gauge';
 export { default as BremseBalken } from './BremseBalken';
+export { default as CompactBar } from './CompactBar';
 export * from './GaugeConfig';
 
 export type { GaugeProps, GaugeSize, GaugeStatus } from '../../types/dashboard.types';

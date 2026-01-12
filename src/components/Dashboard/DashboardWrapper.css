@@ -26,20 +26,23 @@
 }
 
 /* ============================================
-   HEADER - Industrial Control Panel Header
+   HEADER - Industrial Control Panel Header (2x2 Grid)
    ============================================ */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
+  align-items: stretch;
+  padding: 10px 20px;
   background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 50%, var(--metal-dark) 100%);
   border: 1px solid var(--glass-border);
-  border-radius: 6px 6px 0 0;
+  border-radius: 6px;
   box-shadow: var(--shadow-md),
               inset 0 1px 0 var(--metal-highlight);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
+  min-height: 70px;
+  max-height: 80px;
+  margin-bottom: 12px;
 }
 
 /* Durchgehender oberer Balken - Industrial Akzent */
@@ -49,7 +52,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(90deg, 
     var(--color-cyan) 0%, 
     var(--color-blue) 50%, 
@@ -57,35 +60,167 @@
   border-radius: 6px 6px 0 0;
 }
 
-/* Unterer Highlight für Tiefe */
-.dashboard-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    var(--glass-border) 20%, 
-    var(--glass-border) 80%, 
-    transparent 100%);
+/* Header Left Container */
+.dashboard-header-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
 }
 
 .dashboard-title {
   font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--text-primary);
-  margin-left: 8px;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.dashboard-header-right {
+/* ============================================
+   HEADER MENU BUTTONS - Industrial Compact Style
+   ============================================ */
+.header-menu-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.header-menu-btn {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 4px;
+  padding: 4px 10px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm),
+              inset 0 1px 0 var(--metal-highlight);
+}
+
+.header-menu-btn:hover {
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-light) 100%);
+  border-color: var(--text-dim);
+}
+
+.header-menu-btn:active {
+  box-shadow: var(--shadow-inset);
+  transform: translateY(1px);
+}
+
+.header-menu-btn.active {
+  background: linear-gradient(180deg, var(--color-blue) 0%, #006699 100%);
+  border-color: var(--color-blue);
+  box-shadow: 0 0 8px var(--glow-blue),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.header-menu-btn-icon {
+  font-size: 10px;
+}
+
+.header-menu-btn-label {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.header-menu-btn.active .header-menu-btn-label {
+  color: white;
+}
+
+/* Header Right Container - Zwei Zeilen */
+.dashboard-header-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+/* Header Parameter Row (oben rechts) */
+.header-params {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-param {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-param-label {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.header-param-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lcd-text);
+  text-shadow: 0 0 4px var(--lcd-text);
+  padding: 2px 6px;
+  background: var(--lcd-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 2px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.header-param-value--runtime {
+  color: var(--color-cyan);
+  text-shadow: 0 0 4px var(--glow-cyan);
+  min-width: 60px;
+}
+
+.header-param-value--temp.header-param-value--cold {
+  color: var(--color-blue);
+  text-shadow: 0 0 4px var(--glow-blue);
+}
+
+.header-param-value--temp.header-param-value--normal {
+  color: var(--color-green);
+  text-shadow: 0 0 4px var(--glow-green);
+}
+
+.header-param-value--temp.header-param-value--warning {
+  color: var(--color-orange);
+  text-shadow: 0 0 4px var(--glow-orange);
+}
+
+.header-param-value--temp.header-param-value--danger {
+  color: var(--color-red);
+  text-shadow: 0 0 4px var(--glow-red);
+  animation: tempDanger 0.5s ease infinite;
+}
+
+.header-param-value--gear {
+  color: var(--color-purple);
+  text-shadow: 0 0 6px var(--glow-purple);
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 28px;
+}
+
+/* Header Controls Row (unten rechts) */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* Verbindungsstatus */
@@ -132,29 +267,29 @@
 /* Datum/Uhrzeit */
 .dashboard-datetime {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--lcd-text);
-  padding: 4px 10px;
+  padding: 3px 8px;
   background: var(--lcd-bg);
   border: 1px solid var(--metal-dark);
   border-radius: 2px;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 /* Theme Toggle Button */
 .theme-toggle {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
   border: 1px solid var(--glass-border);
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
   transition: all 0.15s;
-  font-size: 16px;
+  font-size: 14px;
   box-shadow: var(--shadow-sm);
 }
 
@@ -406,43 +541,55 @@
    RESPONSIVE
    ============================================ */
 @media (max-width: 900px) {
-  .dashboard-header-right {
-    gap: 10px;
+  .header-params {
+    gap: 8px;
   }
   
-  .parameter-bar {
-    gap: 16px;
-    padding: 8px 12px;
-  }
-  
-  .parameter-label {
+  .header-param-label {
     display: none;
+  }
+  
+  .header-controls {
+    gap: 6px;
   }
 }
 
 @media (max-width: 600px) {
   .dashboard-header {
     flex-direction: column;
-    gap: 12px;
-    text-align: center;
+    gap: 8px;
+    max-height: none;
+    min-height: auto;
+    padding: 10px 16px;
+  }
+  
+  .dashboard-header-left {
+    align-items: center;
   }
   
   .dashboard-header-right {
-    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .header-params {
     justify-content: center;
   }
   
-  .dashboard-title {
-    font-size: 14px;
-    letter-spacing: 2px;
-  }
-  
-  .parameter-bar {
+  .header-controls {
+    justify-content: center;
     flex-wrap: wrap;
-    gap: 12px;
   }
   
-  .parameter-divider {
-    display: none;
+  .dashboard-title {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+  
+  .header-menu-btn {
+    padding: 4px 8px;
+  }
+  
+  .header-menu-btn-label {
+    font-size: 8px;
   }
 }

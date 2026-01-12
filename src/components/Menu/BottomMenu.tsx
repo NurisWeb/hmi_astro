@@ -4,7 +4,7 @@
 // ============================================
 
 import React from 'react';
-import type { MenuPanel, MenuItem, MockDataMode, DSGState } from '../../types/dashboard.types';
+import type { MenuPanel, MockDataMode, DSGState } from '../../types/dashboard.types';
 import { StatusBar } from '../StatusLog';
 import type { StatusTyp } from '../StatusLog';
 import GearSelectionPanel from './GearSelectionPanel';
@@ -43,11 +43,6 @@ interface BottomMenuProps {
   setzeStatus?: (nachricht: string, typ?: StatusTyp) => void;
 }
 
-const menuItems: MenuItem[] = [
-  { id: 'gear', label: 'Manuell', icon: '⚙️', subtitle: 'Manuelle Steuerung' },
-  { id: 'program', label: 'Prüfpläne', icon: '▶️', subtitle: 'Prüfpläne' },
-];
-
 const BottomMenu: React.FC<BottomMenuProps> = ({
   activePanel,
   onPanelChange,
@@ -69,14 +64,6 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
   statusLog,
   setzeStatus,
 }) => {
-  const handlePanelToggle = (panel: MenuPanel) => {
-    if (activePanel === panel) {
-      onPanelChange('none');
-    } else {
-      onPanelChange(panel);
-    }
-  };
-
   const getPanelTitle = () => {
     switch (activePanel) {
       case 'gear': return '◀ Manuelle Gangauswahl vom SIM-Gang DSG';
@@ -181,21 +168,6 @@ const BottomMenu: React.FC<BottomMenuProps> = ({
             </div>
           </>
         )}
-      </div>
-
-      <div className="bottom-menu-bar py-1">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            className={`menu-btn ${activePanel === item.id ? 'active' : ''}`}
-            onClick={() => handlePanelToggle(item.id)}
-          >
-            <span className="menu-btn-icon">{item.icon}</span>
-            <span className="menu-btn-label">{item.label}</span>
-          </button>
-        ))}
-        
-      
       </div>
     </div>
   );

@@ -411,13 +411,13 @@ const GearSelectionPanel: React.FC<GearSelectionPanelProps> = ({
         disabled={!gaengeFreigegeben}
       />
       
-      {/* Hinweis-Texte */}
+      {/* Hinweis-Texte 
       {!gaengeFreigegebenVomBackend && !istGesperrt && initialisiert && (
         <div className="manuell-hinweis warnung">
           ⚠️ Drehzahl auf mindestens 300 U/min erhöhen um Gänge freizuschalten
         </div>
       )}
-      
+      */}
       {istGesperrt && (
         <div className="manuell-hinweis info">
           ⏳ Befehl wird ausgeführt, bitte warten...

@@ -325,3 +325,95 @@
     gap: 8px;
   }
 }
+
+/* ============================================
+   HEIGHT-COMPACT MODE
+   Für kleine Laptops mit Höhe < 900px
+   Motor links, 3 Spalten mit Balken untereinander
+   KEIN SCROLLEN - Alles auf einen Blick!
+   ============================================ */
+
+.gauge-grid--height-compact {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: linear-gradient(180deg, var(--metal-mid) 0%, var(--metal-dark) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  box-shadow: var(--shadow-md);
+  /* Kein Overflow! Alles sichtbar */
+  overflow: visible;
+}
+
+/* Motor-Gauge im Height-Compact Mode (links) */
+.gauge-compact-motor {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 16px;
+  border-right: 1px solid var(--glass-border);
+}
+
+/* Spalten für Balken (untereinander) */
+.gauge-compact-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  max-width: 140px;
+}
+
+/* ============================================
+   RESPONSIVE - Kleine Bildschirmhöhe
+   ============================================ */
+@media (max-height: 900px) {
+  .gauge-grid.expanded {
+    padding: 8px 12px;
+    gap: 12px;
+  }
+  
+  .gauge-section {
+    gap: 6px;
+  }
+  
+  .gauge-row {
+    gap: 8px;
+  }
+  
+  .gauge-bremsen-row {
+    padding: 4px 8px;
+    gap: 8px;
+  }
+}
+
+@media (max-height: 700px) {
+  .gauge-grid--height-compact {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  
+  .gauge-compact-motor {
+    padding-right: 10px;
+  }
+  
+  .gauge-compact-column {
+    gap: 4px;
+    max-width: 120px;
+  }
+}
+
+@media (max-height: 600px) {
+  .gauge-grid--height-compact {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  
+  .gauge-compact-column {
+    gap: 3px;
+    max-width: 110px;
+  }
+}

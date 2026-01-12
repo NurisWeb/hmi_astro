@@ -1,0 +1,143 @@
+/* ============================================
+   CompactBar - Generische Balken-Anzeige
+   Für kleine Bildschirmhöhen
+   ============================================ */
+
+.compact-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: linear-gradient(180deg, var(--metal-light) 0%, var(--metal-mid) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  padding: 5px 8px;
+  min-width: 80px;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.compact-bar:hover {
+  border-color: var(--text-dim);
+}
+
+/* Header: Label + Wert */
+.compact-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.compact-bar-label {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60px;
+}
+
+.compact-bar-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  text-shadow: 0 0 6px currentColor;
+}
+
+.compact-bar-value--warning {
+  animation: pulseWarning 1.5s ease-in-out infinite;
+}
+
+.compact-bar-value--danger {
+  animation: pulseDanger 0.8s ease-in-out infinite;
+}
+
+@keyframes pulseWarning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+@keyframes pulseDanger {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.compact-bar-unit {
+  font-size: 8px;
+  font-weight: 500;
+  color: var(--text-dim);
+  opacity: 0.8;
+}
+
+/* Bar Track */
+.compact-bar-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: var(--metal-dark);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Bar Fill */
+.compact-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 1px;
+  transition: width 0.2s ease-out;
+}
+
+.compact-bar-fill--warning {
+  box-shadow: 0 0 6px var(--glow-orange);
+}
+
+.compact-bar-fill--danger {
+  box-shadow: 0 0 8px var(--glow-red);
+}
+
+/* Schwellwert-Markierungen */
+.compact-bar-threshold {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 152, 0, 0.5);
+}
+
+.compact-bar-threshold--danger {
+  background: rgba(244, 67, 54, 0.6);
+}
+
+/* ============================================
+   VARIANTEN FÜR SPEZIFISCHE TYPEN
+   ============================================ */
+
+/* Öldruck */
+.compact-bar[data-type="pressure"] .compact-bar-value {
+  color: var(--color-cyan);
+}
+
+/* Temperatur */
+.compact-bar[data-type="temp"] .compact-bar-value {
+  color: var(--color-green);
+}
+
+/* Drehzahl */
+.compact-bar[data-type="rpm"] .compact-bar-value {
+  color: var(--color-blue);
+}
+
+/* Auslastung */
+.compact-bar[data-type="load"] .compact-bar-value {
+  color: var(--color-purple);
+}

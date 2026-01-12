@@ -16,17 +16,23 @@ interface UseThemeReturn {
 const THEME_STORAGE_KEY = 'pruefstand-theme';
 
 export function useTheme(): UseThemeReturn {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-      if (stored === 'light' || stored === 'dark') {
-        return stored;
-      }
-    }
-    return 'light';
-  });
+  // Initialer Wert immer 'light' für SSR-Kompatibilität
+  const [theme, setThemeState] = useState<Theme>('light');
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  // Nach Hydration: Theme aus localStorage laden
   useEffect(() => {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
+    if (stored === 'light' || stored === 'dark') {
+      setThemeState(stored);
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Theme auf DOM anwenden (nur nach Hydration)
+  useEffect(() => {
+    if (!isHydrated) return;
+    
     const root = document.documentElement;
     
     if (theme === 'dark') {
@@ -36,7 +42,7 @@ export function useTheme(): UseThemeReturn {
     }
     
     localStorage.setItem(THEME_STORAGE_KEY, theme);
-  }, [theme]);
+  }, [theme, isHydrated]);
 
   const toggleTheme = useCallback(() => {
     setThemeState(prev => prev === 'light' ? 'dark' : 'light');
