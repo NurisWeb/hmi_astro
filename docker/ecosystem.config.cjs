@@ -22,23 +22,6 @@ module.exports = {
       time: true,
     },
     {
-      name: 'backend-server',
-      script: './server/index.ts',
-      interpreter: 'node',
-      interpreter_args: '--import tsx',
-      instances: 1,
-      exec_mode: 'fork',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 3001,
-      },
-      max_memory_restart: '300M',
-      error_file: '/var/log/pm2/backend-error.log',
-      out_file: '/var/log/pm2/backend-out.log',
-      merge_logs: true,
-      time: true,
-    },
-    {
       name: 'nginx',
       script: 'nginx',
       args: '-g "daemon off;"',
@@ -50,8 +33,3 @@ module.exports = {
     },
   ],
 };
-
-
-
-
-

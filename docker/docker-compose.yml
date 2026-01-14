@@ -2,8 +2,6 @@
 # Prüfstand Dashboard - Docker Compose
 # ============================================
 
-version: '3.8'
-
 services:
   pruefstand-dashboard:
     build:

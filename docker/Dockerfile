@@ -9,11 +9,9 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY server/package*.json ./server/
 
 # Install dependencies
 RUN npm ci
-RUN cd server && npm ci 2>/dev/null || true
 
 # Copy source code
 COPY . .
@@ -34,11 +32,10 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/server ./server
 
 # Copy config files
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/ecosystem.config.js ./ecosystem.config.js
+COPY docker/ecosystem.config.cjs ./ecosystem.config.cjs
 
 # Create nginx directories
 RUN mkdir -p /run/nginx
@@ -47,7 +44,7 @@ RUN mkdir -p /run/nginx
 EXPOSE 80
 
 # Start with PM2
-CMD ["pm2-runtime", "ecosystem.config.js"]
+CMD ["pm2-runtime", "ecosystem.config.cjs"]
 
 
 

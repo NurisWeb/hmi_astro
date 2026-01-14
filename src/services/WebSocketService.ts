@@ -28,7 +28,7 @@ class WebSocketService implements IWebSocketService {
   // Event-Listener Map
   private listeners: Map<WebSocketEventType, Set<WebSocketEventCallback>> = new Map();
 
-  constructor() {
+  constructor() {  
     // Initialisiere Event-Listener Maps
     const eventTypes: WebSocketEventType[] = [
       'open', 'close', 'error', 'message', 'data', 'status', 'reconnect'
@@ -49,7 +49,10 @@ class WebSocketService implements IWebSocketService {
     }
 
     // Bereits verbunden?
-    if (this.socket?.readyState === WebSocket.OPEN) {
+    if  (this.socket && (
+      this.socket.readyState === WebSocket.OPEN ||
+      this.socket.readyState === WebSocket.CONNECTING
+    )) {
       console.warn('[WebSocketService] Bereits verbunden');
       return;
     }

@@ -1,142 +1,99 @@
 // ============================================
-// Prüfplan Service - EXAKT nach Main_Doku.json
+// Prüfplan Service - API-Integration
 // ============================================
 
-import type { Pruefplan, Pruefschritt, PruefschrittStatus } from '../types/menu.types';
+import type {
+  Pruefplan,
+  Pruefschritt,
+  PruefschrittStatus,
+} from '../types/menu.types';
+import {
+  fetchPruefplaene,
+  type ApiPruefplan,
+} from './api';
 
-// ============================================
-// Prüfpläne EXAKT aus Main_Doku.json
-// ============================================
-
-const pruefplaeneAusMainDoku: Pruefplan[] = [
-  {
-    id: 0,
-    name: 'Funktionstest lastfrei',
-    schritte: [
-      {
-        id: 0,
-        nummer: 1,
-        bezeichnung: 'Elektrische Prüfung SAP/CCP',
-        endpointUrl: '/api/cmd/seqcheckelectric',
-        condition: null,
-        status: 'wartend',
-      },
-      {
-        id: 1,
-        nummer: 2,
-        bezeichnung: 'Sensordaten Validierung',
-        endpointUrl: '/api/cmd/seqchecksensordata',
-        condition: null,
-        status: 'wartend',
-      },
-      {
-        id: 2,
-        nummer: 3,
-        bezeichnung: 'Prüfung der Schaltung',
-        endpointUrl: '/api/cmd/seqshifttest',
-        condition: null,
-        status: 'wartend',
-      },
-      {
-        id: 3,
-        nummer: 4,
-        bezeichnung: 'Prüfung der Kupplungen',
-        endpointUrl: '/api/cmd/sequenzSafe',
-        condition: null,
-        status: 'wartend',
-      },
-      {
-        id: 4,
-        nummer: 5,
-        bezeichnung: 'Beschleunigungstest',
-        endpointUrl: '/api/cmd/sequenzacctesthigh',
-        condition: null,
-        status: 'wartend',
-      },
-      {
-        id: 5,
-        nummer: 6,
-        bezeichnung: 'Dichtheitsprüfung',
-        endpointUrl: '/api/cmd/seqsealtest',
-        condition: "Prüfen Sie das Getriebe auf sichtbare Undichtigkeiten und bestätigen Sie mit 'Weiter', falls keine Undichtigkeit vorliegt.",
-        status: 'wartend',
-      },
-    ],
-  },
-  {
-    id: 1,
-    name: 'Lasttest mit Lastverteilung',
-    schritte: [
-      {
-        id: 0,
-        nummer: 1,
-        bezeichnung: 'Beschleunigungstest inkl. Schaltverhalten',
-        endpointUrl: '/api/cmd/seqaccshiftfast',
-        condition: null,
-        status: 'wartend',
-      },
-      {
-        id: 1,
-        nummer: 2,
-        bezeichnung: 'Dichtheitsprüfung',
-        endpointUrl: '/api/cmd/seqsealtest',
-        condition: "Prüfen Sie die Bohrung A auf Undichtigkeit. Bestätigen Sie mit 'Weiter', falls keine Undichtigkeit vorliegt, ansonsten 'Abbruch'.",
-        status: 'wartend',
-      },
-    ],
-  },
-];
-
-// ============================================
-// Prüfplan Service Klasse
-// ============================================
+// API-Format → Internes Format transformieren
+const transformApiToInternal = (apiPlan: ApiPruefplan): Pruefplan => ({
+  id: apiPlan.id,
+  name: apiPlan.name,
+  schritte: apiPlan.steps.map((step, index): Pruefschritt => ({
+    id: step.id,
+    nummer: index + 1,
+    bezeichnung: step.name,
+    endpointUrl: step.endpointUrl,
+    condition: step.condition,
+    status: 'wartend',
+  })),
+});
 
 class PruefplanService {
-  private pruefplaene: Pruefplan[] = this.deepClone(pruefplaeneAusMainDoku);
+  private pruefplaene: Pruefplan[] = [];
+  private loaded: boolean = false;
+  private loading: Promise<void> | null = null;
 
-  // Alle Prüfpläne abrufen
+  // Prüfpläne von API laden
+  async loadPruefplaene(): Promise<void> {
+    if (this.loaded) return;
+    if (this.loading) return this.loading;
+
+    this.loading = (async () => {
+      try {
+        const response = await fetchPruefplaene();
+        
+        if (response.ok && response.data?.plans) {
+          this.pruefplaene = response.data.plans.map(transformApiToInternal);
+          this.loaded = true;
+          console.log('[PruefplanService] Prüfpläne geladen:', this.pruefplaene.length);
+        } else {
+          console.error('[PruefplanService] API-Fehler:', response);
+        }
+      } catch (error) {
+        console.error('[PruefplanService] Fehler beim Laden:', error);
+      }
+    })();
+
+    return this.loading;
+  }
+
   getPruefplaene(): Pruefplan[] {
     return this.pruefplaene;
   }
 
-  // Einzelnen Prüfplan abrufen
   getPruefplan(id: number): Pruefplan | undefined {
-    return this.pruefplaene.find(p => p.id === id);
+    return this.pruefplaene.find((p) => p.id === id);
   }
 
-  // Schritt-Status aktualisieren
+  isLoaded(): boolean {
+    return this.loaded;
+  }
+
   updateSchrittStatus(
-    pruefplanId: number, 
-    schrittId: number, 
+    pruefplanId: number,
+    schrittId: number,
     status: PruefschrittStatus
   ): void {
-    const plan = this.pruefplaene.find(p => p.id === pruefplanId);
+    const plan = this.pruefplaene.find((p) => p.id === pruefplanId);
     if (plan) {
-      const schritt = plan.schritte.find(s => s.id === schrittId);
+      const schritt = plan.schritte.find((s) => s.id === schrittId);
       if (schritt) {
         schritt.status = status;
       }
     }
   }
 
-  // Alle Schritte eines Plans zurücksetzen
   resetPruefplan(pruefplanId: number): void {
-    const plan = this.pruefplaene.find(p => p.id === pruefplanId);
+    const plan = this.pruefplaene.find((p) => p.id === pruefplanId);
     if (plan) {
-      plan.schritte.forEach(s => {
+      plan.schritte.forEach((s) => {
         s.status = 'wartend';
       });
     }
   }
 
-  // Alle Prüfpläne zurücksetzen
-  resetAll(): void {
-    this.pruefplaene = this.deepClone(pruefplaeneAusMainDoku);
-  }
-
-  // Deep Clone Helper
-  private deepClone<T>(obj: T): T {
-    return JSON.parse(JSON.stringify(obj));
+  async reload(): Promise<void> {
+    this.loaded = false;
+    this.loading = null;
+    await this.loadPruefplaene();
   }
 }
 

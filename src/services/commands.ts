@@ -74,41 +74,22 @@ export const executeStep = async (endpointUrl: string): Promise<{
 
 // === CMD/X MIT 15 MINUTEN TIMEOUT ===
 
-const TIMEOUT_15_MIN = 15 * 60 * 1000; // 15 Minuten
-
+// commands.ts - VEREINFACHT
 export const cmdXMitTimeout = async (): Promise<{
   ok: boolean;
   result: 'iO' | 'niO' | null;
   timedOut: boolean;
 }> => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_15_MIN);
+  const response = await api('/api/cmd/x', 'POST');
   
-  try {
-    const response = await fetch('/api/cmd/x', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      return { ok: false, result: null, timedOut: false };
-    }
-    
-    const data = await response.json();
-    return { 
-      ok: true, 
-      result: data.status === 'iO' ? 'iO' : 'niO',
-      timedOut: false,
-    };
-  } catch (err) {
-    clearTimeout(timeoutId);
-    
-    if (err instanceof Error && err.name === 'AbortError') {
-      return { ok: false, result: null, timedOut: true };
-    }
-    
-    return { ok: false, result: null, timedOut: false };
+  // Timeout-Check: api.ts gibt status 408 bei Timeout zurück
+  if (response.status === 408) {
+    return { ok: false, result: null, timedOut: true };
   }
+  
+  return { 
+    ok: response.ok, 
+    result: response.data?.status === 'iO' ? 'iO' : 'niO',
+    timedOut: false,
+  };
 };

@@ -48,8 +48,9 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
   // Abbruch-Flag
   const abbruchRef = useRef<boolean>(false);
 
-  // Prüfpläne aus Service laden
-  const pruefplaene = pruefplanService.getPruefplaene();
+  // Prüfpläne State
+  const [pruefplaene, setPruefplaene] = useState<Pruefplan[]>([]);
+  const [ladeStatus, setLadeStatus] = useState<'laden' | 'fertig' | 'fehler'>('laden');
 
   // ============================================
   // Status-Hilfsfunktion
@@ -59,6 +60,21 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
       setzeStatus(nachricht, typ);
     }
   }, [setzeStatus]);
+
+  // Prüfpläne von API laden
+  useEffect(() => {
+    const ladePruefplaene = async () => {
+      try {
+        await pruefplanService.loadPruefplaene();
+        setPruefplaene(pruefplanService.getPruefplaene());
+        setLadeStatus('fertig');
+      } catch (error) {
+        console.error('Fehler beim Laden der Prüfpläne:', error);
+        setLadeStatus('fehler');
+      }
+    };
+    ladePruefplaene();
+  }, []);
 
   // Initial-Status setzen
   useEffect(() => {
@@ -255,6 +271,24 @@ const PruefplaenePanel: React.FC<PruefplaenePanelProps> = ({ setzeStatus }) => {
   // ============================================
   // Render
   // ============================================
+  
+  // Lade-Status anzeigen
+  if (ladeStatus === 'laden') {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <span className="text-gray-400">Prüfpläne werden geladen...</span>
+      </div>
+    );
+  }
+
+  if (ladeStatus === 'fehler') {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <span className="text-red-400">Fehler beim Laden der Prüfpläne</span>
+      </div>
+    );
+  }
+
   if (ansicht === 'aktiv' && ausgewaehlterPlan) {
     return (
       <>

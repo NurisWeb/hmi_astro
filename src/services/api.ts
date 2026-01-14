@@ -4,8 +4,8 @@
 import { mockApi, type MockApiResponse } from './mockBackend';
 
 // === KONFIGURATION ===
-const USE_MOCK = true;  // true = Mock-Backend, false = echtes Backend
-const API_BASE = 'http://localhost:8080';
+const USE_MOCK = false;  // true = Mock-Backend, false = echtes Backend
+const API_BASE = 'http://192.168.4.1';
 const TIMEOUT_MS = 15 * 60 * 1000; // 15 Minuten Timeout
 
 // === API Response Type ===
@@ -13,6 +13,28 @@ export interface ApiResponse<T = any> {
   ok: boolean;
   status: number;
   data: T;
+}
+
+// === API Response Types ===
+// Prüfplan-Step aus der API (Main_Doku.json Format)
+export interface ApiPruefplanStep {
+  id: number;
+  name: string;
+  endpointUrl: string;
+  condition: string | null;
+}
+
+// Prüfplan aus der API (Main_Doku.json Format)
+export interface ApiPruefplan {
+  id: number;
+  name: string;
+  steps: ApiPruefplanStep[];
+}
+
+// API Response für /api/pruefplaene
+export interface ApiPruefplaeneResponse {
+  t: 'plans';
+  plans: ApiPruefplan[];
 }
 
 // === Haupt-API Funktion ===
@@ -88,7 +110,7 @@ export const fetchTelemetry = () =>
   apiGet('/api/stream/telemetry');
 
 export const fetchPruefplaene = () => 
-  apiGet('/api/pruefplaene');
+  apiGet<ApiPruefplaeneResponse>('/api/pruefplaene');
 
 export const doHandshake = () => 
   apiGet('/api/handshake');
