@@ -33,7 +33,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Copy config files
+# Copy config files (Build Context ist Projekt-Root, daher docker/ Präfix!)
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 COPY docker/ecosystem.config.cjs ./ecosystem.config.cjs
 

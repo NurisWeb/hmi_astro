@@ -4,12 +4,10 @@
 
 services:
   pruefstand-dashboard:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    image: hmi-astro:latest
     container_name: pruefstand-dashboard
     ports:
-      - "80:80"
+      - "8080:80"
     environment:
       - NODE_ENV=production
     volumes:
@@ -19,7 +17,7 @@ services:
       - pm2-logs:/var/log/pm2
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
